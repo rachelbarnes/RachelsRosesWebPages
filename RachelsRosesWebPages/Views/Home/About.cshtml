@@ -1,7 +1,32 @@
-﻿@{
-    ViewBag.Title = "About";
+﻿
+@{
+    ViewBag.Title = "Create Recipe";
 }
-<h2>@ViewBag.Title.</h2>
-<h3>@ViewBag.Message</h3>
 
-<p>Use this area to provide additional information.</p>
+<form action="/home/createingredient" method="post">
+    <input name="ingredient" />
+    <input name="quantity" />
+    @*this name right here, the "measurement" name, this works the way it should because 
+        of the parameter names in CreateIngredient in the Controller*@
+        
+    <input type="submit" value="create new ingredient" />
+</form>
+
+<ul>
+    @foreach (var item in ViewBag.ingredients) {
+        <li>
+            @item.Value @item.Key
+            <a href="/home/delete?item=@item.Key">Delete</a>
+        </li>
+    }
+</ul>
+
+@*Note to self on organizational tactics that are essential to syntax: 
+    The names in the input and othe rareas in the html are very essential... they need to match the names given in parameters in the Controller for what I'm finding out
+
+    So, for example, before I had measurements where I had quantity on line 8 and in my CreateIngredient action method in my controller I have 2 parameters, one of ingredient and one of measurement,
+         and i could not get the dictionary value to be displayed. When i renamed the parameters in my CreateIngredient action method to ingredient, quantity, I was able to see the dictionary values just fine
+    
+    for the href on line 19, be careful of making sure things are spelled correctly. I had <a href="/home/delete?tem=@item.Key">Delete</a> (notice the
+        mispelling of item directly after the ?), and I kept getting a null reference because there was no value to tem, which made it null, and i couldn't delete it from the dictionary
+    *@
