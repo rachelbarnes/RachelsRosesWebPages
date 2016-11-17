@@ -1,0 +1,18 @@
+﻿
+@{
+    ViewBag.Title = "Create Recipe";
+}
+
+<form action="/home/createrecipe" method="post">
+    <input name="recipeTitle" />
+    <input type="submit" value="create new recipe" />
+</form>
+
+<ul>
+    @foreach (var recipe in ViewBag.recipes) {
+        <li>
+            <a href="/home/recipe?name=@recipe.name">@recipe.name</a>
+            <a href="/home/deleterecipe?recipeTitle=@recipe.name">Delete Recipe</a>
+        </li>
+    }
+</ul>
