@@ -4,13 +4,22 @@
 }
 
 <a href="/home/recipes">Go back to Recipes</a>
+<br />
 
+<h3>@ViewBag.recipename</h3>
+<a href="/home/editrecipetitle?oldRecipeTitle=@ViewBag.recipename&newRecipeTitle=@ViewBag.newRecipeTitle">Edit Recipe Title</a>
+<form action="/home/editrecipetitle" method="post">
+    <input name="newRecipeTitle" />
+    <input type="submit" value="Edit Recipe Title" />
+</form>
+<br />
 <form action="/home/createingredient" method="post">
     <input name="ingredient" />
     <input name="measurement" /> 
     <input type="submit" value="create new ingredient" />
 </form>
-
+<h4>@ViewBag.ErrorMessage</h4>
+<br />
 <ul>
     @foreach (var ingredient in ViewBag.ingredients) {
         <li>

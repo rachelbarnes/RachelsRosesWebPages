@@ -36,10 +36,10 @@ namespace RachelsRosesWebPages.Controllers {
             return View();
         }
         public ActionResult Recipe(string name) {
+            name = name.Trim();
             currentRecipe = recipes.First(x => x.name == name);
             ViewBag.ingredients = currentRecipe.ingredients;
-                //view looks up the view for that action method, it's looking up View called Recipe
-                //View looks at everything in the ViewBag and renders that
+            ViewBag.recipename = currentRecipe.name;
             return View();
         }
         public ActionResult DeleteIngredient(string ingredient) {
@@ -47,26 +47,51 @@ namespace RachelsRosesWebPages.Controllers {
             return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
         public ActionResult CreateIngredient(string ingredient, string measurement) {
+            ingredient = ingredient.Trim();
+            measurement = measurement.Trim();
             Ingredient newingredient = new Ingredient(ingredient, measurement);
             currentRecipe.ingredients.Add(newingredient);
             return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
         public ActionResult CreateRecipe(string recipeTitle) {
+            recipeTitle = recipeTitle.Trim();
+            if (string.IsNullOrEmpty(recipeTitle)) {
+                ViewBag.ErrorMessage = "Please enter a recipe title.";
+            }
             Recipe newrecipe = new Recipe(recipeTitle);
             recipes.Add(newrecipe);
             return Redirect("/home/recipes");
-                //the client/browser requests CreateRecipe, and CreateRecipe replies with go to "/home/recipes"
-                    //browser automatically goes to "/home/recipes" and displays the recipes
         }
         public ActionResult DeleteRecipe(string recipeTitle) {
             recipes = recipes.Where(x => x.name != recipeTitle).ToList();
             return Redirect("/home/recipes");
         }
+        public ActionResult EditRecipeTitle(string oldRecipeTitle, string newRecipeTitle) {
+            currentRecipe.name = oldRecipeTitle;
+            currentRecipe.name = newRecipeTitle;
+            ViewBag.newRecipeTitle = newRecipeTitle; 
+            return Redirect("/home/recipe?name=" + newRecipeTitle);
+            //note to self, this didn't work the first time I did it, I obviously did something wrong. As always, start simple, evaluate
+                //any problems, then proceed from there... don't immediately try another solution before figuring out what the problem is/was. 
+        }
     }
 }
 
-//cannot create an ingredient or recipe names that has space after or before (trim ingredient names)
-//cannot create an ingredient with null name
-//cannot create an ingredient/recipe with duplicate name
-//when you create a recipe/ingredient with duplicate name, display an error message on recipe and recipes that say there's a dupcliate name
-    //use ViewBag.errorMessage = "Duplicate name error" or something
+//view looks up the view for that action method, it's looking up View called Recipe
+//View looks at everything in the ViewBag and renders that
+//the client/browser requests CreateRecipe, and CreateRecipe replies with go to "/home/recipes"
+//browser automatically goes to "/home/recipes" and displays the recipes
+
+
+/*
+DONE: 
+cannot create an ingredient or recipe names that has space after or before (trim ingredient names)
+
+NOT DONE YET: 
+cannot create an ingredient with null name
+cannot create an ingredient/recipe with duplicate name
+when you create a recipe/ingredient with duplicate name, display an error message on recipe and recipes that say there's a dupcliate name
+use ViewBag.errorMessage = "Duplicate name error" or something
+
+ 
+*/
