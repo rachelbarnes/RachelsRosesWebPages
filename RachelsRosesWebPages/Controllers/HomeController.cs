@@ -21,12 +21,13 @@ namespace RachelsRosesWebPages.Controllers {
         public Recipe(string _name) {
             name = _name;
             ingredients = new List<Ingredient>();
-            //since we always start with an empty list, creating an empty list inthe constructor is the easiest way to go for now
         }
     }
     public class HomeController : Controller {
         public static List<Recipe> recipes = new List<Recipe>();
         public static Recipe currentRecipe = null;
+        public Dictionary<string, string> oldAndNewIngredientNames = null;
+        public Dictionary<string, string> oldAndNewIngredientMeasurements = null;
 
         public ActionResult Index() {
             return View();
@@ -36,10 +37,24 @@ namespace RachelsRosesWebPages.Controllers {
             return View();
         }
         public ActionResult Recipe(string name) {
+            if (string.IsNullOrEmpty(name))
+                return Redirect("/home/recipes");
+
             name = name.Trim();
             currentRecipe = recipes.First(x => x.name == name);
             ViewBag.ingredients = currentRecipe.ingredients;
             ViewBag.recipename = currentRecipe.name;
+            foreach (var ingredient in currentRecipe.ingredients) {
+                if (string.IsNullOrEmpty(ingredient.name)) {
+                    ViewBag.ErrorMessage = "Please enter an ingredient name and measurement.";
+                }
+            }
+            if (oldAndNewIngredientMeasurements != null && oldAndNewIngredientNames != null) {
+                ViewBag.oldName = oldAndNewIngredientNames.Keys;
+                ViewBag.newName = oldAndNewIngredientNames.Values;
+                ViewBag.oldMeasurement = oldAndNewIngredientMeasurements.Keys;
+                ViewBag.newMeasurement = oldAndNewIngredientMeasurements.Values;
+            }
             return View();
         }
         public ActionResult DeleteIngredient(string ingredient) {
@@ -49,6 +64,10 @@ namespace RachelsRosesWebPages.Controllers {
         public ActionResult CreateIngredient(string ingredient, string measurement) {
             ingredient = ingredient.Trim();
             measurement = measurement.Trim();
+            if (string.IsNullOrEmpty(ingredient) || string.IsNullOrEmpty(measurement)) {
+                ViewBag.ErrorMessage = "Please enter both an ingredient and a measurement";
+            } else { ViewBag.ErrorMessage = null; }
+
             Ingredient newingredient = new Ingredient(ingredient, measurement);
             currentRecipe.ingredients.Add(newingredient);
             return Redirect("/home/recipe?name=" + currentRecipe.name);
@@ -69,10 +88,31 @@ namespace RachelsRosesWebPages.Controllers {
         public ActionResult EditRecipeTitle(string oldRecipeTitle, string newRecipeTitle) {
             currentRecipe.name = oldRecipeTitle;
             currentRecipe.name = newRecipeTitle;
-            ViewBag.newRecipeTitle = newRecipeTitle; 
+            ViewBag.newRecipeTitle = newRecipeTitle;
             return Redirect("/home/recipe?name=" + newRecipeTitle);
-            //note to self, this didn't work the first time I did it, I obviously did something wrong. As always, start simple, evaluate
-                //any problems, then proceed from there... don't immediately try another solution before figuring out what the problem is/was. 
+        }
+        public ActionResult EditIngredientName(string oldName, string newName) {
+            //oldName here is empty
+            foreach (var ing in currentRecipe.ingredients) {
+                if (ing.name == oldName)
+                    ing.name = newName;
+            }
+            var currentIngredient = new Ingredient(oldName, null);
+            var updatedIngredient = new Ingredient(newName, null);
+            oldAndNewIngredientNames.Add(oldName, newName);
+            //still trying to decide which method would be the best way to do this, i like it with the Ingredient objects,
+            //but I have to be able to access them outside of this method and I want to think through the design before I 
+            //assign them to class as opposed to this method
+            return Redirect("/home/recipe?name=" + currentRecipe.name);
+        }
+        public ActionResult EditIngredientMeasurement(string name, string oldMeasurement, string newMeasurement) {
+            foreach (var ing in currentRecipe.ingredients) {
+                if (ing.name == name && ing.measurement == oldMeasurement) {
+                    ing.measurement = newMeasurement;
+                }
+            }
+            oldAndNewIngredientMeasurements.Add(oldMeasurement, newMeasurement);
+            return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
     }
 }
@@ -86,8 +126,11 @@ namespace RachelsRosesWebPages.Controllers {
 /*
 DONE: 
 cannot create an ingredient or recipe names that has space after or before (trim ingredient names)
+edit a recipe name
+
 
 NOT DONE YET: 
+edit an ingredient name
 cannot create an ingredient with null name
 cannot create an ingredient/recipe with duplicate name
 when you create a recipe/ingredient with duplicate name, display an error message on recipe and recipes that say there's a dupcliate name
