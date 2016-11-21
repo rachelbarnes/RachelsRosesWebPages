@@ -13,6 +13,12 @@ namespace RachelsRosesWebPages.Controllers {
             name = _name;
             measurement = _measurement;
         }
+        public Ingredient(string _name) {
+            name = _name;
+        }
+        public Ingredient() { }
+        //the above is nice, but I can't do a measurement one too... the parameters are both strings, so this would only work for either the name or hte measurement
+        //there's no overloading the method with two different parameters, one constructor for each if both the parameter types are strings (or asre the same data type, basically)
     }
     public class Recipe {
         public string name;
@@ -26,12 +32,10 @@ namespace RachelsRosesWebPages.Controllers {
     public class HomeController : Controller {
         public static List<Recipe> recipes = new List<Recipe>();
         public static Recipe currentRecipe = null;
-        public Dictionary<string, string> oldAndNewIngredientNames = null;
-        public Dictionary<string, string> oldAndNewIngredientMeasurements = null;
-
-        public ActionResult Index() {
-            return View();
-        }
+        public Ingredient currentIngredientRatio = null;
+        public static List<Ingredient> currentIngredients = new List<Ingredient>();
+        public static string updatedIngName = "";
+        public static string updatedIngMeasurement = "";
         public ActionResult Recipes() {
             ViewBag.recipes = recipes;
             return View();
@@ -39,7 +43,6 @@ namespace RachelsRosesWebPages.Controllers {
         public ActionResult Recipe(string name) {
             if (string.IsNullOrEmpty(name))
                 return Redirect("/home/recipes");
-
             name = name.Trim();
             currentRecipe = recipes.First(x => x.name == name);
             ViewBag.ingredients = currentRecipe.ingredients;
@@ -49,13 +52,65 @@ namespace RachelsRosesWebPages.Controllers {
                     ViewBag.ErrorMessage = "Please enter an ingredient name and measurement.";
                 }
             }
-            if (oldAndNewIngredientMeasurements != null && oldAndNewIngredientNames != null) {
-                ViewBag.oldName = oldAndNewIngredientNames.Keys;
-                ViewBag.newName = oldAndNewIngredientNames.Values;
-                ViewBag.oldMeasurement = oldAndNewIngredientMeasurements.Keys;
-                ViewBag.newMeasurement = oldAndNewIngredientMeasurements.Values;
-            }
             return View();
+        }
+        public ActionResult Ingredient(string name, string measurement) {
+            Ingredient currentIng = new Ingredient(name, measurement);
+            foreach (var ing in currentIngredients) {
+                if (ing == currentIng) {
+                    ViewBag.DuplicateIngredientNameErrorMessage = "This ingredient is already in your ingredients list.";
+                }
+                if (!(ing.name == name) && !(ing.measurement == measurement)) {
+                    currentIngredients.Add(currentIng);
+                }
+            }
+            if (string.IsNullOrEmpty(name))
+                return Redirect("/home/recipes");
+            ViewBag.currentrecipe = currentRecipe.name;
+            ViewBag.currentingname = currentIng.name;
+            ViewBag.currentingmeasurement = currentIng.measurement;
+            ViewBag.updatedname = updatedIngName;
+            return View();
+        }
+        public ActionResult EditIngName(string oldName, string updatedName) {
+            if (string.IsNullOrEmpty(updatedName))
+                ViewBag.ErrorMessage = "Please enter an ingredient name and measurement";
+            foreach (var ing in currentRecipe.ingredients) {
+                currentIngredients.Add(ing);
+                if (ing.name == oldName)
+                    ing.name = updatedName;
+            }
+            updatedIngName = updatedName;
+            return Redirect("/home/recipe?name=" + currentRecipe.name);
+        }
+        public ActionResult EditIngMeasurement(string oldMeasurement, string updatedMeasurement) {
+            if (string.IsNullOrEmpty(updatedMeasurement)) {
+                ViewBag.ErrorMessage = "Please enter an ingredient name and measurement";
+            }
+            foreach (var ing in currentRecipe.ingredients) {
+                currentIngredients.Add(ing);
+                if (ing.measurement == oldMeasurement)
+                    ing.measurement = updatedMeasurement;
+            }
+                updatedIngMeasurement = updatedMeasurement;
+            return Redirect("/home/recipe?name=" + currentRecipe.name); 
+        }
+        public ActionResult EditIngredientName(string oldName, string newName) {
+            foreach (var ing in currentRecipe.ingredients) {
+                if (ing.name == ViewBag.oldName) {
+                    ing.name = newName;
+                    ViewBag.newName = ing.name;
+                }
+            }
+            return Redirect("/home/recipe?name=" + currentRecipe.name);
+        }
+        public ActionResult EditIngredientMeasurement(string name, string oldMeasurement, string newMeasurement) {
+            foreach (var ing in currentRecipe.ingredients) {
+                if (ing.name == name && ing.measurement == oldMeasurement) {
+                    ing.measurement = newMeasurement;
+                }
+            }
+            return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
         public ActionResult DeleteIngredient(string ingredient) {
             currentRecipe.ingredients = currentRecipe.ingredients.Where(x => x.name != ingredient).ToList();
@@ -91,29 +146,6 @@ namespace RachelsRosesWebPages.Controllers {
             ViewBag.newRecipeTitle = newRecipeTitle;
             return Redirect("/home/recipe?name=" + newRecipeTitle);
         }
-        public ActionResult EditIngredientName(string oldName, string newName) {
-            //oldName here is empty
-            foreach (var ing in currentRecipe.ingredients) {
-                if (ing.name == oldName)
-                    ing.name = newName;
-            }
-            var currentIngredient = new Ingredient(oldName, null);
-            var updatedIngredient = new Ingredient(newName, null);
-            oldAndNewIngredientNames.Add(oldName, newName);
-            //still trying to decide which method would be the best way to do this, i like it with the Ingredient objects,
-            //but I have to be able to access them outside of this method and I want to think through the design before I 
-            //assign them to class as opposed to this method
-            return Redirect("/home/recipe?name=" + currentRecipe.name);
-        }
-        public ActionResult EditIngredientMeasurement(string name, string oldMeasurement, string newMeasurement) {
-            foreach (var ing in currentRecipe.ingredients) {
-                if (ing.name == name && ing.measurement == oldMeasurement) {
-                    ing.measurement = newMeasurement;
-                }
-            }
-            oldAndNewIngredientMeasurements.Add(oldMeasurement, newMeasurement);
-            return Redirect("/home/recipe?name=" + currentRecipe.name);
-        }
     }
 }
 
@@ -137,4 +169,31 @@ when you create a recipe/ingredient with duplicate name, display an error messag
 use ViewBag.errorMessage = "Duplicate name error" or something
 
  
+*/
+/*
+i've been trying to work on this edit ingredient name for about a day and a half now, the problem rising when 
+    i'm trying to access the newName that I enter, which I can't seem to do...
+
+maybe, for a design choice, I could give Ingredient a new field of comments, and have a new view for ingredients that
+    shows all of the information for the ingredients listed, and then at the bottom of a recipe, I could have all the comments
+    listed out...
+
+unfortunatley, the initial way I see this is having a huge method doing everything so i can access ViewBag variables and such...
+    but if this is giving me this much trouble without fruit and Steve isn't here to ask about it, then this may be my best
+    solution to this point unfortunatley (or forutnatley)
+
+I'm not very fond of having someone have to click a link to go to another page for each individual ingredient, but there can
+    always be "feature fixes" and bug fixes later on... i just really want to get this woi
+
+Dang it... every time i try to find a particular solution, it doesn't work... alright, gotta start working on a view for ingredients
+
+*/
+
+
+/*
+Bugs: 
+    when you don't have an ingredient name and you click the link to view the details of the ingredient, it brings you back to the recipe title
+        and you can't delete the ingredient because no ingredient matches ""... need to put a conditional to direct you in the proper directino for 
+        when that happens
+
 */

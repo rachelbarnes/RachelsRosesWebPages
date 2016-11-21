@@ -7,7 +7,6 @@
 <br />
 
 <h3>@ViewBag.recipename</h3>
-@*<a href="/home/editrecipetitle?oldRecipeTitle=@ViewBag.recipename&newRecipeTitle=@ViewBag.newRecipeTitle">Edit Recipe Title</a>*@
 <form action="/home/editrecipetitle?oldRecipeTitle=@ViewBag.recipename&newRecipeTitle=@ViewBag.newRecipeTitle" method="post">
     <input name="newRecipeTitle" />
     <input type="submit" value="Edit Recipe Title" />
@@ -16,7 +15,9 @@
 <br />
 <h5><b>Add a new ingredient to your recipe</b></h5>
 <form action="/home/createingredient" method="post">
+    <p>Enter an ingredient:</p>
     <input name="ingredient" />
+    <p>Enter the ingredient's measurement:</p>
     <input name="measurement" />
     <input type="submit" value="Add" />
 </form>
@@ -27,16 +28,9 @@
         <li>
             <b>@ingredient.measurement @ingredient.name</b>
             <h5><b>@ViewBag.ErrorMessage</b></h5>
-            <a href="/home/editingredientname?oldName=@ViewBag.oldName&newName=@ViewBag.newName">test</a>
-            <form action="/home/editingredientname?oldName=@ViewBag.oldName&newName=@ViewBag.newName" method="post">
-                <input name="newName" />
-                <input type="submit" value="Edit Ingredient Name" />
-                @*somewhere here, i'm getting /home/home/editingredientname...*@
-            </form>
-            <form action="/home/editingredientmeasurement?name=@ViewBag.recipename&oldmeasurement=@ViewBag.oldMeasurement&newMeasurement=@ViewBag.oldMeasurement" method="post">
-                <input name="newMeasurement" />
-                <input type="submit" value="Edit Ingredient Measurement" />
-            </form>
+                @*<a href="/home/editingredientname?oldName=@ingredient.name&newName=@ViewBag.newname" method="post">Edit Ingredient Name</a>*@
+                <a href="/home/ingredient?name=@ingredient.name&measurement=@ingredient.measurement">View details of @ingredient.name</a>
+            @*</form>*@
             <br />
             <a href="/home/deleteingredient?ingredient=@ingredient.name">Delete Ingredient</a>
         </li>
