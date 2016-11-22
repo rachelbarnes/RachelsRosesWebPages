@@ -6,17 +6,26 @@
 <a href="/home/recipe?name@ViewBag.currentrecipe">Go back to @ViewBag.currentrecipe</a>
 <br />
 
-<h4><b>@ViewBag.currentingmeasurement : @ViewBag.currentingname</b></h4>
-<br />
-<form action="/home/EditIngName?oldName=@ViewBag.currentingname&updatedName=@ViewBag.updatedIngName" method="post">
-    <input name="updatedName" />
-    <a href="/home/EditIngName?oldName=@ViewBag.currentingname&updatedName=@ViewBag.updatedIngName">Edit Ingredient Name</a>
-    <input type="submit" value="Edit Ingredient Name" />
-</form>
-<h4>@ViewBag.DuplicateIngredientNameErrorMessage</h4>
-<h4>@ViewBag.ErrorMessage</h4>
-<form action="/home/EditIngMeasurement?oldMeasurement=@ViewBag.currentingmeasurement&updatedMeasurement=@ViewBag.updatedingmeasurement" method="post">
-    <input name="updatedMeasurement" />
-    <a href="/home/EditIngMeasurement?oldMeasurement=@ViewBag.currentingmeasurement&updatedMeasurement=@ViewBag.updatedingmeasurement">Edit Ingredient Measurement</a>
-    <input type="submit" value="Edit Ingredient Measurement" />
-/form>
+@*<h4><b>@ViewBag.currentingmeasurement @ViewBag.currentingname</b></h4>*@
+<h2><b>@ViewBag.currentingmeasurement @ViewBag.currentingname</b></h2>
+    <br />
+    @*<h4><b>@ViewBag.currentingname</b></h4>*@
+    @*<h4><b>@ViewBag.currentingmeasurement @ViewBag.currentingname</b></h4>*@
+    <br />
+    <h4>Update or Edit your ingredients</h4>
+    <form action="/home/EditIng?oldName=@ViewBag.currentingname&newName=@ViewBag.updatedingname&oldMeasurement=@ViewBag.currentingmeasurement&updatedMeasurement=@ViewBag.updatedingmeasurement" method="post">
+        <h5>Edit your ingredient name:</h5>
+        <input name="updatedName" />
+        <br />
+        <h5>Edit your ingredient measurement</h5>
+        <input name="updatedMeasurement" />
+        @*<a href="/home/EditIng?oldName=@ViewBag.currentingname&newName=@ViewBag.updatedingname&oldMeasurement=@ViewBag.currentingmeasurement&updatedMeasurement=@ViewBag.updatedingmeasurement">test</a>*@
+        <input type="submit" value="Update Ingredient Information" />
+    </form>
+    @*<form action="/home/EditIngName?oldName=@ViewBag.currentingname&updatedName=@ViewBag.updatedIngName" method="post">
+            <input name="updatedName" />
+            <a href="/home/EditIngName?oldName=@ViewBag.currentingname&updatedName=@ViewBag.updatedIngName">Edit Ingredient Name</a>
+            <input type="submit" value="Edit Ingredient Name" />
+        </form>*@
+    <h4>@ViewBag.DuplicateIngredientNameErrorMessage</h4>
+    <h4>@ViewBag.ErrorMessage</h4>
