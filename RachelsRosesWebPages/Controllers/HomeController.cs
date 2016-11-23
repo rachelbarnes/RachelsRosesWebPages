@@ -30,8 +30,8 @@ namespace RachelsRosesWebPages.Controllers {
     public class HomeController : Controller {
         public static List<Recipe> recipes = new List<Recipe>();
         public static Recipe currentRecipe = null;
-        public Ingredient currentIngredient = null; 
-        public Ingredient updatedIngredient = null; 
+        public Ingredient currentIngredient = null;
+        public Ingredient updatedIngredient = null;
         public static List<Ingredient> currentListIngredients = new List<Ingredient>();
         public ActionResult Recipes() {
             ViewBag.recipes = recipes;
@@ -52,31 +52,31 @@ namespace RachelsRosesWebPages.Controllers {
             return View();
         }
         public ActionResult Ingredient(string name, string measurement) {
-            if (string.IsNullOrEmpty(name)) 
+            if (string.IsNullOrEmpty(name))
                 return Redirect("/home/recipes");
             if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(measurement))
-                return Redirect("/home/recipe?name=" + currentRecipe.name); 
+                return Redirect("/home/recipe?name=" + currentRecipe.name);
             Ingredient currentIng = new Ingredient(name, measurement);
             foreach (var ing in currentListIngredients) {
-                if (ing == currentIng) 
+                if (ing == currentIng)
                     ViewBag.DuplicateIngredientNameErrorMessage = "This ingredient is already in your ingredients list.";
-                if (!(ing.name == name) && !(ing.measurement == measurement)) 
+                if (!(ing.name == name) && !(ing.measurement == measurement))
                     currentListIngredients.Add(currentIng);
             }
             ViewBag.currentrecipe = currentRecipe.name;
             ViewBag.currentingname = name;
             ViewBag.currentingmeasurement = measurement;
-            ViewBag.updatedingname = updatedIngredient.name;
-            ViewBag.updatedingmeasurement = updatedIngredient.measurement;
-            if (updatedIngredient != null)
-                currentIngredient = updatedIngredient; 
+            if (updatedIngredient != null) {
+                ViewBag.updatedingname = updatedIngredient.name;
+                ViewBag.updatedingmeasurement = updatedIngredient.measurement;
+            }
             return View();
         }
         public ActionResult EditIng(string oldName, string updatedName, string oldMeasurement, string updatedMeasurement) {
             //i keep getting really weird responses from my ViewBag... there's gotta be something weird happening here, despite 
-                //there being normal/expected results for lines 66-68 when i debug... 
-                //but the weird results come from after I edit the ingredient name and/or measurement... which means it has to be 
-                //here from when this method is called.
+            //there being normal/expected results for lines 66-68 when i debug... 
+            //but the weird results come from after I edit the ingredient name and/or measurement... which means it has to be 
+            //here from when this method is called.
             if ((string.IsNullOrEmpty(updatedName)) && (string.IsNullOrEmpty(updatedMeasurement))) {
                 ViewBag.ErrorMessage = "Please enter an ingredient name and measurement";
                 return Redirect("/home/recipe?name=" + currentRecipe.name);
@@ -93,9 +93,9 @@ namespace RachelsRosesWebPages.Controllers {
                 //this should replace the old string with the new string for either the name and/or the measurement... 
                 //currentIngredient is then equaled to the ing, which is the current ingredient being evaluted for the name and mesaurement updates... 
                 //so is there something wrong here? 
-                updatedIngredient = ing; 
+                updatedIngredient = ing;
             }
-            return Redirect("/home/ingredient?name=" + currentIngredient.name + "measurement=" + currentIngredient.measurement);
+            return Redirect("/home/ingredient?name=" + updatedIngredient.name + "&measurement=" + updatedIngredient.measurement);
         }
         public ActionResult DeleteIngredient(string ingredient) {
             currentRecipe.ingredients = currentRecipe.ingredients.Where(x => x.name != ingredient).ToList();
