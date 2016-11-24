@@ -30,9 +30,14 @@ namespace RachelsRosesWebPages.Controllers {
     public class HomeController : Controller {
         public static List<Recipe> recipes = new List<Recipe>();
         public static Recipe currentRecipe = null;
-        public Ingredient currentIngredient = null;
-        public Ingredient updatedIngredient = null;
+        public static Ingredient currentIngredient = null;
+        public static Ingredient updatedIngredient = null;
         public static List<Ingredient> currentListIngredients = new List<Ingredient>();
+        public static string ingredientComment = null;
+        public static string emptyUserInput = null;
+        public static string repeatedString = null; 
+        //i wonder if it would be worthwhile to create a dictionary of error messages, with the key
+            //being a sum of the error (so empty, or repeated, etc.) and then the value being the actual message... 
         public ActionResult Recipes() {
             ViewBag.recipes = recipes;
             return View();
@@ -44,9 +49,11 @@ namespace RachelsRosesWebPages.Controllers {
             currentRecipe = recipes.First(x => x.name == name);
             ViewBag.ingredients = currentRecipe.ingredients;
             ViewBag.recipename = currentRecipe.name;
+            ViewBag.userinputerror = emptyUserInput;
+            ViewBag.repeatedstring = repeatedString; 
             foreach (var ingredient in currentRecipe.ingredients) {
                 if (string.IsNullOrEmpty(ingredient.name)) {
-                    ViewBag.ErrorMessage = "Please enter an ingredient name and measurement.";
+                    ViewBag.ErrorMessage = emptyUserInput;
                 }
             }
             return View();
@@ -67,16 +74,14 @@ namespace RachelsRosesWebPages.Controllers {
             ViewBag.currentingname = name;
             ViewBag.currentingmeasurement = measurement;
             if (updatedIngredient != null) {
-                ViewBag.updatedingname = updatedIngredient.name;
-                ViewBag.updatedingmeasurement = updatedIngredient.measurement;
+                currentIngredient = updatedIngredient;
+                ViewBag.updatedingname = currentIngredient.name;
+                ViewBag.updatedingmeasurement = currentIngredient.measurement;
             }
+            ViewBag.ingcomment = ingredientComment;
             return View();
         }
         public ActionResult EditIng(string oldName, string updatedName, string oldMeasurement, string updatedMeasurement) {
-            //i keep getting really weird responses from my ViewBag... there's gotta be something weird happening here, despite 
-            //there being normal/expected results for lines 66-68 when i debug... 
-            //but the weird results come from after I edit the ingredient name and/or measurement... which means it has to be 
-            //here from when this method is called.
             if ((string.IsNullOrEmpty(updatedName)) && (string.IsNullOrEmpty(updatedMeasurement))) {
                 ViewBag.ErrorMessage = "Please enter an ingredient name and measurement";
                 return Redirect("/home/recipe?name=" + currentRecipe.name);
@@ -84,15 +89,10 @@ namespace RachelsRosesWebPages.Controllers {
             foreach (var ing in currentRecipe.ingredients) {
                 if (ing.name != updatedName && !(string.IsNullOrEmpty(updatedName))) {
                     ing.name = updatedName;
-                    //updatedIngName = updatedName;
                 } else { updatedName = oldName; }
                 if (ing.measurement != updatedMeasurement && !(string.IsNullOrEmpty(updatedMeasurement))) {
                     ing.measurement = updatedMeasurement;
-                    //updatedIngMeasurement = updatedMeasurement;
                 } else { updatedMeasurement = oldMeasurement; }
-                //this should replace the old string with the new string for either the name and/or the measurement... 
-                //currentIngredient is then equaled to the ing, which is the current ingredient being evaluted for the name and mesaurement updates... 
-                //so is there something wrong here? 
                 updatedIngredient = ing;
             }
             return Redirect("/home/ingredient?name=" + updatedIngredient.name + "&measurement=" + updatedIngredient.measurement);
@@ -104,21 +104,29 @@ namespace RachelsRosesWebPages.Controllers {
         public ActionResult CreateIngredient(string ingredient, string measurement) {
             ingredient = ingredient.Trim();
             measurement = measurement.Trim();
-            if (string.IsNullOrEmpty(ingredient) || string.IsNullOrEmpty(measurement)) {
-                ViewBag.ErrorMessage = "Please enter both an ingredient and a measurement";
-            } else { ViewBag.ErrorMessage = null; }
-
-            Ingredient newingredient = new Ingredient(ingredient, measurement);
-            currentRecipe.ingredients.Add(newingredient);
+            if (!(string.IsNullOrEmpty(ingredient)) || !(string.IsNullOrEmpty(measurement))) {
+                Ingredient newingredient = new Ingredient(ingredient, measurement);
+                currentRecipe.ingredients.Add(newingredient);
+            } else { emptyUserInput = "Please enter both an ingredient and a measurement"; }
             return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
         public ActionResult CreateRecipe(string recipeTitle) {
             recipeTitle = recipeTitle.Trim();
-            if (string.IsNullOrEmpty(recipeTitle)) {
-                ViewBag.ErrorMessage = "Please enter a recipe title.";
-            }
             Recipe newrecipe = new Recipe(recipeTitle);
-            recipes.Add(newrecipe);
+            if (string.IsNullOrEmpty(recipeTitle))
+                emptyUserInput = "Please enter a recipe title to add a recipe to your recipe box."; 
+            if (recipes.Count == 0)
+                recipes.Add(newrecipe);
+            foreach (var recipe in recipes) {
+                if (recipe.name == recipeTitle) {
+                    repeatedString = "Please enter a different recipe title, this one already exists in your recipe box";
+                } else {
+                    if ((!string.IsNullOrEmpty(recipeTitle))) {
+                        recipes.Add(newrecipe);
+                        break;
+                    }
+                }
+            }
             return Redirect("/home/recipes");
         }
         public ActionResult DeleteRecipe(string recipeTitle) {
@@ -145,22 +153,37 @@ DONE:
 cannot create an ingredient or recipe names that has space after or before (trim ingredient names)
 edit a recipe name
 edit an ingredient name
+edit an ingredient measurement
 
 NOT DONE YET: 
-edit an ingredient measurement
-cannot create an ingredient with null name
-cannot create an ingredient/recipe with duplicate name
 when you create a recipe/ingredient with duplicate name, display an error message on recipe and recipes that say there's a dupcliate name
 use ViewBag.errorMessage = "Duplicate name error" or something
- 
+create comments for the recipes (I'm still trying to figure out the best way to do this... 
 
 I would like to eventually have all the general information under each ingredient page...
     the price and selling weight, the desnity, how much you have in your MyPantry logs... then it would make more sense for it to have it's own module and everything
+
+
+
+cannot create an ingredient with null name: thinking about this... i actually want to allow multiples of the same name, like when a more complicated
+    recipe calls for butter 2 or three times because it's needed in different parts of the recipe... which i have recipes that i want to use 1/4 cup butter twice, which makes the second after this
+    one in the same category of maybe not wanting to get rid of (however, that design is not the same with the recipe names... that's impt to be different and nonrepetitive
+
 */
+
 /*
-Bugs: 
-    when you don't have an ingredient name and you click the link to view the details of the ingredient, it brings you back to the recipe title
-        and you can't delete the ingredient because no ingredient matches ""... need to put a conditional to direct you in the proper directino for 
-        when that happens
+Questions for Steve:
+What is the difference between setting an object as a new instance of an object vs setting an object as null?
+ie: 
+    public static Ingredient ex = null; 
+    public static Ingredient ex = new Ingredient(); 
+
+How do you set up a database for your program? Is it easier to set up a database and get some tables created before you add it into your program, or is it 
+    generally easier to do this with an empty database? 
+
+Is there a specific way you have to make classes in the MVC model outside of controllers, views and models? 
+    (ie i want to have a conversion class, one that I can manipulate measurements and values and yielding sizes, but I don't want to clutter up a 
+        controller with such functionalities and methods (it's already getting kind of cluttered for my taste unfortunately)
+    I don't know where to put it in the project...
 
 */
