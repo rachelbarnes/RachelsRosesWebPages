@@ -7,25 +7,25 @@ using RachelsRosesWebPages;
 using NUnit.Framework;
 namespace RachelsRosesWebPagesUnitTests {
     [TestFixture]
-    public class FractionTests {
+    public class ParseFractionTests {
         [Test]
         public void TestSimpleFractionValue() {
             var divide = new ParseFraction();
-            var expected = .67m;
+            var expected = .6667m;
             var actual = divide.Parse("2/3");
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestSimpleFractionValue2() {
             var divide = new ParseFraction();
-            var expected = .12m; //i guess the question is whether or not it rounds up or down... i guess it rounds down (this is .125)
+            var expected = .125m; //i guess the question is whether or not it rounds up or down... i guess it rounds down (this is .125)
             var actual = divide.Parse("1/8");
             Assert.AreEqual(expected, actual); 
         }
         [Test]
         public void TestSimpleFractionValue3() {
             var divide = new ParseFraction();
-            var expected = .06m; //this was .057... so i guess it did round up?
+            var expected = .0575m; //this was .057... so i guess it did round up?
             var actual = divide.Parse("45/783");
             Assert.AreEqual(expected, actual); 
         }
@@ -53,7 +53,7 @@ namespace RachelsRosesWebPagesUnitTests {
         [Test]
         public void TestComplexFractionValue3() {
             var divide = new ParseFraction();
-            var expected = 10.33m;
+            var expected = 10.3333m;
             var actual = divide.Parse("10 1/3");
             Assert.AreEqual(expected, actual); 
         }

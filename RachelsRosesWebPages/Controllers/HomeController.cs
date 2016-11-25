@@ -35,7 +35,8 @@ namespace RachelsRosesWebPages.Controllers {
         public static List<Ingredient> currentListIngredients = new List<Ingredient>();
         public static string ingredientComment = null;
         public static string emptyUserInput = null;
-        public static string repeatedString = null; 
+        public static string repeatedString = null;
+        public static string updatedMeasurement = null; 
         //i wonder if it would be worthwhile to create a dictionary of error messages, with the key
             //being a sum of the error (so empty, or repeated, etc.) and then the value being the actual message... 
         public ActionResult Recipes() {
@@ -139,6 +140,10 @@ namespace RachelsRosesWebPages.Controllers {
             ViewBag.newRecipeTitle = newRecipeTitle;
             return Redirect("/home/recipe?name=" + newRecipeTitle);
         }
+        //public ActionResult ConvertIngredientMeasurement(string oldMeasurement, string newMeasurement) {
+        //    var convert = new Convert(); 
+            
+        //}
     }
 }
 

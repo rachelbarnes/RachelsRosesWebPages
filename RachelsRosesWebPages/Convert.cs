@@ -5,6 +5,7 @@ using System.Web;
 using NUnit.Framework;
 namespace RachelsRosesWebPages {
     public class Convert {
+        //    var commonMeasurements = new string[] { "cups", "c", "teaspoons", "t", "tablespoons", "T", "oz", "ounces", "pinch", "eggs", "egg" };
         public decimal teaspoonsToTablespoons(decimal t) {
             var ret = Math.Round((t / 3), 2);
             if (ret.ToString().Contains(".00"))
@@ -41,13 +42,49 @@ namespace RachelsRosesWebPages {
                 ret = Math.Round((T / 16), 0);
             return ret;
         }
-        public Func<int, decimal, int> ChangeYield = (originalServingSize, multiplicationFactor) => (int)(Math.Round((originalServingSize * multiplicationFactor), 0));
+        //eventually, i'll have a method that uses this AdjustToTeaspoons and uses the AdjustTeaspoonsBasedOnMultiplier and the ChangYeidlMultiplie
+        public decimal AdjustToTeaspoons(string measurement) {
+            var parseFraction = new ParseFraction();
+            var splitMeasurement = new string[] { };
+            var decimalMeasurement = 0m;
+            var trimmedMeasurement = "";
+            var convertToTeaspoonMeasurement = 0m;
+            //i would rather not have this first part in the conditional be a repeated piece of the code (DRY)... but until I find a better way to do this, this is what I have right now
+            if ((measurement.ToLower().Contains("cups")) || (measurement.ToLower().Contains("cup")) || (measurement.ToLower().Contains(" c"))) {
+                //maybe put in functionality that handles already converted decimals (so .5 instead of 1/2)
+                splitMeasurement = measurement.ToLower().Split('c'); //this should split it at the beginning of "cups" or 'c'... 
+                trimmedMeasurement = splitMeasurement[0].TrimEnd();
+                decimalMeasurement = parseFraction.Parse(trimmedMeasurement);
+                convertToTeaspoonMeasurement = CupsToTeaspoons(decimalMeasurement);
+            }
+            //need to fix some functionality for converting from tablespoons... there's something wrong with either my math or my logic here..
+            if ((measurement.ToLower().Contains("tablespoons")) || (measurement.ToLower().Contains("tablespoon"))) {
+                splitMeasurement = measurement.ToLower().Split('t');
+                trimmedMeasurement = splitMeasurement[0].TrimEnd();
+                decimalMeasurement = parseFraction.Parse(trimmedMeasurement);
+                convertToTeaspoonMeasurement = TablespoonsToTeaspoons(decimalMeasurement); 
+            }
+            if ((measurement.ToLower().Contains("teaspoons")) || measurement.ToLower().Contains("teaspoon")) {
+                splitMeasurement = measurement.ToLower().Split('t');
+                trimmedMeasurement = splitMeasurement[0].TrimEnd();
+                decimalMeasurement = parseFraction.Parse(trimmedMeasurement);
+                convertToTeaspoonMeasurement = decimalMeasurement; 
+            }
+            return Math.Round(convertToTeaspoonMeasurement, 2);
+        }
 
+        public Func<int, decimal, int> ChangeYield = (originalServingSize, multiplicationFactor) => (int)(Math.Round((originalServingSize * multiplicationFactor), 0));
+        public Func<int, int, decimal> ChangeYieldMultiplier = (originalServingSize, updatedServingSize) => Math.Round(((decimal)updatedServingSize / originalServingSize), 4);
+        public Func<decimal, decimal, decimal> AdjustTeaspoonsBasedOnMultiplier = (originalTeaspoonMeasurement, multiplier) => Math.Round((originalTeaspoonMeasurement * multiplier), 2);
     }
     public class ParseFraction {
         public decimal Parse(string fraction) {
             var splitComplexFraction = new string[] { };
             var finaldecimal = 0m;
+            if (!fraction.Contains('/') && !fraction.Contains(' ')) {
+                finaldecimal = Int32.Parse(fraction);
+                return finaldecimal; 
+            }
             if (fraction.Contains(' ')) {
                 splitComplexFraction = fraction.Split(' ');
                 var split = splitComplexFraction[1].Split('/');
@@ -58,31 +95,7 @@ namespace RachelsRosesWebPages {
                 splitComplexFraction = fraction.Split('/');
                 finaldecimal = decimal.Parse(splitComplexFraction[0]) / decimal.Parse(splitComplexFraction[1]);
             }
-            return Math.Round(finaldecimal, 2);
+            return Math.Round(finaldecimal, 4);
         }
     }
 }
-//var parse = new ParseFraction();
-//var commonMeasurements = new string[] { "cups", "c", "teaspoons", "t", "tablespoons", "T", "oz", "ounces", "pinch", "eggs", "egg" };
-//bool boolMeasurement = false;
-//var ingredientMeasurement = "";
-//var ingredientMeasurementArray = new string[] { }; 
-//            //this is determining if it is an ingredient measurement string or not
-//            foreach (var meas in commonMeasurements) {
-//                if (measurement.Contains(meas))
-//                    boolMeasurement = true;
-//                else boolMeasurement = false;
-//            }
-//            if (boolMeasurement == true) {
-//                var parsedMeasurement = measurement.Split(' ');
-//var fraction = "";
-//                foreach (var splitString in parsedMeasurement) {
-//                    if (splitString != parsedMeasurement.Last())
-//                        fraction += splitString.ToString();
-//                        //an immediate problem i see here is I lose my spaces, which means i dramatically alter my fractional accuracy...
-//                    if (splitString == parsedMeasurement.Last())
-//                        ingredientMeasurement = splitString;
-//                }
-//                ingredientMeasurementArray.
-//                ingredientMeasurementArray.ElementAt(0) = fraction; 
-//            }
