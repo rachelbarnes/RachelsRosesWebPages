@@ -235,5 +235,27 @@ namespace RachelsRosesWebPages.Controllers {
             var actual = convert.AdjustToTeaspoons("1 1/2 teaspoons");
             Assert.AreEqual(expected, actual); 
         }
+        //convert multilevel mesurement (1 cup 2 Tablespoons) to teaspoons
+        [Test]
+        public void ConvertMultiLevelMeasurementToDecimalTeaspoons() {
+            var convert = new Convert();
+            var expected = 54m;
+            var actual = convert.AdjustToTeaspoons("1 cup 2 tablespoons");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void SplitMultiLevelMeasurement() {
+            var convert = new Convert();
+            var expected = new string[] { "1 cu", " 2 tablespoons" };
+            var actual = convert.SplitMeasurement("1 cup 2 tablespoons");
+            Assert.AreEqual(expected, actual); 
+        }
+        //[Test]
+        //public void ConvertMultiLevelMeasurement2() {
+        //    var convert = new Convert();
+        //    var expected = 24m;
+        //    var actual = convert.SplitMultiLevelMeasurements("1/2 cup");
+        //    Assert.AreEqual(expected, actual); 
+        //}
     }
 }
