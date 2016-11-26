@@ -188,7 +188,7 @@ namespace RachelsRosesWebPages.Controllers {
         [Test]
         public void ConvertStringMeasurementTablespoonsToDecimalTeaspoons2() {
             var convert = new Convert();
-            var expected = .3333m;
+            var expected = 1m;
             var actual = convert.AdjustToTeaspoons("1/3 Tablespoons");
             Assert.AreEqual(expected, actual); 
         }
@@ -202,7 +202,7 @@ namespace RachelsRosesWebPages.Controllers {
         [Test]
         public void ConvertStringMeasurementTablespoonsToDecimalTeaspoons4() {
             var convert = new Convert();
-            var expected = 1.5m;
+            var expected = 4.5m;
             var actual = convert.AdjustToTeaspoons("1 1/2 tablespoons");
             Assert.AreEqual(expected, actual); 
         }
@@ -217,7 +217,7 @@ namespace RachelsRosesWebPages.Controllers {
         [Test]
         public void ConvertStringMeasurementTeaspoonsToDecimalTeaspoons2() {
             var convert = new Convert();
-            var expected = .3333m;
+            var expected = .33m;
             var actual = convert.AdjustToTeaspoons("1/3 teaspoons");
             Assert.AreEqual(expected, actual); 
         }
