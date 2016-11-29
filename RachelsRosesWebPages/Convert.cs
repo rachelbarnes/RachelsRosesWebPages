@@ -67,6 +67,7 @@ namespace RachelsRosesWebPages {
                         if ((multiLevelMeasurement[i] == ' ') && (!int.TryParse(multiLevelMeasurement[previous].ToString(), out n)) && (int.TryParse(multiLevelMeasurement[next].ToString(), out n))) {
                             var firstMeasurement = multiLevelMeasurement.Substring(0, i);
                             var secondMeasurement = multiLevelMeasurement.Substring(i + 1, (multiLevelMeasurement.Count()) - (i + 1));
+                            //i've never seen a four level ingredient... but i should make a third, esp when converting. it happens often. w`
                             splitMeasurement = new string[] { firstMeasurement, secondMeasurement };
                             return splitMeasurement;
                         }

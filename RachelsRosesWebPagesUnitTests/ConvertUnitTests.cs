@@ -406,7 +406,7 @@ namespace RachelsRosesWebPages.Controllers {
         [Test]
         public void AdjustTotalMeasurement9() {
             var convert = new Convert();
-            var expected = "1.5 tablespoons";
+            var expected = "1 tablespoons 1.5 teaspoons";
             var actual = convert.AdjustIngredientMeasurement("3 tablespoons", 2, 1);
             Assert.AreEqual(expected, actual);
         }
