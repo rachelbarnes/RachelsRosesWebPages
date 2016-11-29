@@ -140,10 +140,6 @@ namespace RachelsRosesWebPages.Controllers {
             ViewBag.newRecipeTitle = newRecipeTitle;
             return Redirect("/home/recipe?name=" + newRecipeTitle);
         }
-        //public ActionResult ConvertIngredientMeasurement(string oldMeasurement, string newMeasurement) {
-        //    var convert = new Convert(); 
-            
-        //}
     }
 }
 
