@@ -152,12 +152,6 @@ namespace RachelsRosesWebPages.Controllers {
             ViewBag.newyield = originalYield * multiplier;
             return Redirect("/home/recipe?name=" + currentRecipe.name); 
         }
-        //public ActionResult AdjustIngredientMeasurements(List<Ingredient> ingredients) {
-        //    var convert = new Convert(); 
-        //    foreach (var ing in ingredients) {
-        //        ing.measurement = convert.
-        //    }
-        //}
     }
 }
 

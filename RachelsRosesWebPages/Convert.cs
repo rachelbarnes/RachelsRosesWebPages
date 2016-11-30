@@ -44,8 +44,6 @@ namespace RachelsRosesWebPages {
         public Func<int, decimal, int> ChangeYield = (originalServingSize, multiplicationFactor) => (int)(Math.Round((originalServingSize * multiplicationFactor), 0));
         public Func<int, int, decimal> ChangeYieldMultiplier = (originalServingSize, updatedServingSize) => Math.Round(((decimal)updatedServingSize / originalServingSize), 4);
         public Func<decimal, decimal, decimal> AdjustTeaspoonsBasedOnMultiplier = (originalTeaspoonMeasurement, multiplier) => Math.Round((originalTeaspoonMeasurement * multiplier), 2);
-        //public Func<string, string[]> SplitMeasurement = MultiLevelMeasurement => MultiLevelMeasurement.ToLower().Split('p');
-        //this is still very limiting, i only alow 2 ingredient measurements (1 cup 2 tablespoons as opposed to parsing 1 cup 2 tablespoons 1 1/2 teaspoons)
         public string[] SplitMultiLevelMeasurement(string multiLevelMeasurement) { //this doens't account for eggs... i'll need something special for the eggs, but it shouldn't be difficult... 
             string[] splitMeasurement = new string[] { };
             //for (int i = 0; i < multiLevelMeasurement.Count(); i++) {
