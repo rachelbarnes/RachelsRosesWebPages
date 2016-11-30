@@ -44,36 +44,57 @@ namespace RachelsRosesWebPages {
         public Func<int, decimal, int> ChangeYield = (originalServingSize, multiplicationFactor) => (int)(Math.Round((originalServingSize * multiplicationFactor), 0));
         public Func<int, int, decimal> ChangeYieldMultiplier = (originalServingSize, updatedServingSize) => Math.Round(((decimal)updatedServingSize / originalServingSize), 4);
         public Func<decimal, decimal, decimal> AdjustTeaspoonsBasedOnMultiplier = (originalTeaspoonMeasurement, multiplier) => Math.Round((originalTeaspoonMeasurement * multiplier), 2);
-        public Func<string, string[]> SplitMeasurement = MultiLevelMeasurement => MultiLevelMeasurement.ToLower().Split('p');
+        //public Func<string, string[]> SplitMeasurement = MultiLevelMeasurement => MultiLevelMeasurement.ToLower().Split('p');
         //this is still very limiting, i only alow 2 ingredient measurements (1 cup 2 tablespoons as opposed to parsing 1 cup 2 tablespoons 1 1/2 teaspoons)
-        public string[] SplitMultiLevelMeasurement(string multiLevelMeasurement) {
+        public string[] SplitMultiLevelMeasurement(string multiLevelMeasurement) { //this doens't account for eggs... i'll need something special for the eggs, but it shouldn't be difficult... 
             string[] splitMeasurement = new string[] { };
-            for (int i = 0; i < multiLevelMeasurement.Count(); i++) {
-                int previous;
-                int next;
-                int n;
-                var count = 0;
-                var commonMeasurements = new string[] { "cup", "tablespoon", "teaspoon" };
-                foreach (var meas in commonMeasurements) {
-                    if (multiLevelMeasurement.Contains(meas))
-                        count++;
-                }
-                if (count == 1) {
-                    splitMeasurement = new string[] { multiLevelMeasurement };
-                } else {
+            //for (int i = 0; i < multiLevelMeasurement.Count(); i++) {
+            int previous;
+            int next;
+            int n;
+            var count = 0;
+            var commonMeasurements = new string[] { "cup", "tablespoon", "teaspoon" };
+            var firstMeasurement = "";
+            var secondMeasurement = "";
+            var thirdMeasurement = "";
+            var latterMeasurement = "";
+            foreach (var meas in commonMeasurements) {
+                if (multiLevelMeasurement.Contains(meas))
+                    count++;
+            }
+            if (count == 1)
+                splitMeasurement = new string[] { multiLevelMeasurement };
+            if (count > 1) {
+                for (int i = 0; i < multiLevelMeasurement.Count(); i++) {
                     if ((i > 1) && (i < multiLevelMeasurement.Count() - 1)) {
                         previous = i - 1;
                         next = i + 1;
                         if ((multiLevelMeasurement[i] == ' ') && (!int.TryParse(multiLevelMeasurement[previous].ToString(), out n)) && (int.TryParse(multiLevelMeasurement[next].ToString(), out n))) {
-                            var firstMeasurement = multiLevelMeasurement.Substring(0, i);
-                            var secondMeasurement = multiLevelMeasurement.Substring(i + 1, (multiLevelMeasurement.Count()) - (i + 1));
-                            //i've never seen a four level ingredient... but i should make a third, esp when converting. it happens often. w`
-                            splitMeasurement = new string[] { firstMeasurement, secondMeasurement };
-                            return splitMeasurement;
+                            firstMeasurement = multiLevelMeasurement.Substring(0, i);
+                            latterMeasurement = multiLevelMeasurement.Substring(i + 1, (multiLevelMeasurement.Count()) - (i + 1));
+                            break;
                         }
                     }
+                    splitMeasurement = new string[] { firstMeasurement, secondMeasurement };
+                }
+                if (count == 3) {
+                    for (int j = 0; j < latterMeasurement.Count(); j++) {
+                        if ((j > 1) && (j < multiLevelMeasurement.Count() - 1)) {
+                            previous = j - 1;
+                            next = j + 1;
+                            var previousChar = latterMeasurement[previous];
+                            var nextChar = latterMeasurement[next];
+                            if ((latterMeasurement[j] == ' ') && (!int.TryParse(latterMeasurement[previous].ToString(), out n)) && (int.TryParse(latterMeasurement[next].ToString(), out n))) {
+                                secondMeasurement = latterMeasurement.Substring(0, j);
+                                thirdMeasurement = latterMeasurement.Substring(j + 1, (latterMeasurement.Count()) - (j + 1));
+                                break;
+                            }
+                        }
+                    }
+                    splitMeasurement = new string[] { firstMeasurement, secondMeasurement, thirdMeasurement };
                 }
             }
+            //}
             return splitMeasurement;
         }
         public decimal AdjustToTeaspoons(string measurement) {
@@ -152,7 +173,7 @@ namespace RachelsRosesWebPages {
                 }
                 if (adjustedTeaspoonMesaurement < 1m && adjustedTeaspoonMesaurement > 0m) {
                     if (adjustedTeaspoonMesaurement < .28m && adjustedTeaspoonMesaurement > .22m)
-                        adjustedTeaspoonMesaurement = .25m;                     
+                        adjustedTeaspoonMesaurement = .25m;
                     if (adjustedTeaspoonMesaurement == .50m)
                         adjustedTeaspoonMesaurement = .5m;
                     if (adjustedTeaspoonMesaurement > .95m)

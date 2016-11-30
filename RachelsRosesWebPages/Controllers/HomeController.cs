@@ -36,7 +36,10 @@ namespace RachelsRosesWebPages.Controllers {
         public static string ingredientComment = null;
         public static string emptyUserInput = null;
         public static string repeatedString = null;
-        public static string updatedMeasurement = null; 
+        public static string updatedMeasurement = null;
+        public static int originalYield = 0;
+        public static int newYield = 0;
+        public static decimal YieldMultiplier = 0m; 
         //i wonder if it would be worthwhile to create a dictionary of error messages, with the key
             //being a sum of the error (so empty, or repeated, etc.) and then the value being the actual message... 
         public ActionResult Recipes() {
@@ -51,7 +54,10 @@ namespace RachelsRosesWebPages.Controllers {
             ViewBag.ingredients = currentRecipe.ingredients;
             ViewBag.recipename = currentRecipe.name;
             ViewBag.userinputerror = emptyUserInput;
-            ViewBag.repeatedstring = repeatedString; 
+            ViewBag.repeatedstring = repeatedString;
+            ViewBag.originalyield = originalYield;
+            ViewBag.multiplier = YieldMultiplier;
+            ViewBag.newyield = newYield; 
             foreach (var ingredient in currentRecipe.ingredients) {
                 if (string.IsNullOrEmpty(ingredient.name)) {
                     ViewBag.ErrorMessage = emptyUserInput;
@@ -140,6 +146,18 @@ namespace RachelsRosesWebPages.Controllers {
             ViewBag.newRecipeTitle = newRecipeTitle;
             return Redirect("/home/recipe?name=" + newRecipeTitle);
         }
+        public ActionResult AdjustYield(int originalYield, decimal multiplier) {
+            ViewBag.originalyield = originalYield;
+            ViewBag.multiplier = multiplier;
+            ViewBag.newyield = originalYield * multiplier;
+            return Redirect("/home/recipe?name=" + currentRecipe.name); 
+        }
+        //public ActionResult AdjustIngredientMeasurements(List<Ingredient> ingredients) {
+        //    var convert = new Convert(); 
+        //    foreach (var ing in ingredients) {
+        //        ing.measurement = convert.
+        //    }
+        //}
     }
 }
 

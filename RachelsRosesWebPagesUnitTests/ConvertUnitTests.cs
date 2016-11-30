@@ -256,6 +256,34 @@ namespace RachelsRosesWebPages.Controllers {
             var actual = convert.SplitMultiLevelMeasurement("3 1/4 cups 2 teaspoons");
             Assert.AreEqual(expected, actual);
         }
+        [Test]
+        public void TestSplittingMeasurements4() {
+            var convert = new Convert();
+            var expected = new string[] { "1 cup", "1 tablespoon", "1 teaspoon" };
+            var actual = convert.SplitMultiLevelMeasurement("1 cup 1 tablespoon 1 teaspoon");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestSplittingMeasurements5() {
+            var convert = new Convert();
+            var expected = new string[] { "4 1/3 cup", "1 1/2 tablespoons", "2 1/2 teaspoons" };
+            var actual = convert.SplitMultiLevelMeasurement("4 1/3 cup 1 1/2 tablespoons 2 1/2 teaspoons");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestSplittingMeasurements6() {
+            var convert = new Convert();
+            var expected = new string[] { "6 3/4 cup", "1 1/2 tablespoons", "2 teaspoons" };
+            var actual = convert.SplitMultiLevelMeasurement("6 3/4 cup 1 1/2 tablespoons 2 teaspoons");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestSplittingMeasurements7() {
+            var convert = new Convert();
+            var expected = new string[] { "4 7/8 cups", "3 1/2 tablespoons", "1/2 teaspoons" };
+            var actual = convert.SplitMultiLevelMeasurement("4 7/8 cups 3 1/2 tablespoons 1/2 teaspoons");
+            Assert.AreEqual(expected, actual); 
+        }
         //testing accumulated teaspoons from various measurements
         [Test]
         public void AccumulatingTeaspoonsFromVariousMeasurements() {
@@ -282,7 +310,28 @@ namespace RachelsRosesWebPages.Controllers {
         public void AccumulatingTeaspoonsFromVariousMeasurements4() {
             var convert = new Convert();
             var expected = 78.33m;
-            var actual = convert.AccumulatedTeaspoonMeasurement("1 1/2 cups 6 1/3 teaspoons");
+            var actual = convert.AccumulatedTeaspoonMeasurement("1 1/2 cups 2 tablespoons 1/4 teaspoons");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void AccumulatingTeaspoonsFromVariousMeasurements5() {
+            var convert = new Convert();
+            var expected = 110.5m;
+            var actual = convert.AccumulatedTeaspoonMeasurement("2 cups 4 tablespoons 2 1/2 teaspoons");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void AccumulatingTeaspoonsFromVariousMeasurements6() {
+            var convert = new Convert();
+            var expected = 56.5m;
+            var actual = convert.AccumulatedTeaspoonMeasurement("1 cup 2 tablespoons 2 1/2 teaspoons");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void AccumulatingTeaspoonsFromVariousMeasurements7() {
+            var convert = new Convert();
+            var expected = 77.12m;
+            var actual = convert.AccumulatedTeaspoonMeasurement("1 1/2 cups 1 tablespoon 2 1/8 teaspoons");
             Assert.AreEqual(expected, actual);
         }
         //testing multiplied teaspoons
@@ -424,28 +473,19 @@ namespace RachelsRosesWebPages.Controllers {
             var actual = convert.AdjustIngredientMeasurement("1/4 teaspoon", 4, 2);
             Assert.AreEqual(expected, actual);
         }
-        //these are not yet passing because i don't have a parse for a measurement that takes 3 different measurement levels
-        //[Test]
-        //public void AdjustTotalMeasurement6() {
-        //    var convert = new Convert();
-        //    var expected = "26.75 cups 2 tablespoons 2 teaspoons";
-        //    //var expected = 26.25c
-        //    var actual = convert.AdjustIngredientMeasurement("6 1/2 cups 3 tablespoons 2 teaspoons", 32, 128);
-        //    Assert.AreEqual(expected, actual);
-        //}
-        //[Test]
-        //public void AdjustTotalMeasurement10() {
-        //    var convert = new Convert();
-        //    var expected = "2.5 cups 2 tablespoons .5 teaspoons"; 
-        //    var actual = convert.AdjustIngredientMeasurement("1 3/4 cups 1 tablespoon 1/4 teaspoon")
-        //    Assert.AreEqual(expected, actual); 
-        //}
-        //[Test]
-        //public void AdjustTotalMeasurement7() {
-        //    var convert = new Convert();
-        //    var expected = "6 cups 5 tablespoons 2.5 teaspoons";
-        //    var actual = convert.AdjustIngredientMeasurement("12 cups 10 tablespoons 5 teaspoons", 10, 5);
-        //    Assert.AreEqual(expected, actual);
-        //}
+        [Test]
+        public void AdjustTotalMeasurement13() {
+            var convert = new Convert();
+            var expected = "2 cups 3 tablespoons 0.25 teaspoons";
+            var actual = convert.AdjustIngredientMeasurement("1 cup 1 1/2 tablespoons 1/8 teaspoon", 15, 30);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void AdjustTotalMeasurement14() {
+            var convert = new Convert();
+            var expected = "0.25 cups 1 tablespoons";
+            var actual = convert.AdjustIngredientMeasurement("1/4 cup 2 tablespoons 2 teaspoon", 8, 6);
+            Assert.AreEqual(expected, actual); 
+        }
     }
 }
