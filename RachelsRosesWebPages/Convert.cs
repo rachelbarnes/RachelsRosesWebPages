@@ -69,7 +69,7 @@ namespace RachelsRosesWebPages {
                         next = i + 1;
                         var previousChar = multiLevelMeasurement[previous];
                         var nextChar = multiLevelMeasurement[next];
-                        var currentChar = multiLevelMeasurement[i]; 
+                        var currentChar = multiLevelMeasurement[i];
                         if ((multiLevelMeasurement[i] == ' ') && (!int.TryParse(multiLevelMeasurement[previous].ToString(), out n)) && (int.TryParse(multiLevelMeasurement[next].ToString(), out n))) {
                             firstMeasurement = multiLevelMeasurement.Substring(0, i);
                             latterMeasurement = multiLevelMeasurement.Substring(i + 1, (multiLevelMeasurement.Count()) - (i + 1));
@@ -77,7 +77,7 @@ namespace RachelsRosesWebPages {
                             //the firstMeasurement and finalMeasurements here are fine... but when i return the splitMeasurement, I keep getting errors
                         }
                     }
-                    splitMeasurement = new string[] { firstMeasurement, latterMeasurement}; 
+                    splitMeasurement = new string[] { firstMeasurement, latterMeasurement };
                 }
                 if (count == 3) {
                     for (int j = 0; j < latterMeasurement.Count(); j++) {
@@ -206,8 +206,12 @@ namespace RachelsRosesWebPages {
         public decimal Parse(string fraction) {
             var splitComplexFraction = new string[] { };
             var finaldecimal = 0m;
+            if (!fraction.Contains('/') && !fraction.Contains(' ') && fraction.Contains('.')) {
+                finaldecimal = decimal.Parse(fraction);
+                return finaldecimal;
+            }
             if (!fraction.Contains('/') && !fraction.Contains(' ')) {
-                finaldecimal = Int32.Parse(fraction);
+                finaldecimal = decimal.Parse(fraction);
                 return finaldecimal;
             }
             if (fraction.Contains(' ')) {

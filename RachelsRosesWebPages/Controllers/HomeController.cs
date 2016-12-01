@@ -25,68 +25,42 @@ namespace RachelsRosesWebPages.Controllers {
         public Recipe(string _name) {
             name = _name;
             ingredients = new List<Ingredient>();
+            yield = 0;
         }
+    }
+    public class Error {
+        public string repeatedRecipeName = "This recipe is already in your recipe box.";
+        public Error() { }
     }
     public class HomeController : Controller {
         public static List<Recipe> recipes = new List<Recipe>();
         public static Recipe currentRecipe = null;
         public static Ingredient currentIngredient = null;
-        public static Ingredient updatedIngredient = null; //refactor all the instances of this... just use currentIngredient
-        public static List<Ingredient> currentListIngredients = new List<Ingredient>(); //refactor all the instances of this... jusst use currentRecipe.Ingredients
-        public static string ingredientComment = null;
-        public static string emptyUserInput = null;
-        public static string repeatedString = null;
-        public static string updatedMeasurement = null;
-        //i wonder if it would be worthwhile to create a dictionary of error messages, with the key
-        //being a sum of the error (so empty, or repeated, etc.) and then the value being the actual message... 
         public ActionResult Recipes() {
             ViewBag.recipes = recipes;
             return View();
         }
         public ActionResult Recipe(string name) {
+            var error = new Error(); 
             if (string.IsNullOrEmpty(name))
                 return Redirect("/home/recipes");
             name = name.Trim();
             currentRecipe = recipes.First(x => x.name == name);
             ViewBag.ingredients = currentRecipe.ingredients;
             ViewBag.recipename = currentRecipe.name;
-            ViewBag.userinputerror = emptyUserInput;
-            ViewBag.repeatedstring = repeatedString;
-            ViewBag.currentrecipe = currentRecipe; 
-            foreach (var ingredient in currentRecipe.ingredients) {
-                if (string.IsNullOrEmpty(ingredient.name)) {
-                    ViewBag.ErrorMessage = emptyUserInput;
-                }
-            }
+            ViewBag.currentrecipe = currentRecipe;
+            ViewBag.repeatedrecipetitle = error.repeatedRecipeName; 
             return View();
         }
-        //look into editrecipetitle and look at doing that method without the old recipe name as a parameter... shouldn't need to be in the forms
-        //is the best way to do this by changing the yield or by applying a multiplier? 
-        //i think yield would be better (original serves 24, but i want it to serve 14
         public ActionResult Ingredient(string name, string measurement) {
             if (string.IsNullOrEmpty(name))
                 return Redirect("/home/recipes");
             if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(measurement))
                 return Redirect("/home/recipe?name=" + currentRecipe.name);
-            Ingredient currentIng = new Ingredient(name, measurement);
-            foreach (var ing in currentListIngredients) { //if you want to keep this, do it with currentRecipe.ingredients
-                if (ing == currentIng)
-                    ViewBag.DuplicateIngredientNameErrorMessage = "This ingredient is already in your ingredients list.";
-                if (!(ing.name == name) && !(ing.measurement == measurement))
-                    currentListIngredients.Add(currentIng);
-            }
             ViewBag.currentrecipe = currentRecipe.name;
-            ViewBag.currentingname = name;
-            ViewBag.currentingmeasurement = measurement;
-            if (updatedIngredient != null) {
-                currentIngredient = updatedIngredient;
-                ViewBag.updatedingname = currentIngredient.name;
-                ViewBag.updatedingmeasurement = currentIngredient.measurement;
-            }
-            ViewBag.ingcomment = ingredientComment;
             return View();
         }
-        public ActionResult EditIng(string oldName, string updatedName, string oldMeasurement, string updatedMeasurement) {
+        public ActionResult EditIng(string updatedName, string updatedMeasurement) {
             if ((string.IsNullOrEmpty(updatedName)) && (string.IsNullOrEmpty(updatedMeasurement))) {
                 ViewBag.ErrorMessage = "Please enter an ingredient name and measurement";
                 return Redirect("/home/recipe?name=" + currentRecipe.name);
@@ -94,13 +68,13 @@ namespace RachelsRosesWebPages.Controllers {
             foreach (var ing in currentRecipe.ingredients) {
                 if (ing.name != updatedName && !(string.IsNullOrEmpty(updatedName))) {
                     ing.name = updatedName;
-                } else { updatedName = oldName; }
+                } else { updatedName = ing.name; }
                 if (ing.measurement != updatedMeasurement && !(string.IsNullOrEmpty(updatedMeasurement))) {
                     ing.measurement = updatedMeasurement;
-                } else { updatedMeasurement = oldMeasurement; }
-                updatedIngredient = ing;
+                } else { updatedMeasurement = ing.measurement; }
+                currentIngredient = ing;
             }
-            return Redirect("/home/ingredient?name=" + updatedIngredient.name + "&measurement=" + updatedIngredient.measurement);
+            return Redirect("/home/ingredient?name=" + currentIngredient.name + "&measurement=" + currentIngredient.measurement);
         }
         public ActionResult DeleteIngredient(string ingredient) {
             currentRecipe.ingredients = currentRecipe.ingredients.Where(x => x.name != ingredient).ToList();
@@ -112,26 +86,14 @@ namespace RachelsRosesWebPages.Controllers {
             if (!(string.IsNullOrEmpty(ingredient)) || !(string.IsNullOrEmpty(measurement))) {
                 Ingredient newingredient = new Ingredient(ingredient, measurement);
                 currentRecipe.ingredients.Add(newingredient);
-            } else { emptyUserInput = "Please enter both an ingredient and a measurement"; }
+            }
             return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
+        //i have to have a functionality and action if a recipe is repeated. 
         public ActionResult CreateRecipe(string recipeTitle) {
             recipeTitle = recipeTitle.Trim();
             Recipe newrecipe = new Recipe(recipeTitle);
-            if (string.IsNullOrEmpty(recipeTitle))
-                emptyUserInput = "Please enter a recipe title to add a recipe to your recipe box.";
-            if (recipes.Count == 0)
-                recipes.Add(newrecipe);
-            foreach (var recipe in recipes) {
-                if (recipe.name == recipeTitle) {
-                    repeatedString = "Please enter a different recipe title, this one already exists in your recipe box";
-                } else {
-                    if ((!string.IsNullOrEmpty(recipeTitle))) {
-                        recipes.Add(newrecipe);
-                        break;
-                    }
-                }
-            }
+            recipes.Add(newrecipe);
             return Redirect("/home/recipes");
         }
         public ActionResult DeleteRecipe(string recipeTitle) {
@@ -140,8 +102,7 @@ namespace RachelsRosesWebPages.Controllers {
         }
         public ActionResult EditRecipeTitle(string newRecipeTitle) {
             currentRecipe.name = newRecipeTitle;
-            //having this redirect here means it clears out the viewbag when you direct it somewhere else... be careful here
-                //every redirect clears out the viewbag
+            //every redirect clears out the viewbag... as a notice and warning
             return Redirect("/home/recipe?name=" + newRecipeTitle);
         }
         public ActionResult AdjustYield(int updatedYield) {
@@ -206,5 +167,11 @@ Is there a specific way you have to make classes in the MVC model outside of con
 
 Is there a better way to keep track of the ViewBag variables between pages and methods other than having class properties (31-43)
 
-What is hte 
+
+
+Left to do: 
+
+debug the adjust ingredients action method... it changed all of the ingredient measurements to the same measurement, although correctly adjusted. 
+
+Do i need the first condition in Parse in ParseFraction? 
 */
