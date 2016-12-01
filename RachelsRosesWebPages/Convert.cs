@@ -67,13 +67,17 @@ namespace RachelsRosesWebPages {
                     if ((i > 1) && (i < multiLevelMeasurement.Count() - 1)) {
                         previous = i - 1;
                         next = i + 1;
+                        var previousChar = multiLevelMeasurement[previous];
+                        var nextChar = multiLevelMeasurement[next];
+                        var currentChar = multiLevelMeasurement[i]; 
                         if ((multiLevelMeasurement[i] == ' ') && (!int.TryParse(multiLevelMeasurement[previous].ToString(), out n)) && (int.TryParse(multiLevelMeasurement[next].ToString(), out n))) {
                             firstMeasurement = multiLevelMeasurement.Substring(0, i);
                             latterMeasurement = multiLevelMeasurement.Substring(i + 1, (multiLevelMeasurement.Count()) - (i + 1));
                             break;
+                            //the firstMeasurement and finalMeasurements here are fine... but when i return the splitMeasurement, I keep getting errors
                         }
                     }
-                    splitMeasurement = new string[] { firstMeasurement, secondMeasurement };
+                    splitMeasurement = new string[] { firstMeasurement, latterMeasurement}; 
                 }
                 if (count == 3) {
                     for (int j = 0; j < latterMeasurement.Count(); j++) {

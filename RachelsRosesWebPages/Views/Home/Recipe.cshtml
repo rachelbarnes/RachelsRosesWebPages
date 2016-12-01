@@ -6,13 +6,19 @@
 <a href="/home/recipes">Go back to your Recipe Box</a>
 <br />
 
-<h3>@ViewBag.recipename</h3>
-<form action="/home/editrecipetitle?oldRecipeTitle=@ViewBag.recipename&newRecipeTitle=@ViewBag.newRecipeTitle" method="post">
+<h3>@ViewBag.currentrecipe.name</h3>
+<form action="/home/editrecipetitle" method="post"
     <input name="newRecipeTitle" />
     <input type="submit" value="Edit Recipe Title" />
 </form>
 <br />
-<form action=""
+<form action="/home/adjustyield" method="post">
+    <input name="updatedYield" />
+    <input type="submit" value="Change Yield" /> 
+</form>
+<br />
+<h5>Yield: @ViewBag.currentrecipe.yield</h5>
+<br />
 <h4><b>@ViewBag.userinputerror</b></h4>
 <br />
 <br />

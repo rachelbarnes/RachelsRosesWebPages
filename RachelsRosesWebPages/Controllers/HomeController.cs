@@ -21,7 +21,7 @@ namespace RachelsRosesWebPages.Controllers {
     public class Recipe {
         public string name;
         public List<Ingredient> ingredients;
-
+        public int yield;
         public Recipe(string _name) {
             name = _name;
             ingredients = new List<Ingredient>();
@@ -31,17 +31,14 @@ namespace RachelsRosesWebPages.Controllers {
         public static List<Recipe> recipes = new List<Recipe>();
         public static Recipe currentRecipe = null;
         public static Ingredient currentIngredient = null;
-        public static Ingredient updatedIngredient = null;
-        public static List<Ingredient> currentListIngredients = new List<Ingredient>();
+        public static Ingredient updatedIngredient = null; //refactor all the instances of this... just use currentIngredient
+        public static List<Ingredient> currentListIngredients = new List<Ingredient>(); //refactor all the instances of this... jusst use currentRecipe.Ingredients
         public static string ingredientComment = null;
         public static string emptyUserInput = null;
         public static string repeatedString = null;
         public static string updatedMeasurement = null;
-        public static int originalYield = 0;
-        public static int newYield = 0;
-        public static decimal YieldMultiplier = 0m; 
         //i wonder if it would be worthwhile to create a dictionary of error messages, with the key
-            //being a sum of the error (so empty, or repeated, etc.) and then the value being the actual message... 
+        //being a sum of the error (so empty, or repeated, etc.) and then the value being the actual message... 
         public ActionResult Recipes() {
             ViewBag.recipes = recipes;
             return View();
@@ -55,9 +52,7 @@ namespace RachelsRosesWebPages.Controllers {
             ViewBag.recipename = currentRecipe.name;
             ViewBag.userinputerror = emptyUserInput;
             ViewBag.repeatedstring = repeatedString;
-            ViewBag.originalyield = originalYield;
-            ViewBag.multiplier = YieldMultiplier;
-            ViewBag.newyield = newYield; 
+            ViewBag.currentrecipe = currentRecipe; 
             foreach (var ingredient in currentRecipe.ingredients) {
                 if (string.IsNullOrEmpty(ingredient.name)) {
                     ViewBag.ErrorMessage = emptyUserInput;
@@ -65,13 +60,16 @@ namespace RachelsRosesWebPages.Controllers {
             }
             return View();
         }
+        //look into editrecipetitle and look at doing that method without the old recipe name as a parameter... shouldn't need to be in the forms
+        //is the best way to do this by changing the yield or by applying a multiplier? 
+        //i think yield would be better (original serves 24, but i want it to serve 14
         public ActionResult Ingredient(string name, string measurement) {
             if (string.IsNullOrEmpty(name))
                 return Redirect("/home/recipes");
             if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(measurement))
                 return Redirect("/home/recipe?name=" + currentRecipe.name);
             Ingredient currentIng = new Ingredient(name, measurement);
-            foreach (var ing in currentListIngredients) {
+            foreach (var ing in currentListIngredients) { //if you want to keep this, do it with currentRecipe.ingredients
                 if (ing == currentIng)
                     ViewBag.DuplicateIngredientNameErrorMessage = "This ingredient is already in your ingredients list.";
                 if (!(ing.name == name) && !(ing.measurement == measurement))
@@ -121,7 +119,7 @@ namespace RachelsRosesWebPages.Controllers {
             recipeTitle = recipeTitle.Trim();
             Recipe newrecipe = new Recipe(recipeTitle);
             if (string.IsNullOrEmpty(recipeTitle))
-                emptyUserInput = "Please enter a recipe title to add a recipe to your recipe box."; 
+                emptyUserInput = "Please enter a recipe title to add a recipe to your recipe box.";
             if (recipes.Count == 0)
                 recipes.Add(newrecipe);
             foreach (var recipe in recipes) {
@@ -140,17 +138,24 @@ namespace RachelsRosesWebPages.Controllers {
             recipes = recipes.Where(x => x.name != recipeTitle).ToList();
             return Redirect("/home/recipes");
         }
-        public ActionResult EditRecipeTitle(string oldRecipeTitle, string newRecipeTitle) {
-            currentRecipe.name = oldRecipeTitle;
+        public ActionResult EditRecipeTitle(string newRecipeTitle) {
             currentRecipe.name = newRecipeTitle;
-            ViewBag.newRecipeTitle = newRecipeTitle;
+            //having this redirect here means it clears out the viewbag when you direct it somewhere else... be careful here
+                //every redirect clears out the viewbag
             return Redirect("/home/recipe?name=" + newRecipeTitle);
         }
-        public ActionResult AdjustYield(int originalYield, decimal multiplier) {
-            ViewBag.originalyield = originalYield;
-            ViewBag.multiplier = multiplier;
-            ViewBag.newyield = originalYield * multiplier;
-            return Redirect("/home/recipe?name=" + currentRecipe.name); 
+        public ActionResult AdjustYield(int updatedYield) {
+            var convert = new Convert();
+            if (currentRecipe.yield == 0) {
+                currentRecipe.yield = updatedYield;
+            } else {
+                var oldYield = currentRecipe.yield;
+                currentRecipe.yield = updatedYield;
+                foreach (var ing in currentRecipe.ingredients) {
+                    ing.measurement = convert.AdjustIngredientMeasurement(ing.measurement, oldYield, currentRecipe.yield);
+                }
+            }
+            return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
     }
 }
@@ -199,4 +204,7 @@ Is there a specific way you have to make classes in the MVC model outside of con
         controller with such functionalities and methods (it's already getting kind of cluttered for my taste unfortunately)
     I don't know where to put it in the project...
 
+Is there a better way to keep track of the ViewBag variables between pages and methods other than having class properties (31-43)
+
+What is hte 
 */

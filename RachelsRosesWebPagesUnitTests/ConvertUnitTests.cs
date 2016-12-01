@@ -309,7 +309,7 @@ namespace RachelsRosesWebPages.Controllers {
         [Test]
         public void AccumulatingTeaspoonsFromVariousMeasurements4() {
             var convert = new Convert();
-            var expected = 78.33m;
+            var expected = 78.25m;
             var actual = convert.AccumulatedTeaspoonMeasurement("1 1/2 cups 2 tablespoons 1/4 teaspoons");
             Assert.AreEqual(expected, actual);
         }
