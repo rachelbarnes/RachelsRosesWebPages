@@ -2,25 +2,32 @@
 @{
     ViewBag.Title = "My Recipe";
 }
-<a href="/home/recipe?name=@ViewBag.currentrecipe">Go back to @ViewBag.currentrecipe</a>
+<a href="/home/recipe?name=@ViewBag.currentrecipe.name">Go back to @ViewBag.currentrecipe.name</a>
 <br />
-<h2><b>@ViewBag.currentingmeasurement @ViewBag.currentingname</b></h2>
+<h3><b>@ViewBag.currentingredient.measurement : @ViewBag.currentingredient.name</b></h3>
 <br />
 <h4>Update or Edit your ingredients</h4>
-<form action="/home/EditIng?oldName=@ViewBag.currentingname&newName=@ViewBag.updatedingname&oldMeasurement=@ViewBag.currentingmeasurement&updatedMeasurement=@ViewBag.updatedingmeasurement" method="post">
+<form action="/home/EditIng" method="post">
+    @*this method works without putting the parameters here too... looking specifically at line 32 of this commit*@
     <h5>Edit your ingredient <b>name:</b></h5>
     <input name="updatedName" />
+    <input type="submit" value="Update Ingredient Name" />
     <br />
     <h5>Edit your ingredient <b>measurement:</b></h5>
     <input name="updatedMeasurement" />
-    <input type="submit" value="Update Ingredient Information" />
+    <input type="submit" value="Update Ingredient Measurement" />
 </form>
 <h4>@ViewBag.DuplicateIngredientNameErrorMessage</h4>
 <h4>@ViewBag.ErrorMessage</h4>
 <br />
-<h4>Comments on @ViewBag.currentingname:</h4>
+@*<h4>Comments on @ViewBag.currentingname:</h4>
 <form action="ingComment?comment=@ViewBag.ingComment" method="post">
     <input name="comment" />
     <input type="submit" value="Create a comment" />
 </form>
-<p>@ViewBag.ingComment</p>
+<p>@ViewBag.ingComment</p>*@
+
+@*I want to add a more dynamic comments section, if nothing else for me as a baker, that's important to me. 
+    I can have extra comments about weight and measurement here to play with in the comments*@
+
+@*>?oldName=@ViewBag.currentingname&newName=@ViewBag.updatedingname&oldMeasurement=@ViewBag.currentingmeasurement&updatedMeasurement=@ViewBag.updatedingmeasurement" method="post">*@

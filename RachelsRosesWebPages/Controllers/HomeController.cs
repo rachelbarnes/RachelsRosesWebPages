@@ -57,7 +57,20 @@ namespace RachelsRosesWebPages.Controllers {
                 return Redirect("/home/recipes");
             if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(measurement))
                 return Redirect("/home/recipe?name=" + currentRecipe.name);
-            ViewBag.currentrecipe = currentRecipe.name;
+            foreach (var ingredient in currentRecipe.ingredients) {
+                if (ingredient.name == name)
+                    currentIngredient = ingredient; 
+            }
+            //i'm getting the same results from the foreach loop above as the line below... i'd rather go with the one line as opposed to four lines.
+                //work tomorrow to figure this out
+            //this should be the same as the line below (that is currently commented out); the line below I think is giving me bugs. look into that. 
+            //currentIngredient = currentRecipe.ingredients.First(x => x.name == name);
+                //i have a feeling this is where I'm getting into trouble with 
+            //if i have multiples of one ingredient, i can get in trouble here... it'll select the first instance of butter (for example), over the second... 
+            //there has to be a better way to do this. 
+            //for the moment this is fine, but it will have to change.
+            ViewBag.currentrecipe = currentRecipe;
+            ViewBag.currentingredient = currentIngredient; 
             return View();
         }
         public ActionResult EditIng(string updatedName, string updatedMeasurement) {
@@ -89,7 +102,6 @@ namespace RachelsRosesWebPages.Controllers {
             }
             return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
-        //i have to have a functionality and action if a recipe is repeated. 
         public ActionResult CreateRecipe(string recipeTitle) {
             recipeTitle = recipeTitle.Trim();
             Recipe newrecipe = new Recipe(recipeTitle);
@@ -102,9 +114,9 @@ namespace RachelsRosesWebPages.Controllers {
         }
         public ActionResult EditRecipeTitle(string newRecipeTitle) {
             currentRecipe.name = newRecipeTitle;
-            //every redirect clears out the viewbag... as a notice and warning
             return Redirect("/home/recipe?name=" + newRecipeTitle);
         }
+            //every redirect clears out the viewbag... as a notice and warning
         public ActionResult AdjustYield(int updatedYield) {
             var convert = new Convert();
             if (currentRecipe.yield == 0) {
@@ -114,6 +126,11 @@ namespace RachelsRosesWebPages.Controllers {
                 currentRecipe.yield = updatedYield;
                 foreach (var ing in currentRecipe.ingredients) {
                     ing.measurement = convert.AdjustIngredientMeasurement(ing.measurement, oldYield, currentRecipe.yield);
+                    //two things that still have to be done with the Convert logic and methods is converting ounces/weights (gallons, quarts, etc.), being able to measure them into cups and then teaspoons and then
+                        //back into their respective weights if needed, as well as being able to evaluate eggs
+                            //for eggs, if there is a .25 difference between the number of eggs and the nearest whole number, make a note, but round up... 
+                                //and either way, make a note about the recipe calling for medium eggs and suggest using large or small eggs based on the size? 
+                                //that's going to be a tricky thing for determining the best course of action to take with that
                 }
             }
             return Redirect("/home/recipe?name=" + currentRecipe.name);
@@ -168,10 +185,23 @@ Is there a specific way you have to make classes in the MVC model outside of con
 Is there a better way to keep track of the ViewBag variables between pages and methods other than having class properties (31-43)
 
 
+BUGS: 
+when I update an ingredient name or measurement, i update the rest of the ingredients in the recipe to that name and measurement
+there's a bug with the conversion of the ingredient measurements, sometimes it gets empty... 
+
+
 
 Left to do: 
-
+ 
 debug the adjust ingredients action method... it changed all of the ingredient measurements to the same measurement, although correctly adjusted. 
 
 Do i need the first condition in Parse in ParseFraction? 
+    have a database that holds the original decimal to retain precision when using the multiplier... i don't want to use a 1/8 when i'm really trying
+        to use a multiplier for .1667... so i need to be able to apply it to the decimal value instead of the just the fraction that comes out of it, the precision is impt for me, even if it may remain inconsequencial to this
+
+When i have access to my density database (which can either be done now with reading a file from my computer or having the information in a SQL
+    density database...), i can covert the ounces to cups based on their density... then i can choose to put the ounces and cups or density or 
+    whatever information in the ingredient comments or choose to put the ingredient measurement back into ounces
+
+
 */

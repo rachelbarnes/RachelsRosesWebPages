@@ -46,7 +46,6 @@ namespace RachelsRosesWebPages {
         public Func<decimal, decimal, decimal> AdjustTeaspoonsBasedOnMultiplier = (originalTeaspoonMeasurement, multiplier) => Math.Round((originalTeaspoonMeasurement * multiplier), 2);
         public string[] SplitMultiLevelMeasurement(string multiLevelMeasurement) { //this doens't account for eggs... i'll need something special for the eggs, but it shouldn't be difficult... 
             string[] splitMeasurement = new string[] { };
-            //for (int i = 0; i < multiLevelMeasurement.Count(); i++) {
             int previous;
             int next;
             int n;
@@ -67,14 +66,10 @@ namespace RachelsRosesWebPages {
                     if ((i > 1) && (i < multiLevelMeasurement.Count() - 1)) {
                         previous = i - 1;
                         next = i + 1;
-                        var previousChar = multiLevelMeasurement[previous];
-                        var nextChar = multiLevelMeasurement[next];
-                        var currentChar = multiLevelMeasurement[i];
                         if ((multiLevelMeasurement[i] == ' ') && (!int.TryParse(multiLevelMeasurement[previous].ToString(), out n)) && (int.TryParse(multiLevelMeasurement[next].ToString(), out n))) {
                             firstMeasurement = multiLevelMeasurement.Substring(0, i);
                             latterMeasurement = multiLevelMeasurement.Substring(i + 1, (multiLevelMeasurement.Count()) - (i + 1));
                             break;
-                            //the firstMeasurement and finalMeasurements here are fine... but when i return the splitMeasurement, I keep getting errors
                         }
                     }
                     splitMeasurement = new string[] { firstMeasurement, latterMeasurement };
@@ -96,9 +91,11 @@ namespace RachelsRosesWebPages {
                     splitMeasurement = new string[] { firstMeasurement, secondMeasurement, thirdMeasurement };
                 }
             }
-            //}
             return splitMeasurement;
         }
+                        //var previousChar = multiLevelMeasurement[previous];
+                        //var nextChar = multiLevelMeasurement[next];
+                        //var currentChar = multiLevelMeasurement[i];
         public decimal AdjustToTeaspoons(string measurement) {
             var parseFraction = new ParseFraction();
             var splitMeasurement = new string[] { };
@@ -152,14 +149,14 @@ namespace RachelsRosesWebPages {
                         measDict.Add("cups", .5m);
                     adjustedTeaspoonMesaurement -= 24m;
                 }
-                if (adjustedTeaspoonMesaurement < 48 && adjustedTeaspoonMesaurement >= 12) {
+                if (adjustedTeaspoonMesaurement < 24 && adjustedTeaspoonMesaurement >= 12) {
                     if (measDict.Keys.Contains("cups"))
                         measDict["cups"] = measDict["cups"] + .25m;
                     if (!measDict.Keys.Contains("cups"))
                         measDict.Add("cups", .25m);
                     adjustedTeaspoonMesaurement -= 12m;
                 }
-                if (adjustedTeaspoonMesaurement < 48m && adjustedTeaspoonMesaurement >= 3m) {
+                if (adjustedTeaspoonMesaurement < 12m && adjustedTeaspoonMesaurement >= 3m) {
                     if (measDict.Keys.Contains("tablespoons"))
                         measDict["tablespoons"] = measDict["tablespoons"] + 1m;
                     if (!measDict.Keys.Contains("tablespoons"))
@@ -193,14 +190,22 @@ namespace RachelsRosesWebPages {
         }
         public string AdjustIngredientMeasurement(string measurement, int originalYield, int desiredYield) {
             var multiplier = ChangeYieldMultiplier(originalYield, desiredYield);
-            //i'm not a big fan of the order of this desired and original yield... 
-            //it's just an order thing, but this is done, so it's all good
             var measurementConvertedToTeaspoons = AccumulatedTeaspoonMeasurement(measurement);
             var multipliedTeaspoonsAdjustment = multiplier * measurementConvertedToTeaspoons;
             var updatedMeasurement = CondenseTeaspoonMeasurement(multipliedTeaspoonsAdjustment);
             return updatedMeasurement;
         }
     }
+    /*
+     other desired functionalities for the Convert class for measurement ingredients: 
+        converting the weight of ingredients based on their density, from and to the ingredient measurement
+            if the weight of the ingredient is given, give the ingredient measurement in the comments, based on the density from the ingredient density database
+            if the measurement is given, give the ingredient weight for checking the ingredient prices from the rest calls
+        convert the decimals from the decimals returned from the AdjustIngredientMeasurement to fractions, but keep the decimals in a database so i can multiply those decimals 
+            with the multiplier as opposed to multiplying the approximate fractions given (keeping the best precision I can
+               for example, .1667 (1/6) is only .0417 from .125 (1/8), but multiply 1/6 * 5 = 0.8335 whereas 1/8 * 5 = .625
+               I realize this may not be as dramatic of a difference, but it's still important to get correct. 
+    */
 
     public class ParseFraction {
         public decimal Parse(string fraction) {
