@@ -44,7 +44,7 @@ namespace RachelsRosesWebPages {
         public Func<int, decimal, int> ChangeYield = (originalServingSize, multiplicationFactor) => (int)(Math.Round((originalServingSize * multiplicationFactor), 0));
         public Func<int, int, decimal> ChangeYieldMultiplier = (originalServingSize, updatedServingSize) => Math.Round(((decimal)updatedServingSize / originalServingSize), 4);
         public Func<decimal, decimal, decimal> AdjustTeaspoonsBasedOnMultiplier = (originalTeaspoonMeasurement, multiplier) => Math.Round((originalTeaspoonMeasurement * multiplier), 2);
-        public string[] SplitMultiLevelMeasurement(string multiLevelMeasurement) { //this doens't account for eggs... i'll need something special for the eggs, but it shouldn't be difficult... 
+        public string[] SplitMultiLevelMeasurement(string multiLevelMeasurement) { 
             string[] splitMeasurement = new string[] { };
             int previous;
             int next;
@@ -68,34 +68,29 @@ namespace RachelsRosesWebPages {
                         next = i + 1;
                         if ((multiLevelMeasurement[i] == ' ') && (!int.TryParse(multiLevelMeasurement[previous].ToString(), out n)) && (int.TryParse(multiLevelMeasurement[next].ToString(), out n))) {
                             firstMeasurement = multiLevelMeasurement.Substring(0, i);
-                            latterMeasurement = multiLevelMeasurement.Substring(i + 1, (multiLevelMeasurement.Count()) - (i + 1));
+                            latterMeasurement = multiLevelMeasurement.Substring(next, (multiLevelMeasurement.Count()) - (i + 1));
+                            splitMeasurement = new string[] { firstMeasurement, latterMeasurement };
                             break;
                         }
                     }
-                    splitMeasurement = new string[] { firstMeasurement, latterMeasurement };
                 }
                 if (count == 3) {
                     for (int j = 0; j < latterMeasurement.Count(); j++) {
                         if ((j > 1) && (j < multiLevelMeasurement.Count() - 1)) {
                             previous = j - 1;
                             next = j + 1;
-                            var previousChar = latterMeasurement[previous];
-                            var nextChar = latterMeasurement[next];
                             if ((latterMeasurement[j] == ' ') && (!int.TryParse(latterMeasurement[previous].ToString(), out n)) && (int.TryParse(latterMeasurement[next].ToString(), out n))) {
                                 secondMeasurement = latterMeasurement.Substring(0, j);
-                                thirdMeasurement = latterMeasurement.Substring(j + 1, (latterMeasurement.Count()) - (j + 1));
+                                thirdMeasurement = latterMeasurement.Substring(next, (latterMeasurement.Count()) - (j + 1));
+                                splitMeasurement = new string[] { firstMeasurement, secondMeasurement, thirdMeasurement };
                                 break;
                             }
                         }
                     }
-                    splitMeasurement = new string[] { firstMeasurement, secondMeasurement, thirdMeasurement };
                 }
             }
             return splitMeasurement;
         }
-                        //var previousChar = multiLevelMeasurement[previous];
-                        //var nextChar = multiLevelMeasurement[next];
-                        //var currentChar = multiLevelMeasurement[i];
         public decimal AdjustToTeaspoons(string measurement) {
             var parseFraction = new ParseFraction();
             var splitMeasurement = new string[] { };
@@ -135,6 +130,34 @@ namespace RachelsRosesWebPages {
             var condensedMeasurement = "";
             var adjustedTeaspoonMesaurement = teaspoons;
             do {
+                if (adjustedTeaspoonMesaurement >= 576) {
+                    if (measDict.Keys.Contains("cups"))
+                        measDict["cups"] = measDict["cups"] + 12m;
+                    if (!measDict.Keys.Contains("cups"))
+                        measDict.Add("cups", 12m);
+                    adjustedTeaspoonMesaurement -= 576m;
+                }
+                if (adjustedTeaspoonMesaurement >= 384) {
+                    if (measDict.Keys.Contains("cups"))
+                        measDict["cups"] = measDict["cups"] + 8m;
+                    if (!measDict.Keys.Contains("cups"))
+                        measDict.Add("cups", 8m);
+                    adjustedTeaspoonMesaurement -= 384m;
+                }
+                if (adjustedTeaspoonMesaurement >= 192) {
+                    if (measDict.Keys.Contains("cups"))
+                        measDict["cups"] = measDict["cups"] + 4m;
+                    if (!measDict.Keys.Contains("cups"))
+                        measDict.Add("cups", 4m);
+                    adjustedTeaspoonMesaurement -= 192m;
+                }
+                if (adjustedTeaspoonMesaurement >= 96) {
+                    if (measDict.Keys.Contains("cups"))
+                        measDict["cups"] = measDict["cups"] + 2m;
+                    if (!measDict.Keys.Contains("cups"))
+                        measDict.Add("cups", 2m);
+                    adjustedTeaspoonMesaurement -= 96m;
+                }
                 if (adjustedTeaspoonMesaurement >= 48m) {
                     if (measDict.Keys.Contains("cups"))
                         measDict["cups"] = measDict["cups"] + 1m;
@@ -198,10 +221,12 @@ namespace RachelsRosesWebPages {
     }
     /*
      other desired functionalities for the Convert class for measurement ingredients: 
-        converting the weight of ingredients based on their density, from and to the ingredient measurement
+        *convert the measurement/amount of eggs. this will require some unique methods for this alone, as I won't need to accumulate teaspoons and parse them out to a string of measurements
+            I can intertwine it in the SplitMultiLevelMeasurement, but that seems unnecessary, i want to just have it on its own. the egg quantity will not be a part of a multilevel measurement
+        *converting the weight of ingredients based on their density, from and to the ingredient measurement
             if the weight of the ingredient is given, give the ingredient measurement in the comments, based on the density from the ingredient density database
             if the measurement is given, give the ingredient weight for checking the ingredient prices from the rest calls
-        convert the decimals from the decimals returned from the AdjustIngredientMeasurement to fractions, but keep the decimals in a database so i can multiply those decimals 
+        *convert the decimals from the decimals returned from the AdjustIngredientMeasurement to fractions, but keep the decimals in a database so i can multiply those decimals 
             with the multiplier as opposed to multiplying the approximate fractions given (keeping the best precision I can
                for example, .1667 (1/6) is only .0417 from .125 (1/8), but multiply 1/6 * 5 = 0.8335 whereas 1/8 * 5 = .625
                I realize this may not be as dramatic of a difference, but it's still important to get correct. 

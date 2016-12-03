@@ -41,7 +41,7 @@ namespace RachelsRosesWebPages.Controllers {
             return View();
         }
         public ActionResult Recipe(string name) {
-            var error = new Error(); 
+            var error = new Error();
             if (string.IsNullOrEmpty(name))
                 return Redirect("/home/recipes");
             name = name.Trim();
@@ -49,7 +49,7 @@ namespace RachelsRosesWebPages.Controllers {
             ViewBag.ingredients = currentRecipe.ingredients;
             ViewBag.recipename = currentRecipe.name;
             ViewBag.currentrecipe = currentRecipe;
-            ViewBag.repeatedrecipetitle = error.repeatedRecipeName; 
+            ViewBag.repeatedrecipetitle = error.repeatedRecipeName;
             return View();
         }
         public ActionResult Ingredient(string name, string measurement) {
@@ -58,19 +58,11 @@ namespace RachelsRosesWebPages.Controllers {
             if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(measurement))
                 return Redirect("/home/recipe?name=" + currentRecipe.name);
             foreach (var ingredient in currentRecipe.ingredients) {
-                if (ingredient.name == name)
-                    currentIngredient = ingredient; 
+                if (ingredient.name == name && ingredient.measurement == measurement)
+                    currentIngredient = ingredient;
             }
-            //i'm getting the same results from the foreach loop above as the line below... i'd rather go with the one line as opposed to four lines.
-                //work tomorrow to figure this out
-            //this should be the same as the line below (that is currently commented out); the line below I think is giving me bugs. look into that. 
-            //currentIngredient = currentRecipe.ingredients.First(x => x.name == name);
-                //i have a feeling this is where I'm getting into trouble with 
-            //if i have multiples of one ingredient, i can get in trouble here... it'll select the first instance of butter (for example), over the second... 
-            //there has to be a better way to do this. 
-            //for the moment this is fine, but it will have to change.
             ViewBag.currentrecipe = currentRecipe;
-            ViewBag.currentingredient = currentIngredient; 
+            ViewBag.currentingredient = currentIngredient;
             return View();
         }
         public ActionResult EditIng(string updatedName, string updatedMeasurement) {
@@ -79,13 +71,16 @@ namespace RachelsRosesWebPages.Controllers {
                 return Redirect("/home/recipe?name=" + currentRecipe.name);
             }
             foreach (var ing in currentRecipe.ingredients) {
-                if (ing.name != updatedName && !(string.IsNullOrEmpty(updatedName))) {
-                    ing.name = updatedName;
-                } else { updatedName = ing.name; }
-                if (ing.measurement != updatedMeasurement && !(string.IsNullOrEmpty(updatedMeasurement))) {
-                    ing.measurement = updatedMeasurement;
-                } else { updatedMeasurement = ing.measurement; }
-                currentIngredient = ing;
+                if (ing.name == currentIngredient.name) {
+                    //putting this extra condition in here actually worked really well, better than expected, nice
+                    if (ing.name != updatedName && !(string.IsNullOrEmpty(updatedName))) {
+                        ing.name = updatedName;
+                    } else { updatedName = ing.name; }
+                    if (ing.measurement != updatedMeasurement && !(string.IsNullOrEmpty(updatedMeasurement))) {
+                        ing.measurement = updatedMeasurement;
+                    } else { updatedMeasurement = ing.measurement; }
+                    currentIngredient = ing;
+                }
             }
             return Redirect("/home/ingredient?name=" + currentIngredient.name + "&measurement=" + currentIngredient.measurement);
         }
@@ -116,7 +111,9 @@ namespace RachelsRosesWebPages.Controllers {
             currentRecipe.name = newRecipeTitle;
             return Redirect("/home/recipe?name=" + newRecipeTitle);
         }
-            //every redirect clears out the viewbag... as a notice and warning
+        //every redirect clears out the viewbag... as a notice and warning
+
+        //there's a bug here... i'm still trying to find the pattern... 
         public ActionResult AdjustYield(int updatedYield) {
             var convert = new Convert();
             if (currentRecipe.yield == 0) {
@@ -126,11 +123,6 @@ namespace RachelsRosesWebPages.Controllers {
                 currentRecipe.yield = updatedYield;
                 foreach (var ing in currentRecipe.ingredients) {
                     ing.measurement = convert.AdjustIngredientMeasurement(ing.measurement, oldYield, currentRecipe.yield);
-                    //two things that still have to be done with the Convert logic and methods is converting ounces/weights (gallons, quarts, etc.), being able to measure them into cups and then teaspoons and then
-                        //back into their respective weights if needed, as well as being able to evaluate eggs
-                            //for eggs, if there is a .25 difference between the number of eggs and the nearest whole number, make a note, but round up... 
-                                //and either way, make a note about the recipe calling for medium eggs and suggest using large or small eggs based on the size? 
-                                //that's going to be a tricky thing for determining the best course of action to take with that
                 }
             }
             return Redirect("/home/recipe?name=" + currentRecipe.name);
@@ -154,7 +146,8 @@ edit an ingredient measurement
 NOT DONE YET: 
 when you create a recipe/ingredient with duplicate name, display an error message on recipe and recipes that say there's a dupcliate name
 use ViewBag.errorMessage = "Duplicate name error" or something
-create comments for the recipes (I'm still trying to figure out the best way to do this... 
+create comments for the recipes 
+    I have bigger plans for the comments (weight ratios, general notes about the ingredients, density and what the measurement of an ingredient is for the density
 
 I would like to eventually have all the general information under each ingredient page...
     the price and selling weight, the desnity, how much you have in your MyPantry logs... then it would make more sense for it to have it's own module and everything

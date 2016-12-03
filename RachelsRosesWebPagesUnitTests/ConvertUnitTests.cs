@@ -409,6 +409,41 @@ namespace RachelsRosesWebPages.Controllers {
             var actual = convert.CondenseTeaspoonMeasurement(.5m);
             Assert.AreEqual(expected, actual);
         }
+        [Test]
+        public void CondenseTeaspoonsMeasurements8() {
+            var convert = new Convert();
+            var expected = "3 cups";
+            var actual = convert.CondenseTeaspoonMeasurement(144m);
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void CondenseTeaspoonsMeasurements9() {
+            var convert = new Convert(); 
+            var expected = "6 cups";
+            var actual = convert.CondenseTeaspoonMeasurement(288m);
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void CondenseTeaspoonsMeasurements10() {
+            var convert = new Convert();
+            var expected = "9 cups";
+            var actual = convert.CondenseTeaspoonMeasurement(432m);
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void CondenseTeaspoonsMeasurements11() {
+            var convert = new Convert();
+            var expected = "3.5 cups";
+            var actual = convert.CondenseTeaspoonMeasurement(168m);
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void CondenseTeaspoonsMeasurements12() {
+            var convert = new Convert();
+            var expected = "13.75 cups 2 tablespoons 1.5 teaspoons"; 
+            var actual = convert.CondenseTeaspoonMeasurement(667.5m);
+            Assert.AreEqual(expected, actual); 
+        }
         //adjust total measurement, this is where it all comes together
         [Test]
         public void AdjustTotalMeasurement() {

@@ -14,7 +14,7 @@
 <br />
 <form action="/home/adjustyield" method="post">
     <input name="updatedYield" />
-    <input type="submit" value="Change Yield" /> 
+    <input type="submit" value="Change Yield" />
 </form>
 <br />
 <h4><b>Yield: @ViewBag.currentrecipe.yield</b></h4>
@@ -36,11 +36,9 @@
     @foreach (var ingredient in ViewBag.ingredients) {
         <li>
             <b>@ingredient.measurement @ingredient.name</b>
-            <h5><b>@ViewBag.ErrorMessage</b></h5>
-                @*<a href="/home/editingredientname?oldName=@ingredient.name&newName=@ViewBag.newname" method="post">Edit Ingredient Name</a>*@
-                <a href="/home/ingredient?name=@ingredient.name&measurement=@ingredient.measurement">View details of @ingredient.name</a>
-            @*</form>*@
             <br />
+            <a href="/home/ingredient?name=@ingredient.name&measurement=@ingredient.measurement">View details of @ingredient.name</a>
+            <br /> 
             <a href="/home/deleteingredient?ingredient=@ingredient.name">Delete Ingredient</a>
         </li>
     }
