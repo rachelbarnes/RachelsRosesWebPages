@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RachelsRosesWebPages.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -20,6 +21,7 @@ namespace RachelsRosesWebPages.Controllers {
     }
     public class Recipe {
         public string name;
+        public int id;
         public List<Ingredient> ingredients;
         public int yield;
         public Recipe(string _name) {
@@ -33,11 +35,15 @@ namespace RachelsRosesWebPages.Controllers {
         public Error() { }
     }
     public class HomeController : Controller {
-        public static List<Recipe> recipes = new List<Recipe>();
+        public List<Recipe> getRecipes() {
+            var db = new DatabaseAccess();
+            return db.queryRecipe();
+        }
+        //public static List<Recipe> recipes = new List<Recipe>();
         public static Recipe currentRecipe = null;
         public static Ingredient currentIngredient = null;
         public ActionResult Recipes() {
-            ViewBag.recipes = recipes;
+            ViewBag.recipes = getRecipes();
             return View();
         }
         public ActionResult Recipe(string name) {
@@ -45,7 +51,7 @@ namespace RachelsRosesWebPages.Controllers {
             if (string.IsNullOrEmpty(name))
                 return Redirect("/home/recipes");
             name = name.Trim();
-            currentRecipe = recipes.First(x => x.name == name);
+            currentRecipe = getRecipes().First(x => x.name == name);
             ViewBag.ingredients = currentRecipe.ingredients;
             ViewBag.recipename = currentRecipe.name;
             ViewBag.currentrecipe = currentRecipe;
@@ -53,6 +59,7 @@ namespace RachelsRosesWebPages.Controllers {
             return View();
         }
         public ActionResult Ingredient(string name, string measurement) {
+            throw new NotImplementedException("");
             if (string.IsNullOrEmpty(name))
                 return Redirect("/home/recipes");
             if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(measurement))
@@ -66,6 +73,7 @@ namespace RachelsRosesWebPages.Controllers {
             return View();
         }
         public ActionResult EditIng(string updatedName, string updatedMeasurement) {
+            throw new NotImplementedException("");
             if ((string.IsNullOrEmpty(updatedName)) && (string.IsNullOrEmpty(updatedMeasurement))) {
                 ViewBag.ErrorMessage = "Please enter an ingredient name and measurement";
                 return Redirect("/home/recipe?name=" + currentRecipe.name);
@@ -89,7 +97,7 @@ namespace RachelsRosesWebPages.Controllers {
             return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
         public ActionResult CreateIngredient(string ingredient, string measurement) {
-            ingredient = ingredient.Trim();
+            throw new NotImplementedException("");
             measurement = measurement.Trim();
             if (!(string.IsNullOrEmpty(ingredient)) || !(string.IsNullOrEmpty(measurement))) {
                 Ingredient newingredient = new Ingredient(ingredient, measurement);
@@ -100,21 +108,26 @@ namespace RachelsRosesWebPages.Controllers {
         public ActionResult CreateRecipe(string recipeTitle) {
             recipeTitle = recipeTitle.Trim();
             Recipe newrecipe = new Recipe(recipeTitle);
-            recipes.Add(newrecipe);
+            var db = new DatabaseAccess();
+            db.InsertRecipe(newrecipe);
             return Redirect("/home/recipes");
         }
         public ActionResult DeleteRecipe(string recipeTitle) {
-            recipes = recipes.Where(x => x.name != recipeTitle).ToList();
+            //recipes = recipes.Where(x => x.name != recipeTitle).ToList();
+            throw new NotImplementedException("create a new db function for delteing where the name matches and call that");
             return Redirect("/home/recipes");
         }
         public ActionResult EditRecipeTitle(string newRecipeTitle) {
             currentRecipe.name = newRecipeTitle;
+            var db = new DatabaseAccess();
+            db.UpdateRecipe(currentRecipe);
             return Redirect("/home/recipe?name=" + newRecipeTitle);
         }
         //every redirect clears out the viewbag... as a notice and warning
 
         //there's a bug here... i'm still trying to find the pattern... 
         public ActionResult AdjustYield(int updatedYield) {
+            throw new NotImplementedException("Adjust reader to also look up and populate ingredients on a recipe, and update and insert to also save them");
             var convert = new Convert();
             if (currentRecipe.yield == 0) {
                 currentRecipe.yield = updatedYield;
@@ -186,8 +199,6 @@ there's a bug with the conversion of the ingredient measurements, sometimes it g
 
 Left to do: 
  
-debug the adjust ingredients action method... it changed all of the ingredient measurements to the same measurement, although correctly adjusted. 
-
 Do i need the first condition in Parse in ParseFraction? 
     have a database that holds the original decimal to retain precision when using the multiplier... i don't want to use a 1/8 when i'm really trying
         to use a multiplier for .1667... so i need to be able to apply it to the decimal value instead of the just the fraction that comes out of it, the precision is impt for me, even if it may remain inconsequencial to this

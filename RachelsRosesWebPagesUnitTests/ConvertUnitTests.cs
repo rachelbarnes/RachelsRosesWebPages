@@ -284,6 +284,42 @@ namespace RachelsRosesWebPages.Controllers {
             var actual = convert.SplitMultiLevelMeasurement("4 7/8 cups 3 1/2 tablespoons 1/2 teaspoons");
             Assert.AreEqual(expected, actual); 
         }
+        //testing splitting the egg measurements
+        [Test]
+        public void TestSplittingEggMeasurement() {
+            var convert = new Convert();
+            var expected = new string[] { "1", "egg" };
+            var actual = convert.SplitEggMeasurement("1 egg");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestSplittingEggMeasurement2() {
+            var convert = new Convert();
+            var expected = new string[] { "1 1/2", "eggs" };
+            var actual = convert.SplitEggMeasurement("1 1/2 eggs");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestSplittingEggMeasurements3() {
+            var convert = new Convert();
+            var expected = new string[] { "12", "eggs" };
+            var actual = convert.SplitEggMeasurement("12 eggs");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestSplittingEggMeasurements4() {
+            var convert = new Convert();
+            var expected = new string[] { "13 3/4", "eggs" };
+            var actual = convert.SplitEggMeasurement("13 3/4 eggs");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestSplittingEggMeasurements5() {
+            var convert = new Convert();
+            var expected = new string[] { "256 1/8", "eggs" };
+            var actual = convert.SplitEggMeasurement("256 1/8 eggs");
+            Assert.AreEqual(expected, actual); 
+        }
         //testing accumulated teaspoons from various measurements
         [Test]
         public void AccumulatingTeaspoonsFromVariousMeasurements() {

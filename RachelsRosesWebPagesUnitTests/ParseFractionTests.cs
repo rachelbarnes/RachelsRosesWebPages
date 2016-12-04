@@ -57,29 +57,39 @@ namespace RachelsRosesWebPagesUnitTests {
             var actual = divide.Parse("10 1/3");
             Assert.AreEqual(expected, actual); 
         }
-        //i'm getting errors on only a few conversions... i'm not sure why and i haven't noticed the pattern yet.
-            //i need to put in a conversion functinoality to parse the decimals back into fractions... 
-                //the biggest probelm with that is i lose precision... 
-                //for what functionality i have here, i am only setting a solution for a misguided functionality
         [Test]
-        public void TestDecimalFractions() {
+        public void TestDecimalParsing() {
             var parse = new ParseFraction();
             var expected = 1.5m;
             var actual = parse.Parse("1.5");
             Assert.AreEqual(expected, actual); 
         }
         [Test]
-        public void TestDecimalFractions1() {
+        public void TestDecimalParsing1() {
             var parse = new ParseFraction();
             var expected = 10.125m;
             var actual = parse.Parse("10.125");
             Assert.AreEqual(expected, actual); 
         }
         [Test]
-        public void TestDecimalFractions2() {
+        public void TestDecimalParsing2() {
             var parse = new ParseFraction();
             var expected = .025m;
             var actual = parse.Parse(".025");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestDecimalParsing3() {
+            var parse = new ParseFraction();
+            var expected = 1.667m;
+            var actual = parse.Parse("1.667");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestDecimalParsing4() {
+            var parse = new ParseFraction();
+            var expected = 16.58m;
+            var actual = parse.Parse("16.58");
             Assert.AreEqual(expected, actual); 
         }
     }

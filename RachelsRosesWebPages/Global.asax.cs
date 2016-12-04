@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RachelsRosesWebPages.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -12,6 +13,8 @@ namespace RachelsRosesWebPages
     {
         protected void Application_Start()
         {
+            var db = new DatabaseAccess();
+            //db.initializeDatabase();
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);

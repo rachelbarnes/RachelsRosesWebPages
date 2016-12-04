@@ -44,20 +44,24 @@ namespace RachelsRosesWebPages {
         public Func<int, decimal, int> ChangeYield = (originalServingSize, multiplicationFactor) => (int)(Math.Round((originalServingSize * multiplicationFactor), 0));
         public Func<int, int, decimal> ChangeYieldMultiplier = (originalServingSize, updatedServingSize) => Math.Round(((decimal)updatedServingSize / originalServingSize), 4);
         public Func<decimal, decimal, decimal> AdjustTeaspoonsBasedOnMultiplier = (originalTeaspoonMeasurement, multiplier) => Math.Round((originalTeaspoonMeasurement * multiplier), 2);
-        public string[] SplitMultiLevelMeasurement(string multiLevelMeasurement) { 
+        public string[] SplitMultiLevelMeasurement(string multiLevelMeasurement) {
             string[] splitMeasurement = new string[] { };
             int previous;
             int next;
             int n;
             var count = 0;
-            var commonMeasurements = new string[] { "cup", "tablespoon", "teaspoon" };
+            var countEggs = 0;
+            var commonMeasurements = new string[] { "cup", "tablespoon", "teaspoon", "egg" };
             var firstMeasurement = "";
             var secondMeasurement = "";
             var thirdMeasurement = "";
             var latterMeasurement = "";
             foreach (var meas in commonMeasurements) {
                 if (multiLevelMeasurement.Contains(meas))
-                    count++;
+                    if (meas == "egg") {
+                        countEggs++;
+                        //using this, we should be able to do functionality based on the eggs... i've never really seen more than one instance of egg as an ingredient in a recipe, except for maybe egg wash on the top of bread, etc. 
+                    } else { count++; }
             }
             if (count == 1)
                 splitMeasurement = new string[] { multiLevelMeasurement };
@@ -79,6 +83,9 @@ namespace RachelsRosesWebPages {
                         if ((j > 1) && (j < multiLevelMeasurement.Count() - 1)) {
                             previous = j - 1;
                             next = j + 1;
+                            var previousChar = latterMeasurement[previous];
+                            var currentChar = latterMeasurement[j];
+                            var nextChar = latterMeasurement[next]; 
                             if ((latterMeasurement[j] == ' ') && (!int.TryParse(latterMeasurement[previous].ToString(), out n)) && (int.TryParse(latterMeasurement[next].ToString(), out n))) {
                                 secondMeasurement = latterMeasurement.Substring(0, j);
                                 thirdMeasurement = latterMeasurement.Substring(next, (latterMeasurement.Count()) - (j + 1));
@@ -89,7 +96,31 @@ namespace RachelsRosesWebPages {
                     }
                 }
             }
+            //should i add the split egg measurement here? I shouldn't need to, it should still split the string
             return splitMeasurement;
+        }
+        //ok... a ?? i have is why does the condition on line 90 work, while I have a different condition for line 115 works, but it's different... but doing the same thing... woah
+        public string[] SplitEggMeasurement(string eggMeasurement) {
+            var eggSplitMeasurement = new string[] { }; 
+            int n;
+            var eggQuantity = "";
+            var egg = ""; 
+            for (int i = 0; i < eggMeasurement.Count(); i++) {
+                if ((i > 0) && (i < eggMeasurement.Count() - 1)) {
+                    var previous = i - 1;
+                    var next = i + 1;
+                    var previousChar = eggMeasurement[previous];
+                    var currentchar = eggMeasurement[i];
+                    var nextChar = eggMeasurement[next]; 
+                    if ((eggMeasurement[i] == ' ') && (int.TryParse(eggMeasurement[previous].ToString(), out n)) && (!int.TryParse(eggMeasurement[next].ToString(), out n))) {
+                        eggQuantity = eggMeasurement.Substring(0, i);
+                        egg = eggMeasurement.Substring(next, (eggMeasurement.Count()) - (i + 1));
+                        eggSplitMeasurement = new string[] { eggQuantity, egg };
+                        break;
+                    }
+                }
+            }
+            return eggSplitMeasurement; 
         }
         public decimal AdjustToTeaspoons(string measurement) {
             var parseFraction = new ParseFraction();
@@ -125,6 +156,8 @@ namespace RachelsRosesWebPages {
             return accumulatedTeaspoons;
         }
         public Func<decimal, decimal, decimal> ApplyMultiplierToTeaspoons => (teaspoons, multiplier) => Math.Round((teaspoons * multiplier), 2);
+        public Func<decimal, decimal, decimal> ApplyMultiplierToEggs => (eggs, multiplier) => Math.Round((eggs * multiplier), 2);
+        //this is literally the same method as above, except i have it with eggs. I'm doing this very temporarily to see the different places for the teaspoon manipulation and eggs manipulation, then i'll combine them. 
         public string CondenseTeaspoonMeasurement(decimal teaspoons) {
             var measDict = new Dictionary<string, decimal>();
             var condensedMeasurement = "";
@@ -213,7 +246,17 @@ namespace RachelsRosesWebPages {
         }
         public string AdjustIngredientMeasurement(string measurement, int originalYield, int desiredYield) {
             var multiplier = ChangeYieldMultiplier(originalYield, desiredYield);
+            var eggs = 0m;
+            string[] eggsSplitMeasurement; 
+            var splitMeasurement = SplitMultiLevelMeasurement(measurement);
+            //foreach (var meas in splitMeasurement) {
+            //    if (meas.Contains("egg")) {
+            //        eggsSplitMeasurement = SplitEggMeasurement(meas);
+            //        eggs = (eggsSplitMeasurement[0]); 
+            //    }
+            //}
             var measurementConvertedToTeaspoons = AccumulatedTeaspoonMeasurement(measurement);
+            var totalEggs = 0;
             var multipliedTeaspoonsAdjustment = multiplier * measurementConvertedToTeaspoons;
             var updatedMeasurement = CondenseTeaspoonMeasurement(multipliedTeaspoonsAdjustment);
             return updatedMeasurement;
@@ -236,10 +279,6 @@ namespace RachelsRosesWebPages {
         public decimal Parse(string fraction) {
             var splitComplexFraction = new string[] { };
             var finaldecimal = 0m;
-            if (!fraction.Contains('/') && !fraction.Contains(' ') && fraction.Contains('.')) {
-                finaldecimal = decimal.Parse(fraction);
-                return finaldecimal;
-            }
             if (!fraction.Contains('/') && !fraction.Contains(' ')) {
                 finaldecimal = decimal.Parse(fraction);
                 return finaldecimal;
