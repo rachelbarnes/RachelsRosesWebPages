@@ -9,10 +9,12 @@ namespace RachelsRosesWebPages.Controllers {
     public class Ingredient {
         public string name;
         public string measurement;
-
+        public int recipeId; 
         public Ingredient(string _name, string _measurement) {
             name = _name;
             measurement = _measurement;
+            recipeId = 0; 
+            //what is the best way to assign this recipeId? 
         }
         public Ingredient(string _name) {
             name = _name;
@@ -26,9 +28,17 @@ namespace RachelsRosesWebPages.Controllers {
         public int yield;
         public Recipe(string _name) {
             name = _name;
+            id = 0; 
             ingredients = new List<Ingredient>();
             yield = 0;
         }
+        public Recipe(int _id) {
+            name = "";
+            id = _id;
+            ingredients = new List<Ingredient>();
+            yield = 0; 
+        }
+        public Recipe() { }
     }
     public class Error {
         public string repeatedRecipeName = "This recipe is already in your recipe box.";
@@ -37,12 +47,13 @@ namespace RachelsRosesWebPages.Controllers {
     public class HomeController : Controller {
         public List<Recipe> getRecipes() {
             var db = new DatabaseAccess();
-            return db.queryRecipe();
+            return db.queryRecipe("recipes");
+            //i can see the abstraction pretty clearly now... i can only imagine if all the needed sql commands were in the controller, how absurd that would be... woah
         }
-        //public static List<Recipe> recipes = new List<Recipe>();
         public static Recipe currentRecipe = null;
         public static Ingredient currentIngredient = null;
         public ActionResult Recipes() {
+            ViewBag.currentrecipe = currentRecipe;
             ViewBag.recipes = getRecipes();
             return View();
         }
@@ -53,7 +64,6 @@ namespace RachelsRosesWebPages.Controllers {
             name = name.Trim();
             currentRecipe = getRecipes().First(x => x.name == name);
             ViewBag.ingredients = currentRecipe.ingredients;
-            ViewBag.recipename = currentRecipe.name;
             ViewBag.currentrecipe = currentRecipe;
             ViewBag.repeatedrecipetitle = error.repeatedRecipeName;
             return View();
@@ -80,7 +90,6 @@ namespace RachelsRosesWebPages.Controllers {
             }
             foreach (var ing in currentRecipe.ingredients) {
                 if (ing.name == currentIngredient.name) {
-                    //putting this extra condition in here actually worked really well, better than expected, nice
                     if (ing.name != updatedName && !(string.IsNullOrEmpty(updatedName))) {
                         ing.name = updatedName;
                     } else { updatedName = ing.name; }
@@ -97,7 +106,9 @@ namespace RachelsRosesWebPages.Controllers {
             return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
         public ActionResult CreateIngredient(string ingredient, string measurement) {
-            throw new NotImplementedException("");
+            //throw new NotImplementedException("");
+            //this doesn't work, it throws the exception
+            ingredient = ingredient.Trim(); 
             measurement = measurement.Trim();
             if (!(string.IsNullOrEmpty(ingredient)) || !(string.IsNullOrEmpty(measurement))) {
                 Ingredient newingredient = new Ingredient(ingredient, measurement);
@@ -114,7 +125,13 @@ namespace RachelsRosesWebPages.Controllers {
         }
         public ActionResult DeleteRecipe(string recipeTitle) {
             //recipes = recipes.Where(x => x.name != recipeTitle).ToList();
-            throw new NotImplementedException("create a new db function for delteing where the name matches and call that");
+            //try {
+                recipeTitle = recipeTitle.Trim();
+                var db = new DatabaseAccess();
+                db.DeleteRecipe(recipeTitle);
+            //} catch {
+            //    throw new NotImplementedException("create a new db function for delteing where the name matches and call that");
+            //}; 
             return Redirect("/home/recipes");
         }
         public ActionResult EditRecipeTitle(string newRecipeTitle) {
@@ -124,8 +141,6 @@ namespace RachelsRosesWebPages.Controllers {
             return Redirect("/home/recipe?name=" + newRecipeTitle);
         }
         //every redirect clears out the viewbag... as a notice and warning
-
-        //there's a bug here... i'm still trying to find the pattern... 
         public ActionResult AdjustYield(int updatedYield) {
             throw new NotImplementedException("Adjust reader to also look up and populate ingredients on a recipe, and update and insert to also save them");
             var convert = new Convert();
@@ -144,10 +159,7 @@ namespace RachelsRosesWebPages.Controllers {
 }
 
 //view looks up the view for that action method, it's looking up View called Recipe
-//View looks at everything in the ViewBag and renders that
-//the client/browser requests CreateRecipe, and CreateRecipe replies with go to "/home/recipes"
-//browser automatically goes to "/home/recipes" and displays the recipes
-
+//view looks at everything in the ViewBag and renders that
 
 /*
 DONE: 
