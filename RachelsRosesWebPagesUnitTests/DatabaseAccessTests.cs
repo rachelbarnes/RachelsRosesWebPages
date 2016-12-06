@@ -24,96 +24,106 @@ namespace RachelsRosesWebPagesUnitTests {
                 yield = 1
             };
             t.InsertRecipe(r);
-            var returns = t.queryRecipe("recipes");
+            var returns = t.queryRecipes();
             Assert.AreEqual(2, returns.Count());
             Assert.AreEqual(1, returns[0].id);
         }
-        [Test]
-        public void TestInitializeDatabase() {
-            var t = new DatabaseAccess();
-            t.initializeDatabase();
-            var r = new Recipe("test") {
-                yield = 4
-            };
-            t.InsertRecipe(r);
-            r = t.queryRecipe("test").First();
-            Assert.AreEqual("test", r.name);
-            Assert.AreEqual(4, r.yield);
-            Assert.AreEqual(1, r.id);
-            r.name = "horse";
-            r.yield = 5;
-            t.UpdateRecipe(r);
-            Assert.AreEqual("horse", r.name);
-            Assert.AreEqual(5, r.yield);
-            Assert.AreEqual(1, r.id);
-        }
         //[Test]
-        //public void TestInsertRecipe() {
+        //public void TestInsertRecipe2() {
         //    var t = new DatabaseAccess();
-        //    var newR = new Recipe("White Cake") {
+        //    var newR = new Recipe("Pecan Pie") {
         //        yield = 16
         //    };
+        //    t.initializeDatabase();
         //    t.InsertRecipe(newR);
-        //    var returns = t.queryRecipe();
-        //    Assert.AreEqual(4, returns.Count());
-        //    Assert.AreEqual(4, returns[3].id);
+        //    var returns = t.queryRecipes();
+        //    Assert.AreEqual(2, returns.Count());
+        //    Assert.AreEqual(2, returns[1].id);
         //}
-        /*looking at these tests: 
-            create an instance of databaseaccess(very run of the mill for tests)
-            create your recipe object
-            apply sql command via DatabaseAccess method
-            return the results of the query (this is returns)
-            test some of the results, in this case, the number of recipes, and the id of the current recipe that was just added 
-       */
-        //this will require being able to see results in SSMS (SQL Server Management Studio) for the database design when we start to get into more complicated tests and in general more functionality
+        //[Test]
+        //public void TestInsertRecipe3() {
+        //    var t = new DatabaseAccess();
+        //    var newRecipe = new Recipe("White Cake") {
+        //        yield = 18
+        //    };
+        //    t.initializeDatabase();
+        //    t.InsertRecipe(newRecipe);
+        //    var myRecipes = t.queryRecipes();
+        //    Assert.AreEqual(1, myRecipes.Count());
+        //    Assert.AreEqual(1, myRecipes[1].id);
+        //    Assert.AreEqual(18, myRecipes[1].yield);
+        //}
+        //[Test]
+        //public void TestIngredientTable() {
+        //    var t = new DatabaseAccess();
+        //    var i = new Ingredient("All-Purpose Flour", "2 1/2 cups");
+        //    var r = new Recipe();
+        //    t.initializeDatabase();
+        //    var recipes = t.queryRecipes();
+        //    foreach (var recipe in recipes) {
+        //        if (recipe.name == "White Cake")
+        //            r = recipe;
+        //    }
+        //    t.InsertIngredient(i, r);
+        //    Assert.AreEqual(3, r.id);
+        //}
+        //these are off because of the InistializeDatabase(), i have to make sure the tests are now accurate
         [Test]
-        public void TestInsertRecipe2() {
+        public void TestDeleteRecipe() {
             var t = new DatabaseAccess();
-            var newR = new Recipe("Pecan Pie") {
-                yield = 16 };
-            t.InsertRecipe(newR);
-            var returns = t.queryRecipe("recipes");
-            Assert.AreEqual(2, returns.Count());
-            Assert.AreEqual(2, returns[1].id); 
+            var r = new Recipe("Pecan Pie") {
+                yield = 8
+            };
+            t.initializeDatabase();
+            t.InsertRecipe(r);
+            t.DeleteRecipe(r.name);
+            var myRecipes = t.queryRecipes();
+            Assert.AreEqual(0, myRecipes.Count());
+            Assert.AreEqual(false, myRecipes.Contains(r));
         }
         [Test]
-        public void TestInsertRecipe3() {
+        public void CompileRecipeAndProperIngredients() {
             var t = new DatabaseAccess();
-            var newRecipe = new Recipe("White Cake"){
-                yield = 18};
-            t.InsertRecipe(newRecipe);
-            var myRecipes = t.queryRecipe("recipes");
-            Assert.AreEqual(3, myRecipes.Count());
-            Assert.AreEqual(3, myRecipes[2].id);
-            Assert.AreEqual(18, myRecipes[2].yield); 
-        }
-        [Test]
-        public void TestIngredientTable() {
-            var t = new DatabaseAccess();
-            var i = new Ingredient("All-Purpose Flour", "2 1/2 cups"); 
-            var r = new Recipe();
-            var recipes = t.queryRecipe("recipes");
-            foreach (var recipe in recipes) {
-                if (recipe.name == "White Cake")
-                    r = recipe;
-            }
+            var r = new Recipe("Pecan Pie") {
+                yield = 8
+            };
+            var r2 = new Recipe("White Cake") {
+                yield = 16
+            };
+            var i = new Ingredient("flour", "2 1/2 cups") {
+                recipeId = 1
+                //i'm hardcoding this recipe id here, but in the controller, when an ingredient is entered for a recipe in the browser,
+                //    i need to assign the recipe id by the recipe name, (ingredient.recipeid = recipe.id)
+            };
+            var i2 = new Ingredient("sugar", "1/3 cup") {
+                recipeId = 2
+            };
+            t.initializeDatabase();
+            t.InsertRecipe(r);
+            t.InsertRecipe(r2);
+            var myRecipes = t.queryRecipes();
+            r = myRecipes.First(x => x.yield == 8);
+            r2 = myRecipes.First(y => y.yield == 16);
             t.InsertIngredient(i, r);
-            Assert.AreEqual(3, r.id);
-            //Assert.AreEqual(r.id, i.recipeId);
-            //this isn't passing because i.recipeId isn't assigned... so it's 0. 
+            t.InsertIngredient(i2, r2);
+            Recipe returnedRecipe = t.GetFullRecipe(r.name);
+            Assert.AreEqual("flour", returnedRecipe.ingredients.First().name);
+            Assert.AreEqual(1, returnedRecipe.ingredients.Count());
         }
         [Test]
-        public void TestDeleteIngredient() {
+        public void TestProperRecipeIds() {
             var t = new DatabaseAccess();
-            var r = new Recipe("horse");
-            bool b = new bool();
-            t.DeleteRecipe("recipes"); 
-            foreach (var recipe in t.queryRecipe("recipes")) {
-                if (recipe.name == r.name) {
-                    b = false;
-                } else b = true; 
-            }
-            Assert.AreEqual(false, b); 
+            var r = new Recipe("White Cake");
+            var r2 = new Recipe("Pecan Pie");
+            var r3 = new Recipe("Cranberry Swirl Loaf");
+            t.initializeDatabase();
+            t.InsertRecipe(r);
+            t.InsertRecipe(r2);
+            t.InsertRecipe(r3);
+            var myRecipes = t.queryRecipes();
+            Assert.AreEqual(1, myRecipes[0].id);
+            Assert.AreEqual(2, myRecipes[1].id);
+            Assert.AreEqual(3, myRecipes[2].id);
         }
 
     }

@@ -6,7 +6,7 @@
 <a href="/home/recipes">Go back to your Recipe Box</a>
 <br />
 
-<h3>@ViewBag.currentrecipe.name</h3>
+<h3>@ViewBag.currentrecipe.id : @ViewBag.currentrecipe.name</h3>
 <form action="/home/editrecipetitle" method="post">
     <input name="newRecipeTitle" />
     <input type="submit" value="Edit Recipe Title" />
@@ -33,7 +33,7 @@
 <h4>@ViewBag.ErrorMessage</h4>
 <br />
 <ul>
-    @foreach (var ingredient in ViewBag.ingredients) {
+    @foreach (var ingredient in ViewBag.currentrecipe.ingredients) {
         <li>
             <b>@ingredient.measurement @ingredient.name</b>
             <br />

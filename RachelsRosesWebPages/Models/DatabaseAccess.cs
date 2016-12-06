@@ -9,7 +9,6 @@ using System.Web;
 namespace RachelsRosesWebPages.Models {
     public class DatabaseAccess {
         const string connString = "Data Source=(LocalDb)\\MSSQLLocalDB;User Id=RACHELSLAPTOP\\Rachel;Initial Catalog=RachelsRosesWebPagesDB;Integrated Security=True; MultipleActiveResultSets=True";
-        //helper functions: 
         public void executeVoidQuery(string command, Func<SqlCommand, SqlCommand> modifyCommand) {
             var con = new SqlConnection(connString);
             try {
@@ -25,7 +24,6 @@ namespace RachelsRosesWebPages.Models {
         public List<T> queryItems<T>(string command, Func<SqlDataReader, T> convert) {
             var sqlConnection1 = new SqlConnection(connString);
             var cmd = new SqlCommand(command, sqlConnection1);
-            //if thing start blowing up, tryi implementing cmd.CommandType = CommandType.Text; 
             sqlConnection1.Open();
             var reader = cmd.ExecuteReader();
             List<T> items = new List<T>();
@@ -34,7 +32,6 @@ namespace RachelsRosesWebPages.Models {
             }
             sqlConnection1.Close();
             return items;
-            //this convert method, the second parameter which is a lambda, is defined in the methods that then call queryItems and has hte command, and then the convert method
         }
 
 
@@ -47,20 +44,7 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@yield", r.yield);
                 return cmd;
             });
-            //modifying the inside of the function by assigning the parameters
-            //passing a lambda of what to do in the middle
         }
-        /*for a method for a sql connection and read/write method: 
-            make the sql connection, make an instance of the SqlCommand class
-            cmd.CommandText is the sequal command that you're reading or writing
-            cmd.CommandType is the command type, which in this case is text
-            cmd.Connection is the sql connection with the SqlConnection, with the connection string as a parameter
-            cmd.Parameters will occur for each parameter, with a method of AddWithValue and having the parameter from the command text (look above for an example)
-                can these cmd.Parameters.AddWithValue be "grouped"? (so for example ("@name", r.name, "@rid", r.id, "@yield", r.yield)
-            open the sqlconnection, execute the query form the cmd instance, close the sql connection
-
-            for the record, Steve said it is normal to have the majority of the code in a project be back tier/bottom tier sql commands 
-        */
         public void InsertRecipe(Recipe r) {
             var commandText = "Insert into recipes (name, yield) values (@name, @yield);";
             executeVoidQuery(commandText, cmd => {
@@ -69,10 +53,6 @@ namespace RachelsRosesWebPages.Models {
                 return cmd;
             });
         }
-        //cmd.CommandText = "Insert into recipes (name, yield) values (@name, @yield);";
-        //cmd.CommandType = CommandType.Text;//both of these don't need to be set because the ExecuteVoidQuery does this action for us (look at the () again, closer)
-        //cmd.Connection = sqlConnection1;// and this
-        //duplication : helper function, execute and modify commands 
         public void InsertIngredient(Ingredient i, Recipe r) {
             var commandText = "Insert into ingredients(recipe_id, name, measurement) values (@rid, @name, @measurement);";
             executeVoidQuery(commandText, cmd => {
@@ -83,36 +63,47 @@ namespace RachelsRosesWebPages.Models {
             });
         }
         public void DeleteRecipe(string recipeTitle) {
-            recipeTitle = recipeTitle.Trim(); 
-            var delete = "DELETE FROM recipes WHERE @name = @title"; 
+            recipeTitle = recipeTitle.Trim();
+            var delete = "DELETE FROM recipes WHERE name=@title";
             executeVoidQuery(delete, cmd => {
-                cmd.Parameters.AddWithValue("@name", "name");
                 cmd.Parameters.AddWithValue("@title", recipeTitle);
-                return cmd; 
+                return cmd;
             });
-            //this is breaking on line 18
         }
-        public List<Recipe> queryRecipe(string tableName) {
-            return queryItems("select * from " + tableName, reader => {
+        public List<Recipe> queryRecipes() { 
+            var count = 1; 
+            var MyRecipeBox = queryItems("select * from recipes", reader => {
                 var recipe = new Recipe(reader["name"].ToString());
-                recipe.id = (int)reader["recipe_id"];
                 recipe.yield = (int)reader["yield"]; //these are the column names that you're accessing
                 return recipe;
             });
+            foreach (var recipe in MyRecipeBox) 
+                recipe.id = count++; 
+            return MyRecipeBox; 
         }
-        //the second part of this 
-        //get the recipe with the ingredients populated
-        //gives a list of ingredients with the recipe id (which is a table in the database, and match that up with the recipe id from a recipe, and return the populated recipe
-        //public Recipe querySingleRecipe(string recipeTitle) {
-        //    executeVoidQuery("SELECT name, yield FROM recipes WHERE name = " + recipeTitle, cmd => cmd);
-        //}
-        public List<Ingredient> queryIngredient() {
+        public List<Ingredient> queryIngredients() {
             return queryItems("select * from ingredients", reader => {
                 var ingredient = new Ingredient(reader["name"].ToString());
                 ingredient.measurement = (string)reader["measurement"];
                 ingredient.recipeId = (int)reader["recipe_id"];
                 return ingredient;
             });
+        }
+        public Recipe GetFullRecipe(string myRecipeName) {
+            var myRecipeBox = queryRecipes();
+            var myIngredients = queryIngredients();
+            var myRecipe = new Recipe();
+            foreach (var recipe in myRecipeBox) {
+                if (recipe.name == myRecipeName) {
+                    myRecipe = recipe;
+                    break;
+                }
+            }
+            foreach (var ingredient in myIngredients) {
+                if (ingredient.recipeId == myRecipe.id)
+                    myRecipe.ingredients.Add(ingredient);
+            }
+            return myRecipe;
         }
         public void dropTableIfExists(string table) {
             var drop = @"IF OBJECT_ID('dbo." + table + " ', 'U') IS NOT NULL DROP TABLE dbo." + table + ";";
