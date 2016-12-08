@@ -10,11 +10,13 @@ namespace RachelsRosesWebPages.Controllers {
         public string name;
         public string measurement;
         public int recipeId;
+        public int ingredientId; 
         public Ingredient(string _name, string _measurement) {
             name = _name;
             measurement = _measurement;
             recipeId = 0;
-            //what is the best way to assign this recipeId? 
+            ingredientId = 0; 
+
         }
         public Ingredient(string _name) {
             name = _name;
@@ -46,8 +48,9 @@ namespace RachelsRosesWebPages.Controllers {
     }
     public class HomeController : Controller {
         public static Recipe currentRecipe = null;
-        public static Recipe myDatabaseRecipe = null; 
+        public static Recipe myDatabaseRecipe = null;
         public static Ingredient currentIngredient = null;
+        //i don't want more than the currentRecipe and currentIngredient
         public List<Recipe> getRecipes() {
             var db = new DatabaseAccess();
             return db.queryRecipes();
@@ -72,12 +75,10 @@ namespace RachelsRosesWebPages.Controllers {
             return View();
         }
         public ActionResult Ingredient(string name, string measurement) {
-            throw new NotImplementedException("");
             if (string.IsNullOrEmpty(name))
                 return Redirect("/home/recipes");
             if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(measurement))
                 return Redirect("/home/recipe?name=" + currentRecipe.name);
-
             foreach (var ingredient in currentRecipe.ingredients) {
                 if (ingredient.name == name && ingredient.measurement == measurement)
                     currentIngredient = ingredient;
@@ -87,11 +88,11 @@ namespace RachelsRosesWebPages.Controllers {
             return View();
         }
         public ActionResult EditIng(string updatedName, string updatedMeasurement) {
-            throw new NotImplementedException("");
             if ((string.IsNullOrEmpty(updatedName)) && (string.IsNullOrEmpty(updatedMeasurement))) {
                 ViewBag.ErrorMessage = "Please enter an ingredient name and measurement";
                 return Redirect("/home/recipe?name=" + currentRecipe.name);
             }
+            var updatedIngredient = new Ingredient(updatedName, updatedMeasurement); 
             foreach (var ing in currentRecipe.ingredients) {
                 if (ing.name == currentIngredient.name) {
                     if (ing.name != updatedName && !(string.IsNullOrEmpty(updatedName))) {
@@ -110,6 +111,7 @@ namespace RachelsRosesWebPages.Controllers {
             return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
         public ActionResult CreateIngredient(string ingredient, string measurement) {
+            var db = new DatabaseAccess(); 
             ingredient = ingredient.Trim();
             measurement = measurement.Trim();
             var newIngredient = new Ingredient();
@@ -118,6 +120,9 @@ namespace RachelsRosesWebPages.Controllers {
                 newIngredient.measurement = measurement;
                 newIngredient.recipeId = currentRecipe.id; 
                 currentRecipe.ingredients.Add(newIngredient);
+                var ing = currentIngredient;
+                var rec = currentRecipe; 
+                db.InsertIngredient(newIngredient, currentRecipe);
             }
             return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
@@ -136,7 +141,9 @@ namespace RachelsRosesWebPages.Controllers {
         }
         public ActionResult EditRecipeTitle(string newRecipeTitle) {
             var db = new DatabaseAccess();
+            currentRecipe.name = newRecipeTitle; 
             db.UpdateRecipe(currentRecipe);
+            var myRecipeBox = getRecipes(); 
             return Redirect("/home/recipe?name=" + newRecipeTitle);
         }
         public ActionResult AdjustYield(int updatedYield) {
@@ -155,8 +162,6 @@ namespace RachelsRosesWebPages.Controllers {
         }
     }
 }
-
-
 
 
 /*

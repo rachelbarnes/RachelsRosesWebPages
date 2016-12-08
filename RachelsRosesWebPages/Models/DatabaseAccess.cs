@@ -33,9 +33,10 @@ namespace RachelsRosesWebPages.Models {
             sqlConnection1.Close();
             return items;
         }
-
-
-
+        //public List<Recipe> SortAlphabetically() {
+        //    var myRecipeBox = queryRecipes();
+        //    myRecipeBox.Sort(); 
+        //}
         public void UpdateRecipe(Recipe r) {
             var commandText = "update recipes set name=@name, yield=@yield where recipe_id = @rid;";
             executeVoidQuery(commandText, cmd => {
@@ -62,6 +63,16 @@ namespace RachelsRosesWebPages.Models {
                 return cmd;
             });
         }
+        public void UpdateIngredient(Ingredient i) {
+            var commandText = "update ingredients set name=@name, measurement=@measurement, recipe_id=@recipeId where ing_id=@ingredientId"; 
+            executeVoidQuery(commandText, cmd => {
+                cmd.Parameters.AddWithValue("@name", i.name);
+                cmd.Parameters.AddWithValue("@measurement", i.measurement);
+                cmd.Parameters.AddWithValue("@recipeId", i.recipeId);
+                cmd.Parameters.AddWithValue("ingredientId", i.ingredientId); 
+                return cmd;
+            });
+        }
         public void DeleteRecipe(string recipeTitle) {
             recipeTitle = recipeTitle.Trim();
             var delete = "DELETE FROM recipes WHERE name=@title";
@@ -76,9 +87,10 @@ namespace RachelsRosesWebPages.Models {
                 var recipe = new Recipe(reader["name"].ToString());
                 recipe.yield = (int)reader["yield"]; //these are the column names that you're accessing
                 return recipe;
-            });
+           });
+            //i want to alphabetize the names in the recipe box, as an addition of a story in the future
             foreach (var recipe in MyRecipeBox) 
-                recipe.id = count++; 
+                recipe.id = count++;
             return MyRecipeBox; 
         }
         public List<Ingredient> queryIngredients() {
