@@ -10,12 +10,12 @@ namespace RachelsRosesWebPages.Controllers {
         public string name;
         public string measurement;
         public int recipeId;
-        public int ingredientId; 
+        public int ingredientId;
         public Ingredient(string _name, string _measurement) {
             name = _name;
             measurement = _measurement;
             recipeId = 0;
-            ingredientId = 0; 
+            ingredientId = 0;
 
         }
         public Ingredient(string _name) {
@@ -47,10 +47,9 @@ namespace RachelsRosesWebPages.Controllers {
         public Error() { }
     }
     public class HomeController : Controller {
-        public static Recipe currentRecipe = null;
-        public static Recipe myDatabaseRecipe = null;
-        public static Ingredient currentIngredient = null;
-        //i don't want more than the currentRecipe and currentIngredient
+        public static Recipe currentRecipe = new Recipe();
+        public static Recipe myDatabaseRecipe = new Recipe();
+        public static Ingredient currentIngredient = new Ingredient();
         public List<Recipe> getRecipes() {
             var db = new DatabaseAccess();
             return db.queryRecipes();
@@ -58,26 +57,24 @@ namespace RachelsRosesWebPages.Controllers {
         public ActionResult Recipes() {
             var myRecipes = getRecipes();
             ViewBag.recipes = myRecipes;
-            //so this is working, i just have to actually assign the appropriate ids... 
             return View();
         }
         public ActionResult Recipe(string name) {
-            //var db = new DatabaseAccess();
+            var t = new DatabaseAccess();
             if (string.IsNullOrEmpty(name))
                 return Redirect("/home/recipes");
             name = name.Trim();
             myDatabaseRecipe = getRecipes().First(x => x.name == name);
-            if (myDatabaseRecipe.yield != currentRecipe.yield)
-                myDatabaseRecipe.yield = currentRecipe.yield;
-            if (currentRecipe == null || currentRecipe != myDatabaseRecipe) {
-                currentRecipe.name = myDatabaseRecipe.name;
-                currentRecipe.id = myDatabaseRecipe.id; 
-                //i have to specify the fields here because I don't want to lose the ingredients assigned to the currentRecipe
+            if (currentRecipe.ingredients == null || currentRecipe.ingredients.Count() == 0) {
+                currentRecipe.ingredients = myDatabaseRecipe.ingredients; 
+            } else {
+                currentRecipe.ingredients = myDatabaseRecipe.ingredients;
             }
-            if (myDatabaseRecipe.name == currentRecipe.name && currentRecipe != null)
-                myDatabaseRecipe.ingredients = currentRecipe.ingredients;
-            ViewBag.currentingredient = currentIngredient; 
-            //the yield isn't being added into the database here... i need to put it in the database and assign it to the currentRecipe before this. it's getting overwritten by the myDatabaseRecipe
+            currentRecipe.name = myDatabaseRecipe.name;
+            currentRecipe.id = myDatabaseRecipe.id;
+            currentRecipe.yield = myDatabaseRecipe.yield;
+
+            ViewBag.currentingredient = currentIngredient;
             ViewBag.currentrecipe = currentRecipe;
             return View();
         }
@@ -95,11 +92,12 @@ namespace RachelsRosesWebPages.Controllers {
             return View();
         }
         public ActionResult EditIng(string updatedName, string updatedMeasurement) {
+            var t = new DatabaseAccess();
             if ((string.IsNullOrEmpty(updatedName)) && (string.IsNullOrEmpty(updatedMeasurement))) {
                 ViewBag.ErrorMessage = "Please enter an ingredient name and measurement";
                 return Redirect("/home/recipe?name=" + currentRecipe.name);
             }
-            var updatedIngredient = new Ingredient(updatedName, updatedMeasurement); 
+            var updatedIngredient = new Ingredient(updatedName, updatedMeasurement);
             foreach (var ing in currentRecipe.ingredients) {
                 if (ing.name == currentIngredient.name) {
                     if (ing.name != updatedName && !(string.IsNullOrEmpty(updatedName))) {
@@ -109,6 +107,7 @@ namespace RachelsRosesWebPages.Controllers {
                         ing.measurement = updatedMeasurement;
                     } else { updatedMeasurement = ing.measurement; }
                     currentIngredient = ing;
+                    t.UpdateIngredient(currentIngredient);
                 }
             }
             return Redirect("/home/ingredient?name=" + currentIngredient.name + "&measurement=" + currentIngredient.measurement);
@@ -118,16 +117,16 @@ namespace RachelsRosesWebPages.Controllers {
             return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
         public ActionResult CreateIngredient(string ingredient, string measurement) {
-            var db = new DatabaseAccess(); 
+            var db = new DatabaseAccess();
             ingredient = ingredient.Trim();
             measurement = measurement.Trim();
             var newIngredient = new Ingredient();
             if (!(string.IsNullOrEmpty(ingredient)) || !(string.IsNullOrEmpty(measurement))) {
                 newIngredient.name = ingredient;
                 newIngredient.measurement = measurement;
-                newIngredient.recipeId = currentRecipe.id; 
+                newIngredient.recipeId = currentRecipe.id;
                 currentRecipe.ingredients.Add(newIngredient);
-                currentIngredient = newIngredient; 
+                currentIngredient = newIngredient;
                 db.InsertIngredient(currentIngredient, currentRecipe);
             }
             return Redirect("/home/recipe?name=" + currentRecipe.name);
@@ -147,12 +146,13 @@ namespace RachelsRosesWebPages.Controllers {
         }
         public ActionResult EditRecipeTitle(string newRecipeTitle) {
             var db = new DatabaseAccess();
-            currentRecipe.name = newRecipeTitle; 
+            currentRecipe.name = newRecipeTitle;
             db.UpdateRecipe(currentRecipe);
-            var myRecipeBox = getRecipes(); 
+            var myRecipeBox = getRecipes();
             return Redirect("/home/recipe?name=" + newRecipeTitle);
         }
         public ActionResult AdjustYield(int updatedYield) {
+            var t = new DatabaseAccess();
             var convert = new Convert();
             if (currentRecipe.yield == 0) {
                 currentRecipe.yield = updatedYield;
@@ -163,7 +163,10 @@ namespace RachelsRosesWebPages.Controllers {
                     ing.measurement = convert.AdjustIngredientMeasurement(ing.measurement, oldYield, currentRecipe.yield);
                 }
             }
+            t.UpdateRecipe(currentRecipe);
             return Redirect("/home/recipe?name=" + currentRecipe.name);
+            //as a note to myself, a pattern to follow, if you're updating an ingredient or a recipe, or anything of the matter,
+            //whenever an item is updated, update the database, and then call the database for the ingredient or the recipe!!!
         }
     }
 }
