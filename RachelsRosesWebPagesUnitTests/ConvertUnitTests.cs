@@ -97,6 +97,27 @@ namespace RachelsRosesWebPages.Controllers {
             var actual = convert.CupsToTablespoons(.3125m);
             Assert.AreEqual(expected, actual);
         }
+        [Test]
+        public void pinchesToTeaspoons() {
+            var convert = new Convert();
+            var expected = .06m;
+            var actual = convert.PinchesToTeaspoons(1);
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void pinchesToTeaspoons2() {
+            var convert = new Convert();
+            var expected = 1m;
+            var actual = convert.PinchesToTeaspoons(16);
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void pinchesToTeaspoons3() {
+            var convert = new Convert();
+            var expected = .35m;
+            var actual = convert.PinchesToTeaspoons(5.65m);
+            Assert.AreEqual(expected, actual);
+        }
         //changing serving sizes 
         [Test]
         public void ChangeServingSize() {
@@ -235,6 +256,14 @@ namespace RachelsRosesWebPages.Controllers {
             var actual = convert.AdjustToTeaspoons("1 1/2 teaspoons");
             Assert.AreEqual(expected, actual);
         }
+        //covnert a string measurement of pinches to decimal value of teaspoons
+        [Test]
+        public void ConvertStringMeasurementsPinchToDecimalTeaspoons() {
+            var convert = new Convert();
+            var expected = 0.06m;
+            var actual = convert.AdjustToTeaspoons("1 pinch");
+            Assert.AreEqual(expected, actual); 
+        }
         [Test]
         public void TestSplittingMeasurement() {
             var convert = new Convert();
@@ -284,43 +313,83 @@ namespace RachelsRosesWebPages.Controllers {
             var actual = convert.SplitMultiLevelMeasurement("4 7/8 cups 3 1/2 tablespoons 1/2 teaspoons");
             Assert.AreEqual(expected, actual); 
         }
+        [Test]
+        public void TestSplittingMeasurements8() {
+            var convert = new Convert();
+            var expected = new string[] { "1 cup", "1 tablespoon", "1 teaspoon", "1 pinch" };
+            var actual = convert.SplitMultiLevelMeasurement("1 cup 1 tablespoon 1 teaspoon 1 pinch");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestSplittingMeasurements9() {
+            var convert = new Convert();
+            var expected = new string[] { "1 1/2 cups", "2 1/8 tablespoons", "1 1/4 teaspoons", "2 pinches" };
+            var actual = convert.SplitMultiLevelMeasurement("1 1/2 cups 2 1/8 tablespoons 1 1/4 teaspoons 2 pinches");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestSplittingMeasurements10() {
+            var convert = new Convert();
+            var expected = new string[] { "1 1/2 pinches" };
+            var actual = convert.SplitMultiLevelMeasurement("1 1/2 pinches");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestSplittingMeasurements11() {
+            var convert = new Convert();
+            var expected = new string[] { "2 teaspoons", "1 pinch" };
+            var actual = convert.SplitMultiLevelMeasurement("2 teaspoons 1 pinch");
+            Assert.AreEqual(expected, actual); 
+        }
         //testing splitting the egg measurements
         [Test]
         public void TestSplittingEggMeasurement() {
             var convert = new Convert();
-            var expected = new string[] { "1", "egg" };
-            var actual = convert.SplitEggMeasurement("1 egg");
+            var expected = "2 eggs"; 
+            var actual = convert.SplitAndAdjustEggMeasurement("1 egg", 2);
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestSplittingEggMeasurement2() {
             var convert = new Convert();
-            var expected = new string[] { "1 1/2", "eggs" };
-            var actual = convert.SplitEggMeasurement("1 1/2 eggs");
+            var expected = "6 eggs"; 
+            var actual = convert.SplitAndAdjustEggMeasurement("1 1/2 eggs", 4);
             Assert.AreEqual(expected, actual); 
         }
         [Test]
         public void TestSplittingEggMeasurements3() {
             var convert = new Convert();
-            var expected = new string[] { "12", "eggs" };
-            var actual = convert.SplitEggMeasurement("12 eggs");
+            var expected = "12 eggs"; 
+            var actual = convert.SplitAndAdjustEggMeasurement("12 eggs", 1);
             Assert.AreEqual(expected, actual); 
         }
         [Test]
         public void TestSplittingEggMeasurements4() {
             var convert = new Convert();
-            var expected = new string[] { "13 3/4", "eggs" };
-            var actual = convert.SplitEggMeasurement("13 3/4 eggs");
+            var expected = "13.75 eggs"; 
+            var actual = convert.SplitAndAdjustEggMeasurement("13 3/4 eggs", 1);
             Assert.AreEqual(expected, actual); 
         }
         [Test]
         public void TestSplittingEggMeasurements5() {
             var convert = new Convert();
-            var expected = new string[] { "256 1/8", "eggs" };
-            var actual = convert.SplitEggMeasurement("256 1/8 eggs");
+            var expected = "256.125 eggs"; 
+            var actual = convert.SplitAndAdjustEggMeasurement("256 1/8 eggs", 1);
             Assert.AreEqual(expected, actual); 
         }
-        //testing accumulated teaspoons from various measurements
+        [Test]
+        public void TestSplittingEggMeasurements6() {
+            var convert = new Convert();
+            var expected = "16 egg whites"; 
+            var actual = convert.SplitAndAdjustEggMeasurement("4 egg whites", 4);
+            Assert.AreEqual(expected, actual);
+        } 
+        [Test]
+        public void TestSplittingEggMeasurements7() {
+            var convert = new Convert();
+            var expected = "6 egg yolks"; 
+            var actual = convert.SplitAndAdjustEggMeasurement("2 egg yolks", 3); 
+        }
         [Test]
         public void AccumulatingTeaspoonsFromVariousMeasurements() {
             var convert = new Convert();
@@ -370,6 +439,13 @@ namespace RachelsRosesWebPages.Controllers {
             var actual = convert.AccumulatedTeaspoonMeasurement("1 1/2 cups 1 tablespoon 2 1/8 teaspoons");
             Assert.AreEqual(expected, actual);
         }
+        [Test]
+        public void AccumulatingTeaspoonsFromVariousMeasurements9() {
+            var convert = new Convert();
+            var expected = 1.06m;
+            var actual = convert.AccumulatedTeaspoonMeasurement("1 teaspoon 1 pinch");
+            Assert.AreEqual(expected, actual);  
+        }
         //testing multiplied teaspoons
         [Test]
         public void AdjustTeaspoonValues() {
@@ -417,7 +493,7 @@ namespace RachelsRosesWebPages.Controllers {
         [Test]
         public void CondenseTeaspoonMeasurement4() {
             var convert = new Convert();
-            var expected = "4 cups 2 tablespoons 1.5 teaspoons";
+            var expected = "4.125 cups 1.5 teaspoons";
             var actual = convert.CondenseTeaspoonMeasurement(199.5m);
             Assert.AreEqual(expected, actual);
         }
@@ -427,7 +503,7 @@ namespace RachelsRosesWebPages.Controllers {
             var convert = new Convert();
             //var expected = "6.5 cups 10 tablespoons 2.125 teaspoons";
             //this above expected failed appropriately, nice. 
-            var expected = "7 cups 2 tablespoons 2.125 teaspoons";
+            var expected = "7.125 cups 2.125 teaspoons";
             var actual = convert.CondenseTeaspoonMeasurement(344.125m);
             Assert.AreEqual(expected, actual);
         }
@@ -441,7 +517,7 @@ namespace RachelsRosesWebPages.Controllers {
         [Test]
         public void CondenseTeaspoonsMeasurement7() {
             var convert = new Convert();
-            var expected = "0.5 teaspoons";
+            var expected = ".5 teaspoons";
             var actual = convert.CondenseTeaspoonMeasurement(.5m);
             Assert.AreEqual(expected, actual);
         }
@@ -475,9 +551,32 @@ namespace RachelsRosesWebPages.Controllers {
         }
         [Test]
         public void CondenseTeaspoonsMeasurements12() {
+            //i'm happy i came across this test, the actual is 13.83 cups 1 tablespoon .5 teaspoons... this is the reason for wanting fractions (but keeping the decimals in the background somewhere!!)
+            //i'm going to keep this test failing as a reminder of what needs to be done
             var convert = new Convert();
             var expected = "13.75 cups 2 tablespoons 1.5 teaspoons"; 
             var actual = convert.CondenseTeaspoonMeasurement(667.5m);
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void CondenseTeaspoonsMeasurements13() {
+            var convert = new Convert();
+            var expected = "1 pinches";
+            var actual = convert.CondenseTeaspoonMeasurement(.06m);
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void CondenseTeaspoonsMeasurements14() {
+            var convert = new Convert();
+            var expected = "2 pinches";
+            var actual = convert.CondenseTeaspoonMeasurement(.12m);
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void CondenseTeaspoonsMeasurements15() {
+            var convert = new Convert();
+            var expected = ".125 teaspoons 1 pinches";
+            var actual = convert.CondenseTeaspoonMeasurement(.19m);
             Assert.AreEqual(expected, actual); 
         }
         //adjust total measurement, this is where it all comes together
@@ -491,7 +590,8 @@ namespace RachelsRosesWebPages.Controllers {
         [Test]
         public void AdjustTotalMeasurement2() {
             var convert = new Convert();
-            var expected = "2 tablespoons";
+            //var expected = "2 tablespoons";
+            var expected = ".125 cups"; 
             var actual = convert.AdjustIngredientMeasurement("1/2 cup", 8, 2);
             Assert.AreEqual(expected, actual);
         }
@@ -505,21 +605,22 @@ namespace RachelsRosesWebPages.Controllers {
         [Test]
         public void AdjustTotalMeasurement4() {
             var convert = new Convert();
-            var expected = "1 cups 2 tablespoons 1.5 teaspoons";
+            //var expected = "1 cups 2 tablespoons 1.5 teaspoons";
+            var expected = "1.125 cups 1.5 teaspoons";
             var actual = convert.AdjustIngredientMeasurement("9 1/4 tablespoons", 24, 48);
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void AdjustTotalMeasurement5() {
             var convert = new Convert();
-            var expected = "2 cups 2 tablespoons";
+            var expected = "2.125 cups";
             var actual = convert.AdjustIngredientMeasurement("1/2 cup 1 1/2 teaspoon", 4, 16);
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void AdjustTotalMeasurement8() {
             var convert = new Convert();
-            var expected = "0.5 cups";
+            var expected = ".5 cups";
             var actual = convert.AdjustIngredientMeasurement("1/2 cup", 5, 5);
             Assert.AreEqual(expected, actual);
         }
@@ -533,29 +634,72 @@ namespace RachelsRosesWebPages.Controllers {
         [Test]
         public void AdjustTotalMeasurement11() {
             var convert = new Convert();
-            var expected = "0.25 teaspoons";
+            var expected = ".25 teaspoons";
             var actual = convert.AdjustIngredientMeasurement("1/8 teaspoon", 2, 4);
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void AdjustTotalMeasurement12() {
             var convert = new Convert();
-            var expected = "0.125 teaspoons";
+            var expected = ".125 teaspoons";
             var actual = convert.AdjustIngredientMeasurement("1/4 teaspoon", 4, 2);
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void AdjustTotalMeasurement13() {
             var convert = new Convert();
-            var expected = "2 cups 3 tablespoons 0.25 teaspoons";
+            //var expected = "2 cups 3 tablespoons 0.25 teaspoons";
+            var expected = "2.125 cups 1 tablespoons .25 teaspoons"; 
             var actual = convert.AdjustIngredientMeasurement("1 cup 1 1/2 tablespoons 1/8 teaspoon", 15, 30);
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void AdjustTotalMeasurement14() {
             var convert = new Convert();
-            var expected = "0.25 cups 1 tablespoons";
+            var expected = ".25 cups 1 tablespoons";
             var actual = convert.AdjustIngredientMeasurement("1/4 cup 2 tablespoons 2 teaspoon", 8, 6);
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void AdjustTotalMeasurements15() {
+            var convert = new Convert();
+            var expected = ".125 cups 2 pinches";
+            var actual = convert.AdjustIngredientMeasurement("1 tablespoon 1 pinch", 8, 16);
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void AdjustTotalMeasurement16() {
+            var convert = new Convert();
+            var expected = "2 eggs";
+            var actual = convert.AdjustIngredientMeasurement("1 egg", 8, 16);
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void AdjustTotalMeasurement17() {
+            var convert = new Convert();
+            var expected = "6 eggs";
+            var actual = convert.AdjustIngredientMeasurement("3 eggs", 2, 4);
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void AdjustTotalMeasurement18() {
+            var convert = new Convert();
+            var expected = "1.5 eggs";
+            var actual = convert.AdjustIngredientMeasurement("3 eggs", 8, 4);
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void AdjustTotalMeasurement19() {
+            var convert = new Convert();
+            var expected = "20 eggs";
+            var actual = convert.AdjustIngredientMeasurement("5 eggs", 20, 80);
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void AdjustTotalMeasurement20() {
+            var convert = new Convert();
+            var expected = "16 egg whites, stiffly beaten to a meringue";
+            var actual = convert.AdjustIngredientMeasurement("8 egg whites, stiffly beaten to a meringue", 30, 60);
             Assert.AreEqual(expected, actual); 
         }
     }

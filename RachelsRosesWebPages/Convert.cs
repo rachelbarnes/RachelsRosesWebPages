@@ -8,37 +8,49 @@ namespace RachelsRosesWebPages {
         public decimal teaspoonsToTablespoons(decimal t) {
             var ret = Math.Round((t / 3), 2);
             if (ret.ToString().Contains(".00"))
-                ret = Math.Round((t / 3), 0);
+                Math.Round(ret, 0);
             return ret;
         }
         public decimal TablespoonsToTeaspoons(decimal T) {
             var ret = Math.Round((T * 3), 2);
             if (ret.ToString().Contains(".00"))
-                ret = Math.Round((T * 3), 0);
+                Math.Round(ret, 0);
             return ret;
         }
         public decimal teaspoonsToCups(decimal t) {
             var ret = Math.Round((t / 48), 2);
             if (ret.ToString().Contains(".00"))
-                ret = Math.Round((t / 48), 0);
+                Math.Round(ret, 0);
             return ret;
         }
         public decimal CupsToTeaspoons(decimal c) {
             var ret = Math.Round((c * 48), 2);
             if (ret.ToString().Contains(".00"))
-                ret = Math.Round((c * 48), 0);
+                Math.Round(ret, 0);
             return ret;
         }
         public decimal CupsToTablespoons(decimal c) {
             var ret = Math.Round((c * 16), 2);
             if (ret.ToString().Contains(".00"))
-                ret = Math.Round((c * 16), 0);
+                Math.Round(ret, 0);
             return ret;
         }
         public decimal TablespoonsToCups(decimal T) {
             var ret = Math.Round((T / 16), 2);
             if (ret.ToString().Contains(".00"))
-                ret = Math.Round((T / 16), 0);
+                Math.Round(ret, 2);
+            return ret;
+        }
+        public decimal TeaspoonsToPinches(decimal t) {
+            var ret = Math.Round((t * 16), 2);
+            if (ret.ToString().Contains(".00"))
+                Math.Round(ret, 0);
+            return ret;
+        }
+        public decimal PinchesToTeaspoons(decimal p) {
+            var ret = Math.Round((p / 16), 2);
+            if (ret.ToString().Contains(".00"))
+                Math.Round(ret, 0);
             return ret;
         }
         public Func<int, decimal, int> ChangeYield = (originalServingSize, multiplicationFactor) => (int)(Math.Round((originalServingSize * multiplicationFactor), 0));
@@ -50,18 +62,15 @@ namespace RachelsRosesWebPages {
             int next;
             int n;
             var count = 0;
-            var countEggs = 0;
-            var commonMeasurements = new string[] { "cup", "tablespoon", "teaspoon", "egg" };
+            var commonMeasurements = new string[] { "cup", "tablespoon", "teaspoon", "pinch", "egg" };
             var firstMeasurement = "";
             var secondMeasurement = "";
-            var thirdMeasurement = "";
             var latterMeasurement = "";
+            var thirdMeasurement = "";
+            var fourthMeasurement = "";
             foreach (var meas in commonMeasurements) {
                 if (multiLevelMeasurement.Contains(meas))
-                    if (meas == "egg") {
-                        countEggs++;
-                        //using this, we should be able to do functionality based on the eggs... i've never really seen more than one instance of egg as an ingredient in a recipe, except for maybe egg wash on the top of bread, etc. 
-                    } else { count++; }
+                    count++;
             }
             if (count == 1)
                 splitMeasurement = new string[] { multiLevelMeasurement };
@@ -78,14 +87,14 @@ namespace RachelsRosesWebPages {
                         }
                     }
                 }
-                if (count == 3) {
+                if (count >= 3) {
                     for (int j = 0; j < latterMeasurement.Count(); j++) {
-                        if ((j > 1) && (j < multiLevelMeasurement.Count() - 1)) {
+                        if ((j > 0) && (j < latterMeasurement.Count() - 1)) {
                             previous = j - 1;
                             next = j + 1;
                             var previousChar = latterMeasurement[previous];
                             var currentChar = latterMeasurement[j];
-                            var nextChar = latterMeasurement[next]; 
+                            var nextChar = latterMeasurement[next];
                             if ((latterMeasurement[j] == ' ') && (!int.TryParse(latterMeasurement[previous].ToString(), out n)) && (int.TryParse(latterMeasurement[next].ToString(), out n))) {
                                 secondMeasurement = latterMeasurement.Substring(0, j);
                                 thirdMeasurement = latterMeasurement.Substring(next, (latterMeasurement.Count()) - (j + 1));
@@ -94,33 +103,53 @@ namespace RachelsRosesWebPages {
                             }
                         }
                     }
+                    if (count == 4) {
+                        var newThirdMeasurement = "";
+                        for (int j = 0; j < thirdMeasurement.Count(); j++) {
+                            if ((j > 0) && (j < thirdMeasurement.Count() - 1)) {
+                                previous = j - 1;
+                                next = j + 1;
+                                var previousChar = thirdMeasurement[previous];
+                                var currentChar = thirdMeasurement[j];
+                                var nextChar = thirdMeasurement[next];
+                                if ((thirdMeasurement[j] == ' ') && (!int.TryParse(thirdMeasurement[previous].ToString(), out n)) && (int.TryParse(thirdMeasurement[next].ToString(), out n))) {
+                                    newThirdMeasurement = thirdMeasurement.Substring(0, j);
+                                    fourthMeasurement = thirdMeasurement.Substring(next, (thirdMeasurement.Count()) - (j + 1));
+                                    splitMeasurement = new string[] { firstMeasurement, secondMeasurement, newThirdMeasurement, fourthMeasurement };
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
             }
-            //should i add the split egg measurement here? I shouldn't need to, it should still split the string
             return splitMeasurement;
         }
-        //ok... a ?? i have is why does the condition on line 90 work, while I have a different condition for line 115 works, but it's different... but doing the same thing... woah
-        public string[] SplitEggMeasurement(string eggMeasurement) {
-            var eggSplitMeasurement = new string[] { }; 
+        public string SplitAndAdjustEggMeasurement(string eggMeasurement, decimal multiplier) {
+            var parse = new ParseFraction();
+            var adjustedEggMeasurement = "";
             int n;
+            var eggsAdjusted = "";
             var eggQuantity = "";
-            var egg = ""; 
+            var typeOfEggs = ""; 
             for (int i = 0; i < eggMeasurement.Count(); i++) {
                 if ((i > 0) && (i < eggMeasurement.Count() - 1)) {
                     var previous = i - 1;
                     var next = i + 1;
-                    var previousChar = eggMeasurement[previous];
-                    var currentchar = eggMeasurement[i];
-                    var nextChar = eggMeasurement[next]; 
                     if ((eggMeasurement[i] == ' ') && (int.TryParse(eggMeasurement[previous].ToString(), out n)) && (!int.TryParse(eggMeasurement[next].ToString(), out n))) {
                         eggQuantity = eggMeasurement.Substring(0, i);
-                        egg = eggMeasurement.Substring(next, (eggMeasurement.Count()) - (i + 1));
-                        eggSplitMeasurement = new string[] { eggQuantity, egg };
+                        typeOfEggs = eggMeasurement.Substring(next, (eggMeasurement.Count() - (i + 1))); 
+                        if ((parse.Parse(eggQuantity) * multiplier) < 10) {
+                            eggsAdjusted = (parse.Parse(eggQuantity) * multiplier).ToString().TrimEnd('0');
+                        } else { eggsAdjusted = (parse.Parse(eggQuantity) * multiplier).ToString(); }
+                        if ((eggsAdjusted.Contains(".00") && eggsAdjusted.Contains(".0")) || eggsAdjusted.Contains('.'))
+                            eggsAdjusted = eggsAdjusted.TrimEnd('.');
+                        adjustedEggMeasurement = eggsAdjusted.TrimStart('0') + " " + typeOfEggs;
                         break;
                     }
                 }
             }
-            return eggSplitMeasurement; 
+            return adjustedEggMeasurement;
         }
         public decimal AdjustToTeaspoons(string measurement) {
             var parseFraction = new ParseFraction();
@@ -145,6 +174,12 @@ namespace RachelsRosesWebPages {
                 trimmedMeasurement = splitMeasurement[0].TrimEnd();
                 decimalMeasurement = parseFraction.Parse(trimmedMeasurement);
                 convertToTeaspoonMeasurement = decimalMeasurement;
+            }
+            if ((measurement.ToLower().Contains("pinch"))) {
+                splitMeasurement = measurement.ToLower().Split('p');
+                trimmedMeasurement = splitMeasurement[0].TrimEnd();
+                decimalMeasurement = parseFraction.Parse(trimmedMeasurement);
+                convertToTeaspoonMeasurement = PinchesToTeaspoons(decimalMeasurement);
             }
             return Math.Round(convertToTeaspoonMeasurement, 2);
         }
@@ -205,12 +240,26 @@ namespace RachelsRosesWebPages {
                         measDict.Add("cups", .5m);
                     adjustedTeaspoonMesaurement -= 24m;
                 }
-                if (adjustedTeaspoonMesaurement < 24 && adjustedTeaspoonMesaurement >= 12) {
+                if (adjustedTeaspoonMesaurement < 24 && adjustedTeaspoonMesaurement >= 16) {
+                    if (measDict.Keys.Contains("cups"))
+                        measDict["cups"] = measDict["cups"] + .33m;
+                    if (!measDict.Keys.Contains("cups"))
+                        measDict.Add("cups", .33m);
+                    adjustedTeaspoonMesaurement -= 16m;
+                }
+                if (adjustedTeaspoonMesaurement < 16 && adjustedTeaspoonMesaurement >= 12) {
                     if (measDict.Keys.Contains("cups"))
                         measDict["cups"] = measDict["cups"] + .25m;
                     if (!measDict.Keys.Contains("cups"))
                         measDict.Add("cups", .25m);
                     adjustedTeaspoonMesaurement -= 12m;
+                }
+                if (adjustedTeaspoonMesaurement < 12m && adjustedTeaspoonMesaurement >= 6m) {
+                    if (measDict.Keys.Contains("cups"))
+                        measDict["cups"] = measDict["cups"] + .125m;
+                    if (!measDict.Keys.Contains("cups"))
+                        measDict.Add("cups", .125m);
+                    adjustedTeaspoonMesaurement -= 6m;
                 }
                 if (adjustedTeaspoonMesaurement < 12m && adjustedTeaspoonMesaurement >= 3m) {
                     if (measDict.Keys.Contains("tablespoons"))
@@ -226,54 +275,59 @@ namespace RachelsRosesWebPages {
                         measDict.Add("teaspoons", 1m);
                     adjustedTeaspoonMesaurement -= 1m;
                 }
-                if (adjustedTeaspoonMesaurement < 1m && adjustedTeaspoonMesaurement > 0m) {
+                if (adjustedTeaspoonMesaurement < 1m && adjustedTeaspoonMesaurement >= .125m) {
                     if (adjustedTeaspoonMesaurement < .28m && adjustedTeaspoonMesaurement > .22m)
                         adjustedTeaspoonMesaurement = .25m;
-                    if (adjustedTeaspoonMesaurement == .50m)
-                        adjustedTeaspoonMesaurement = .5m;
                     if (adjustedTeaspoonMesaurement > .95m)
                         adjustedTeaspoonMesaurement = 1m;
                     if (measDict.Keys.Contains("teaspoons"))
-                        measDict["teaspoons"] = measDict["teaspoons"] + adjustedTeaspoonMesaurement;
+                        measDict["teaspoons"] = measDict["teaspoons"] + .125m;
                     if (!measDict.Keys.Contains("teaspoons"))
-                        measDict.Add("teaspoons", adjustedTeaspoonMesaurement);
-                    adjustedTeaspoonMesaurement -= adjustedTeaspoonMesaurement;
+                        measDict.Add("teaspoons", .125m);
+                    adjustedTeaspoonMesaurement -= .125m;
+                }
+                if (adjustedTeaspoonMesaurement < .125m && adjustedTeaspoonMesaurement > 0m) {
+                    if (measDict.Keys.Contains("pinches"))
+                        measDict["pinches"] = measDict["pinches"] + 1;
+                    if (!measDict.Keys.Contains("pinches"))
+                        measDict.Add("pinches", 1);
+                    adjustedTeaspoonMesaurement -= .06m;
+                    if (adjustedTeaspoonMesaurement < .05m && adjustedTeaspoonMesaurement > 0m)
+                        adjustedTeaspoonMesaurement = 0;
                 }
             } while (adjustedTeaspoonMesaurement > 0m);
-            foreach (KeyValuePair<string, decimal> measurement in measDict)
-                condensedMeasurement += measurement.Value.ToString() + " " + measurement.Key + " ";
+            foreach (KeyValuePair<string, decimal> measurement in measDict) {
+                var valArr = new string[] { };
+                var value = Math.Round(measurement.Value, 3).ToString().TrimStart('0');
+                if (value.Contains(".00") || value.Contains(".0")) {
+                    //i am not a fan of this being a split... this has to go into my To Refactor code!!!!
+                    valArr = value.Split('.');
+                    condensedMeasurement += valArr[0].TrimEnd('0') + " " + measurement.Key + " ";
+                } else { condensedMeasurement += value.TrimEnd('0') + " " + measurement.Key + " "; }
+            }
             return condensedMeasurement.TrimEnd();
         }
         public string AdjustIngredientMeasurement(string measurement, int originalYield, int desiredYield) {
+            var updatedMeasurement = "";
             var multiplier = ChangeYieldMultiplier(originalYield, desiredYield);
-            var eggs = 0m;
-            string[] eggsSplitMeasurement; 
             var splitMeasurement = SplitMultiLevelMeasurement(measurement);
-            //foreach (var meas in splitMeasurement) {
-            //    if (meas.Contains("egg")) {
-            //        eggsSplitMeasurement = SplitEggMeasurement(meas);
-            //        eggs = (eggsSplitMeasurement[0]); 
-            //    }
-            //}
+            for (int i = 0; i < splitMeasurement.Count(); i++) {
+                if (splitMeasurement[i].Contains("egg")) {
+                    var eggMeasurement = "";
+                    eggMeasurement = SplitAndAdjustEggMeasurement(splitMeasurement[i], multiplier);
+                    splitMeasurement[i] = eggMeasurement;
+                    updatedMeasurement = splitMeasurement[i];
+                    return updatedMeasurement;
+                    //here, i'm assuming that no eggs will be entered with other ingredients... 
+                    //i've never an ingredient measurement with other measurements than cups... this will work apart from user error
+                }
+            }
             var measurementConvertedToTeaspoons = AccumulatedTeaspoonMeasurement(measurement);
-            var totalEggs = 0;
             var multipliedTeaspoonsAdjustment = multiplier * measurementConvertedToTeaspoons;
-            var updatedMeasurement = CondenseTeaspoonMeasurement(multipliedTeaspoonsAdjustment);
+            updatedMeasurement = CondenseTeaspoonMeasurement(multipliedTeaspoonsAdjustment);
             return updatedMeasurement;
         }
     }
-    /*
-     other desired functionalities for the Convert class for measurement ingredients: 
-        *convert the measurement/amount of eggs. this will require some unique methods for this alone, as I won't need to accumulate teaspoons and parse them out to a string of measurements
-            I can intertwine it in the SplitMultiLevelMeasurement, but that seems unnecessary, i want to just have it on its own. the egg quantity will not be a part of a multilevel measurement
-        *converting the weight of ingredients based on their density, from and to the ingredient measurement
-            if the weight of the ingredient is given, give the ingredient measurement in the comments, based on the density from the ingredient density database
-            if the measurement is given, give the ingredient weight for checking the ingredient prices from the rest calls
-        *convert the decimals from the decimals returned from the AdjustIngredientMeasurement to fractions, but keep the decimals in a database so i can multiply those decimals 
-            with the multiplier as opposed to multiplying the approximate fractions given (keeping the best precision I can
-               for example, .1667 (1/6) is only .0417 from .125 (1/8), but multiply 1/6 * 5 = 0.8335 whereas 1/8 * 5 = .625
-               I realize this may not be as dramatic of a difference, but it's still important to get correct. 
-    */
 
     public class ParseFraction {
         public decimal Parse(string fraction) {
@@ -297,3 +351,15 @@ namespace RachelsRosesWebPages {
         }
     }
 }
+/*
+ other desired functionalities for the Convert class for measurement ingredients: 
+    *convert the measurement/amount of eggs. this will require some unique methods for this alone, as I won't need to accumulate teaspoons and parse them out to a string of measurements
+        I can intertwine it in the SplitMultiLevelMeasurement, but that seems unnecessary, i want to just have it on its own. the egg quantity will not be a part of a multilevel measurement
+    *converting the weight of ingredients based on their density, from and to the ingredient measurement
+        if the weight of the ingredient is given, give the ingredient measurement in the comments, based on the density from the ingredient density database
+        if the measurement is given, give the ingredient weight for checking the ingredient prices from the rest calls
+    *convert the decimals from the decimals returned from the AdjustIngredientMeasurement to fractions, but keep the decimals in a database so i can multiply those decimals 
+        with the multiplier as opposed to multiplying the approximate fractions given (keeping the best precision I can
+           for example, .1667 (1/6) is only .0417 from .125 (1/8), but multiply 1/6 * 5 = 0.8335 whereas 1/8 * 5 = .625
+           I realize this may not be as dramatic of a difference, but it's still important to get correct. 
+*/

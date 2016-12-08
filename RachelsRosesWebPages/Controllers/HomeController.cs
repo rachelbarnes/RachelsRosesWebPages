@@ -68,7 +68,7 @@ namespace RachelsRosesWebPages.Controllers {
             if (currentRecipe.ingredients == null || currentRecipe.ingredients.Count() == 0) {
                 currentRecipe.ingredients = myDatabaseRecipe.ingredients; 
             } else {
-                currentRecipe.ingredients = myDatabaseRecipe.ingredients;
+                myDatabaseRecipe.ingredients = currentRecipe.ingredients; 
             }
             currentRecipe.name = myDatabaseRecipe.name;
             currentRecipe.id = myDatabaseRecipe.id;
