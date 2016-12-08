@@ -173,12 +173,30 @@ namespace RachelsRosesWebPagesUnitTests {
             t.InsertIngredient(i, r);
             t.UpdateIngredient(i);
             var myIngredientBox = t.queryIngredients();
-            //var myRecipeBox = t.queryRecipes();
-            //this isn't going to work because UpdateIngredient is hardcoded with a value from HomeController.UpdatedIngredient
-            //Assert.AreEqual(i2.name, myRecipeBox[0].ingredients[0].name);
             Assert.AreEqual(i2.name, myIngredientBox[0].name);
-            //Assert.AreEqual(i2.measurement, myRecipeBox[0].ingredients[0].measurement);
             Assert.AreEqual(i2.measurement, myIngredientBox[0].measurement);
+        }
+        [Test]
+        public void TestInsertingYield() {
+            var t = new DatabaseAccess();
+            var r = new Recipe("Honey Buttermilk Bread") {
+                id = 1,
+                yield = 0
+            };
+            var r2 = new Recipe("Fluffy White Cake") {
+                id = 2,
+                yield = 0
+            }; 
+            t.initializeDatabase();
+            t.InsertRecipe(r);
+            t.InsertRecipe(r2); 
+            r.yield = 24;
+            r2.yield = 16; 
+            t.UpdateRecipe(r);
+            t.UpdateRecipe(r2); 
+            var myRecipeBox = t.queryRecipes();
+            Assert.AreEqual(24, myRecipeBox[0].yield);
+            Assert.AreEqual(16, myRecipeBox[1].yield); 
         }
     }
 }

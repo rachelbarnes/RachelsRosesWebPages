@@ -62,15 +62,22 @@ namespace RachelsRosesWebPages.Controllers {
             return View();
         }
         public ActionResult Recipe(string name) {
-            var db = new DatabaseAccess();
+            //var db = new DatabaseAccess();
             if (string.IsNullOrEmpty(name))
                 return Redirect("/home/recipes");
             name = name.Trim();
             myDatabaseRecipe = getRecipes().First(x => x.name == name);
-            if (currentRecipe == null) 
-                currentRecipe = myDatabaseRecipe; 
+            if (myDatabaseRecipe.yield != currentRecipe.yield)
+                myDatabaseRecipe.yield = currentRecipe.yield;
+            if (currentRecipe == null || currentRecipe != myDatabaseRecipe) {
+                currentRecipe.name = myDatabaseRecipe.name;
+                currentRecipe.id = myDatabaseRecipe.id; 
+                //i have to specify the fields here because I don't want to lose the ingredients assigned to the currentRecipe
+            }
             if (myDatabaseRecipe.name == currentRecipe.name && currentRecipe != null)
-                myDatabaseRecipe.ingredients = currentRecipe.ingredients; 
+                myDatabaseRecipe.ingredients = currentRecipe.ingredients;
+            ViewBag.currentingredient = currentIngredient; 
+            //the yield isn't being added into the database here... i need to put it in the database and assign it to the currentRecipe before this. it's getting overwritten by the myDatabaseRecipe
             ViewBag.currentrecipe = currentRecipe;
             return View();
         }
@@ -120,9 +127,8 @@ namespace RachelsRosesWebPages.Controllers {
                 newIngredient.measurement = measurement;
                 newIngredient.recipeId = currentRecipe.id; 
                 currentRecipe.ingredients.Add(newIngredient);
-                var ing = currentIngredient;
-                var rec = currentRecipe; 
-                db.InsertIngredient(newIngredient, currentRecipe);
+                currentIngredient = newIngredient; 
+                db.InsertIngredient(currentIngredient, currentRecipe);
             }
             return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
@@ -147,7 +153,6 @@ namespace RachelsRosesWebPages.Controllers {
             return Redirect("/home/recipe?name=" + newRecipeTitle);
         }
         public ActionResult AdjustYield(int updatedYield) {
-            throw new NotImplementedException("Adjust reader to also look up and populate ingredients on a recipe, and update and insert to also save them");
             var convert = new Convert();
             if (currentRecipe.yield == 0) {
                 currentRecipe.yield = updatedYield;

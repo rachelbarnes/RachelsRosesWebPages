@@ -94,12 +94,16 @@ namespace RachelsRosesWebPages.Models {
             return MyRecipeBox; 
         }
         public List<Ingredient> queryIngredients() {
-            return queryItems("select * from ingredients", reader => {
+            var count = 1;
+            var myIngredientBox = queryItems("select * from ingredients", reader => {
                 var ingredient = new Ingredient(reader["name"].ToString());
                 ingredient.measurement = (string)reader["measurement"];
                 ingredient.recipeId = (int)reader["recipe_id"];
                 return ingredient;
             });
+            foreach (var ingredient in myIngredientBox) 
+                ingredient.ingredientId = count++;
+            return myIngredientBox; 
         }
         public Recipe GetFullRecipe(string myRecipeName) {
             var myRecipeBox = queryRecipes();
