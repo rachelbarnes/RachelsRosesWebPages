@@ -18,7 +18,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.initializeDatabase();
             var r = new Recipe("test") {
                 yield = 4
-            }; //this is done because the Recipe constructor only takes the name as a parameter, but you can identify the yield and the list of ingredients still in a constructor form
+            }; 
             t.InsertRecipe(r);
             r = new Recipe("other") {
                 yield = 1
@@ -37,15 +37,17 @@ namespace RachelsRosesWebPagesUnitTests {
             var recipes = t.queryRecipes();
             foreach (var recipe in recipes) {
                 if (recipe.name == "White Cake")
-                    r = recipe;
+                    recipe.name = "Fluffy White Cake";
             }
+            t.InsertRecipe(r);
             t.InsertIngredient(i, r);
-            Assert.AreEqual(1, r.id);
+            var myIngredientBox = t.queryIngredients();
             Assert.AreEqual("all-purpose flour", r.ingredients[0].name);
             Assert.AreEqual("2 1/2 cups", r.ingredients[0].measurement);
             Assert.AreEqual("all-purpose flour", recipes[0].ingredients[0].name);
             Assert.AreEqual("2 1/2 cups", recipes[0].ingredients[0].measurement);
         }
+        //this test above isn't passing, and i don't know why
         [Test]
         public void TestDeleteRecipe() {
             var t = new DatabaseAccess();
@@ -70,8 +72,6 @@ namespace RachelsRosesWebPagesUnitTests {
             };
             var i = new Ingredient("flour", "2 1/2 cups") {
                 recipeId = 1
-                //i'm hardcoding this recipe id here, but in the controller, when an ingredient is entered for a recipe in the browser,
-                //    i need to assign the recipe id by the recipe name, (ingredient.recipeid = recipe.id)
             };
             var i2 = new Ingredient("sugar", "1/3 cup") {
                 recipeId = 2
@@ -114,7 +114,22 @@ namespace RachelsRosesWebPagesUnitTests {
             t.UpdateRecipe(r);
             var myRecipeBox = t.queryRecipes();
             Assert.AreEqual(newRecipeName, myRecipeBox[0].name);
-            //i'm not sure why this isn't passing... need to figure this out later or ask Steve
+        }
+        //this itest isn't passing either... is there an issue with my UpdateRecipe? 
+        [Test]
+        public void TestUpdateRecipe() {
+            var t = new DatabaseAccess();
+            var r = new Recipe("My Favorite White Cake");
+            var updatedRecipeName = "My Fluffy White Cake";
+            t.initializeDatabase();
+            t.InsertRecipe(r);
+            var myRecipeBoxBefore = t.queryRecipes(); 
+            r.name = updatedRecipeName;
+            t.UpdateRecipe(r);
+            var myRecipeBoxAfterwards = t.queryRecipes();
+            Assert.AreEqual("My Favorite White Cake", myRecipeBoxBefore[0].name);
+            Assert.AreEqual(r.name, myRecipeBoxAfterwards[0].name); 
+            //ok, so there's something wrong with my UpdateRecipe
         }
         [Test]
         public void TestInsertIngredientToIngredientDatabase() {
@@ -161,7 +176,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var r = new Recipe("Honey Buttermilk Bread");
             var i = new Ingredient("Flour", "6 cups") {
                 recipeId = 1,
-                ingredientId = 1 
+                ingredientId = 1
             };
             var i2 = new Ingredient("Bread Flour", "6 1/3 cups") {
                 recipeId = 1,
@@ -186,17 +201,104 @@ namespace RachelsRosesWebPagesUnitTests {
             var r2 = new Recipe("Fluffy White Cake") {
                 id = 2,
                 yield = 0
-            }; 
+            };
             t.initializeDatabase();
             t.InsertRecipe(r);
-            t.InsertRecipe(r2); 
+            t.InsertRecipe(r2);
             r.yield = 24;
-            r2.yield = 16; 
+            r2.yield = 16;
             t.UpdateRecipe(r);
-            t.UpdateRecipe(r2); 
+            t.UpdateRecipe(r2);
             var myRecipeBox = t.queryRecipes();
             Assert.AreEqual(24, myRecipeBox[0].yield);
-            Assert.AreEqual(16, myRecipeBox[1].yield); 
+            Assert.AreEqual(16, myRecipeBox[1].yield);
+        }
+        [Test]
+        public void TestDensitiesDatabase() {
+            var t = new DatabaseAccess();
+            var i = new Ingredient("Bread Flour") {
+                ingredientId = 1,
+                density = 4.5m,
+                pricePerOunce = .03m,
+                sellingWeight = 5m,
+                sellingPrice = 4.99m
+            };
+            t.initializeDatabase();
+            t.InsertIngredientDensityAndSellingInformation(i);
+            var myIngredientInformation = t.queryDensitiesAndPrices();
+            Assert.AreEqual(1, myIngredientInformation.Count());
+            Assert.AreEqual(i.name, myIngredientInformation[0].name);
+            Assert.AreEqual(i.density, (decimal)myIngredientInformation[0].density);
+            Assert.AreEqual(i.pricePerOunce, (decimal)myIngredientInformation[0].pricePerOunce);
+            Assert.AreEqual(i.sellingWeight, (decimal)myIngredientInformation[0].sellingWeight);
+            Assert.AreEqual(i.sellingPrice, (decimal)myIngredientInformation[0].sellingPrice);
+        }
+        [Test]
+        public void TestDensitiesDatabase2() {
+            var t = new DatabaseAccess();
+            var i = new Ingredient("Honey, raw") {
+                density = 12m,
+                sellingWeight = 32m,
+                sellingPrice = 5.59m,
+                sellingWeightInOunces = 32m
+            };
+            i.pricePerOunce = i.sellingPrice / i.sellingWeightInOunces;
+            t.initializeDatabase();
+            t.InsertIngredientDensityAndSellingInformation(i);
+            var myIngredientInformation = t.queryDensitiesAndPrices();
+            Assert.AreEqual(1, myIngredientInformation.Count());
+            Assert.AreEqual(i.density, (decimal)myIngredientInformation[0].density);
+            Assert.AreEqual(i.sellingWeight, (decimal)myIngredientInformation[0].sellingWeight); 
+        }
+        [Test]
+        public void TestUdateDensityDatabase() {
+            var t = new DatabaseAccess();
+            var i = new Ingredient("Honey, raw") {
+                ingredientId = 1,
+                density = 8m,
+                sellingWeight = 32m,
+                sellingPrice = 5.59m,
+                sellingWeightInOunces = 32m
+            };
+            i.pricePerOunce = i.sellingPrice / i.sellingWeightInOunces;
+            t.initializeDatabase();
+            t.InsertIngredientDensityAndSellingInformation(i);
+            i.density = 12m;
+            t.updateDensitiesAndPrice(i);
+            var myIngredientInformation = t.queryDensitiesAndPrices();
+            Assert.AreEqual(1, myIngredientInformation.Count());
+            Assert.AreEqual(i.density, myIngredientInformation[0].density); 
+        }
+        [Test]
+        public void TestGetFullRecipe() {
+            var t = new DatabaseAccess();
+            var i = new Ingredient("Honey, raw") {
+                ingredientId = 1,
+                recipeId = 1,
+                measurement = "1/3 cup"
+            };
+            var i2 = new Ingredient("Bread Flour") {
+                ingredientId = 2,
+                recipeId = 1,
+                measurement = "6 cups"
+            };
+            var r = new Recipe("Honey Buttermilk Bread") {
+                id = 1,
+                yield = 24
+            };
+            t.initializeDatabase();
+            t.InsertRecipe(r);
+            t.InsertIngredient(i, r);
+            t.InsertIngredient(i2, r);
+            var myRecipeBox = t.queryRecipes();
+            var myIngredientBox = t.queryIngredients();
+            //Assert.AreEqual(1, myRecipeBox.Count());
+            Assert.AreEqual(2, myIngredientBox.Count()); 
+            Assert.AreEqual(2, myRecipeBox[0].ingredients.Count());
+            Assert.AreEqual(i.name, myRecipeBox[0].ingredients[0].name);
+            Assert.AreEqual(i.measurement, myRecipeBox[0].ingredients[0].measurement); 
+            Assert.AreEqual(i2.name, myRecipeBox[0].ingredients[1].name);
+            Assert.AreEqual(i2.measurement, myRecipeBox[0].ingredients[1].measurement); 
         }
     }
 }

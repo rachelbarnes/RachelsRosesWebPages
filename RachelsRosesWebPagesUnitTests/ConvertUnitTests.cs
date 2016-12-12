@@ -345,50 +345,52 @@ namespace RachelsRosesWebPages.Controllers {
         [Test]
         public void TestSplittingEggMeasurement() {
             var convert = new Convert();
-            var expected = "2 eggs"; 
-            var actual = convert.SplitAndAdjustEggMeasurement("1 egg", 2);
+            var expected = new string[] { "2", "eggs" }; 
+            //var expected = "2 eggs"; 
+            var actual = convert.SplitAndAdjustEggMeasurement("1 eggs", 2);
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestSplittingEggMeasurement2() {
             var convert = new Convert();
-            var expected = "6 eggs"; 
+            var expected = new string[] { "6", "eggs" }; 
             var actual = convert.SplitAndAdjustEggMeasurement("1 1/2 eggs", 4);
             Assert.AreEqual(expected, actual); 
         }
         [Test]
         public void TestSplittingEggMeasurements3() {
             var convert = new Convert();
-            var expected = "12 eggs"; 
+            var expected = new string[] { "12", "eggs" }; 
             var actual = convert.SplitAndAdjustEggMeasurement("12 eggs", 1);
             Assert.AreEqual(expected, actual); 
         }
         [Test]
         public void TestSplittingEggMeasurements4() {
             var convert = new Convert();
-            var expected = "13.75 eggs"; 
+            var expected = new string[] { "13.75", "eggs" }; 
             var actual = convert.SplitAndAdjustEggMeasurement("13 3/4 eggs", 1);
             Assert.AreEqual(expected, actual); 
         }
         [Test]
         public void TestSplittingEggMeasurements5() {
             var convert = new Convert();
-            var expected = "256.125 eggs"; 
+            var expected = new string[] { "256.125", "eggs" }; 
             var actual = convert.SplitAndAdjustEggMeasurement("256 1/8 eggs", 1);
             Assert.AreEqual(expected, actual); 
         }
         [Test]
         public void TestSplittingEggMeasurements6() {
             var convert = new Convert();
-            var expected = "16 egg whites"; 
+            var expected = new string[] { "16", "egg whites" }; 
             var actual = convert.SplitAndAdjustEggMeasurement("4 egg whites", 4);
             Assert.AreEqual(expected, actual);
         } 
         [Test]
         public void TestSplittingEggMeasurements7() {
             var convert = new Convert();
-            var expected = "6 egg yolks"; 
-            var actual = convert.SplitAndAdjustEggMeasurement("2 egg yolks", 3); 
+            var expected = new string[] { "6", "egg yolks" }; 
+            var actual = convert.SplitAndAdjustEggMeasurement("2 egg yolks", 3);
+            Assert.AreEqual(expected, actual); 
         }
         [Test]
         public void AccumulatingTeaspoonsFromVariousMeasurements() {
@@ -497,12 +499,9 @@ namespace RachelsRosesWebPages.Controllers {
             var actual = convert.CondenseTeaspoonMeasurement(199.5m);
             Assert.AreEqual(expected, actual);
         }
-        //this failed appropriately... nice
         [Test]
         public void CondenseTeaspoonMeasurement5() {
             var convert = new Convert();
-            //var expected = "6.5 cups 10 tablespoons 2.125 teaspoons";
-            //this above expected failed appropriately, nice. 
             var expected = "7.125 cups 2.125 teaspoons";
             var actual = convert.CondenseTeaspoonMeasurement(344.125m);
             Assert.AreEqual(expected, actual);
@@ -671,7 +670,7 @@ namespace RachelsRosesWebPages.Controllers {
         public void AdjustTotalMeasurement16() {
             var convert = new Convert();
             var expected = "2 eggs";
-            var actual = convert.AdjustIngredientMeasurement("1 egg", 8, 16);
+            var actual = convert.AdjustIngredientMeasurement("1 eggs", 8, 16);
             Assert.AreEqual(expected, actual); 
         }
         [Test]

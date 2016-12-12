@@ -6,46 +6,6 @@ using System.Web;
 using System.Web.Mvc;
 
 namespace RachelsRosesWebPages.Controllers {
-    public class Ingredient {
-        public string name;
-        public string measurement;
-        public int recipeId;
-        public int ingredientId;
-        public Ingredient(string _name, string _measurement) {
-            name = _name;
-            measurement = _measurement;
-            recipeId = 0;
-            ingredientId = 0;
-
-        }
-        public Ingredient(string _name) {
-            name = _name;
-        }
-        public Ingredient() { }
-    }
-    public class Recipe {
-        public string name;
-        public int id;
-        public List<Ingredient> ingredients;
-        public int yield;
-        public Recipe(string _name) {
-            name = _name;
-            id = 0;
-            ingredients = new List<Ingredient>();
-            yield = 0;
-        }
-        public Recipe(int _id) {
-            name = "";
-            id = _id;
-            ingredients = new List<Ingredient>();
-            yield = 0;
-        }
-        public Recipe() { }
-    }
-    public class Error {
-        public string repeatedRecipeName = "This recipe is already in your recipe box.";
-        public Error() { }
-    }
     public class HomeController : Controller {
         public static Recipe currentRecipe = new Recipe();
         public static Recipe myDatabaseRecipe = new Recipe();
@@ -66,9 +26,9 @@ namespace RachelsRosesWebPages.Controllers {
             name = name.Trim();
             myDatabaseRecipe = getRecipes().First(x => x.name == name);
             if (currentRecipe.ingredients == null || currentRecipe.ingredients.Count() == 0) {
-                currentRecipe.ingredients = myDatabaseRecipe.ingredients; 
+                currentRecipe.ingredients = myDatabaseRecipe.ingredients;
             } else {
-                myDatabaseRecipe.ingredients = currentRecipe.ingredients; 
+                myDatabaseRecipe.ingredients = currentRecipe.ingredients;
             }
             currentRecipe.name = myDatabaseRecipe.name;
             currentRecipe.id = myDatabaseRecipe.id;
@@ -154,19 +114,27 @@ namespace RachelsRosesWebPages.Controllers {
         public ActionResult AdjustYield(int updatedYield) {
             var t = new DatabaseAccess();
             var convert = new Convert();
+            int n;
             if (currentRecipe.yield == 0) {
                 currentRecipe.yield = updatedYield;
             } else {
                 var oldYield = currentRecipe.yield;
                 currentRecipe.yield = updatedYield;
                 foreach (var ing in currentRecipe.ingredients) {
-                    ing.measurement = convert.AdjustIngredientMeasurement(ing.measurement, oldYield, currentRecipe.yield);
+                    if (int.TryParse(ing.measurement, out n)) {
+                        ing.measurement = (int.Parse(ing.measurement) * (currentRecipe.yield / oldYield)).ToString();
+                        //there's a bug here with the eggs, i need to look over the code again and see what I can to do to make this better in AdjustIngredientMeasurement
+                            //having this is not only a nonfunctional temporary fix, but it's sloppy and can easily break. I want all my functionality to come from the AdjustIngredientMeasurement
+                            //as a note, the reason why this isn't working with AdjustIngredientMeasurement is because when I AdjustIngredientMeasurement splits the measurements, it separates the "2" and the "eggs", to which the measurment is left with "eggs" and it has no quantity to adjust
+                            //i'm sure there's a simple solution... don't over-complicate it!
+
+                        //also, why are my ingredients not being shown for the currentrecipe?
+                    } else
+                        ing.measurement = convert.AdjustIngredientMeasurement(ing.measurement, oldYield, currentRecipe.yield);
                 }
             }
             t.UpdateRecipe(currentRecipe);
             return Redirect("/home/recipe?name=" + currentRecipe.name);
-            //as a note to myself, a pattern to follow, if you're updating an ingredient or a recipe, or anything of the matter,
-            //whenever an item is updated, update the database, and then call the database for the ingredient or the recipe!!!
         }
     }
 }

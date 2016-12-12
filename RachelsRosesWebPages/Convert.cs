@@ -62,7 +62,8 @@ namespace RachelsRosesWebPages {
             int next;
             int n;
             var count = 0;
-            var commonMeasurements = new string[] { "cup", "tablespoon", "teaspoon", "pinch", "egg" };
+            var commonMeasurements = new string[] { "cup", "tablespoon", "teaspoon", "pinch", };
+            //i dont have eggs in here because i've never seen eggs in with a multi level measurement
             var firstMeasurement = "";
             var secondMeasurement = "";
             var latterMeasurement = "";
@@ -125,31 +126,34 @@ namespace RachelsRosesWebPages {
             }
             return splitMeasurement;
         }
-        public string SplitAndAdjustEggMeasurement(string eggMeasurement, decimal multiplier) {
+        public string[] SplitAndAdjustEggMeasurement(string eggMeasurement, decimal multiplier) {
             var parse = new ParseFraction();
-            var adjustedEggMeasurement = "";
+            var adjustedEggMeasurement = new string[] { };
             int n;
             var eggsAdjusted = "";
             var eggQuantity = "";
-            var typeOfEggs = ""; 
+            var typeOfEggs = "";
             for (int i = 0; i < eggMeasurement.Count(); i++) {
                 if ((i > 0) && (i < eggMeasurement.Count() - 1)) {
                     var previous = i - 1;
                     var next = i + 1;
                     if ((eggMeasurement[i] == ' ') && (int.TryParse(eggMeasurement[previous].ToString(), out n)) && (!int.TryParse(eggMeasurement[next].ToString(), out n))) {
                         eggQuantity = eggMeasurement.Substring(0, i);
-                        typeOfEggs = eggMeasurement.Substring(next, (eggMeasurement.Count() - (i + 1))); 
-                        if ((parse.Parse(eggQuantity) * multiplier) < 10) {
-                            eggsAdjusted = (parse.Parse(eggQuantity) * multiplier).ToString().TrimEnd('0');
-                        } else { eggsAdjusted = (parse.Parse(eggQuantity) * multiplier).ToString(); }
-                        if ((eggsAdjusted.Contains(".00") && eggsAdjusted.Contains(".0")) || eggsAdjusted.Contains('.'))
-                            eggsAdjusted = eggsAdjusted.TrimEnd('.');
-                        adjustedEggMeasurement = eggsAdjusted.TrimStart('0') + " " + typeOfEggs;
+                        typeOfEggs = eggMeasurement.Substring(next, (eggMeasurement.Count() - (i + 1)));
+                        eggsAdjusted = (parse.Parse(eggQuantity) * multiplier).ToString();
+                        var eggsAdjustedArr = new string[] { };
+                        if ((eggsAdjusted.Contains(".00") || eggsAdjusted.Contains(".0")) || eggsAdjusted[eggsAdjusted.Count() - 1] == '.') {
+                            eggsAdjustedArr = eggsAdjusted.Split('.');
+                            eggsAdjusted = eggsAdjustedArr[0];
+                        }
+                        adjustedEggMeasurement = new string[] { eggsAdjusted, typeOfEggs };
                         break;
                     }
                 }
             }
             return adjustedEggMeasurement;
+            //a question for the future: what to do with the liquid eggs, like the egg beaters... that will obviously have eggs in the name, but will need to be dealt with differently
+            //the easiest solution I can see if the name has cups, tablespoons or teaspoons to return the valule of splitMultiLevelMeasurement(egg measurement)
         }
         public decimal AdjustToTeaspoons(string measurement) {
             var parseFraction = new ParseFraction();
@@ -191,116 +195,117 @@ namespace RachelsRosesWebPages {
             return accumulatedTeaspoons;
         }
         public Func<decimal, decimal, decimal> ApplyMultiplierToTeaspoons => (teaspoons, multiplier) => Math.Round((teaspoons * multiplier), 2);
-        public Func<decimal, decimal, decimal> ApplyMultiplierToEggs => (eggs, multiplier) => Math.Round((eggs * multiplier), 2);
-        //this is literally the same method as above, except i have it with eggs. I'm doing this very temporarily to see the different places for the teaspoon manipulation and eggs manipulation, then i'll combine them. 
+        //there is so much repetition here... this has to be fixed.
+        //pattern: dictionary with keys: cups, tablespoons, teaspoons, pinches, 
+        //i can have these numbers in an array, and have the teaspoon measurement go through the numbers in the array and add to the dictionary based on the corresponding value... 
+        //the majority of the filled lines here come from adding to the dictionary... 
+        //this one should be pretty easy, actually, just having a method to add to the dictionary cups, tablespoons or pinches based whether the teaspoon amount >= 48, etc. 
         public string CondenseTeaspoonMeasurement(decimal teaspoons) {
             var measDict = new Dictionary<string, decimal>();
             var condensedMeasurement = "";
-            var adjustedTeaspoonMesaurement = teaspoons;
             do {
-                if (adjustedTeaspoonMesaurement >= 576) {
+                if (teaspoons >= 576) {
                     if (measDict.Keys.Contains("cups"))
                         measDict["cups"] = measDict["cups"] + 12m;
                     if (!measDict.Keys.Contains("cups"))
                         measDict.Add("cups", 12m);
-                    adjustedTeaspoonMesaurement -= 576m;
+                    teaspoons -= 576m;
                 }
-                if (adjustedTeaspoonMesaurement >= 384) {
+                if (teaspoons >= 384) {
                     if (measDict.Keys.Contains("cups"))
                         measDict["cups"] = measDict["cups"] + 8m;
                     if (!measDict.Keys.Contains("cups"))
                         measDict.Add("cups", 8m);
-                    adjustedTeaspoonMesaurement -= 384m;
+                    teaspoons -= 384m;
                 }
-                if (adjustedTeaspoonMesaurement >= 192) {
+                if (teaspoons >= 192) {
                     if (measDict.Keys.Contains("cups"))
                         measDict["cups"] = measDict["cups"] + 4m;
                     if (!measDict.Keys.Contains("cups"))
                         measDict.Add("cups", 4m);
-                    adjustedTeaspoonMesaurement -= 192m;
+                    teaspoons -= 192m;
                 }
-                if (adjustedTeaspoonMesaurement >= 96) {
+                if (teaspoons >= 96) {
                     if (measDict.Keys.Contains("cups"))
                         measDict["cups"] = measDict["cups"] + 2m;
                     if (!measDict.Keys.Contains("cups"))
                         measDict.Add("cups", 2m);
-                    adjustedTeaspoonMesaurement -= 96m;
+                    teaspoons -= 96m;
                 }
-                if (adjustedTeaspoonMesaurement >= 48m) {
+                if (teaspoons >= 48m) {
                     if (measDict.Keys.Contains("cups"))
                         measDict["cups"] = measDict["cups"] + 1m;
                     if (!measDict.Keys.Contains("cups"))
                         measDict.Add("cups", 1m);
-                    adjustedTeaspoonMesaurement -= 48m;
+                    teaspoons -= 48m;
                 }
-                if (adjustedTeaspoonMesaurement < 48 && adjustedTeaspoonMesaurement >= 24) {
+                if (teaspoons < 48 && teaspoons >= 24) {
                     if (measDict.Keys.Contains("cups"))
                         measDict["cups"] = measDict["cups"] + .5m;
                     if (!measDict.Keys.Contains("cups"))
                         measDict.Add("cups", .5m);
-                    adjustedTeaspoonMesaurement -= 24m;
+                    teaspoons -= 24m;
                 }
-                if (adjustedTeaspoonMesaurement < 24 && adjustedTeaspoonMesaurement >= 16) {
+                if (teaspoons < 24 && teaspoons >= 16) {
                     if (measDict.Keys.Contains("cups"))
                         measDict["cups"] = measDict["cups"] + .33m;
                     if (!measDict.Keys.Contains("cups"))
                         measDict.Add("cups", .33m);
-                    adjustedTeaspoonMesaurement -= 16m;
+                    teaspoons -= 16m;
                 }
-                if (adjustedTeaspoonMesaurement < 16 && adjustedTeaspoonMesaurement >= 12) {
+                if (teaspoons < 16 && teaspoons >= 12) {
                     if (measDict.Keys.Contains("cups"))
                         measDict["cups"] = measDict["cups"] + .25m;
                     if (!measDict.Keys.Contains("cups"))
                         measDict.Add("cups", .25m);
-                    adjustedTeaspoonMesaurement -= 12m;
+                    teaspoons -= 12m;
                 }
-                if (adjustedTeaspoonMesaurement < 12m && adjustedTeaspoonMesaurement >= 6m) {
+                if (teaspoons < 12m && teaspoons >= 6m) {
                     if (measDict.Keys.Contains("cups"))
                         measDict["cups"] = measDict["cups"] + .125m;
                     if (!measDict.Keys.Contains("cups"))
                         measDict.Add("cups", .125m);
-                    adjustedTeaspoonMesaurement -= 6m;
+                    teaspoons -= 6m;
                 }
-                if (adjustedTeaspoonMesaurement < 12m && adjustedTeaspoonMesaurement >= 3m) {
+                if (teaspoons < 12m && teaspoons >= 3m) {
                     if (measDict.Keys.Contains("tablespoons"))
                         measDict["tablespoons"] = measDict["tablespoons"] + 1m;
                     if (!measDict.Keys.Contains("tablespoons"))
                         measDict.Add("tablespoons", 1m);
-                    adjustedTeaspoonMesaurement -= 3m;
+                    teaspoons -= 3m;
                 }
-                if (adjustedTeaspoonMesaurement < 3m && adjustedTeaspoonMesaurement >= 1) {
+                if (teaspoons < 3m && teaspoons >= 1) {
                     if (measDict.Keys.Contains("teaspoons"))
                         measDict["teaspoons"] = measDict["teaspoons"] + 1m;
                     if (!measDict.Keys.Contains("teaspoons"))
                         measDict.Add("teaspoons", 1m);
-                    adjustedTeaspoonMesaurement -= 1m;
+                    teaspoons -= 1m;
                 }
-                if (adjustedTeaspoonMesaurement < 1m && adjustedTeaspoonMesaurement >= .125m) {
-                    if (adjustedTeaspoonMesaurement < .28m && adjustedTeaspoonMesaurement > .22m)
-                        adjustedTeaspoonMesaurement = .25m;
-                    if (adjustedTeaspoonMesaurement > .95m)
-                        adjustedTeaspoonMesaurement = 1m;
+                if (teaspoons < 1m && teaspoons >= .125m) {
+                    if (teaspoons < .28m && teaspoons > .22m)
+                        teaspoons = .25m;
+                    if (teaspoons > .95m)
+                        teaspoons = 1m;
                     if (measDict.Keys.Contains("teaspoons"))
                         measDict["teaspoons"] = measDict["teaspoons"] + .125m;
                     if (!measDict.Keys.Contains("teaspoons"))
                         measDict.Add("teaspoons", .125m);
-                    adjustedTeaspoonMesaurement -= .125m;
+                    teaspoons -= .125m;
                 }
-                if (adjustedTeaspoonMesaurement < .125m && adjustedTeaspoonMesaurement > 0m) {
+                if (teaspoons < .125m && teaspoons > 0m) {
                     if (measDict.Keys.Contains("pinches"))
                         measDict["pinches"] = measDict["pinches"] + 1;
                     if (!measDict.Keys.Contains("pinches"))
                         measDict.Add("pinches", 1);
-                    adjustedTeaspoonMesaurement -= .06m;
-                    if (adjustedTeaspoonMesaurement < .05m && adjustedTeaspoonMesaurement > 0m)
-                        adjustedTeaspoonMesaurement = 0;
+                    teaspoons -= .06m;
+                    if (teaspoons < .05m && teaspoons > 0m)
+                        teaspoons = 0;
                 }
-            } while (adjustedTeaspoonMesaurement > 0m);
+            } while (teaspoons > 0m);
             foreach (KeyValuePair<string, decimal> measurement in measDict) {
                 var valArr = new string[] { };
                 var value = Math.Round(measurement.Value, 3).ToString().TrimStart('0');
                 if (value.Contains(".00") || value.Contains(".0")) {
-                    //i am not a fan of this being a split... this has to go into my To Refactor code!!!!
                     valArr = value.Split('.');
                     condensedMeasurement += valArr[0].TrimEnd('0') + " " + measurement.Key + " ";
                 } else { condensedMeasurement += value.TrimEnd('0') + " " + measurement.Key + " "; }
@@ -310,18 +315,12 @@ namespace RachelsRosesWebPages {
         public string AdjustIngredientMeasurement(string measurement, int originalYield, int desiredYield) {
             var updatedMeasurement = "";
             var multiplier = ChangeYieldMultiplier(originalYield, desiredYield);
-            var splitMeasurement = SplitMultiLevelMeasurement(measurement);
-            for (int i = 0; i < splitMeasurement.Count(); i++) {
-                if (splitMeasurement[i].Contains("egg")) {
-                    var eggMeasurement = "";
-                    eggMeasurement = SplitAndAdjustEggMeasurement(splitMeasurement[i], multiplier);
-                    splitMeasurement[i] = eggMeasurement;
-                    updatedMeasurement = splitMeasurement[i];
-                    return updatedMeasurement;
-                    //here, i'm assuming that no eggs will be entered with other ingredients... 
-                    //i've never an ingredient measurement with other measurements than cups... this will work apart from user error
-                }
+            if (measurement.Contains("egg")) {
+                var eggMeasurement = SplitAndAdjustEggMeasurement(measurement, multiplier);
+                updatedMeasurement = eggMeasurement[0] + " " + eggMeasurement[1];
+                return updatedMeasurement;
             }
+            var splitMeasurement = SplitMultiLevelMeasurement(measurement);
             var measurementConvertedToTeaspoons = AccumulatedTeaspoonMeasurement(measurement);
             var multipliedTeaspoonsAdjustment = multiplier * measurementConvertedToTeaspoons;
             updatedMeasurement = CondenseTeaspoonMeasurement(multipliedTeaspoonsAdjustment);

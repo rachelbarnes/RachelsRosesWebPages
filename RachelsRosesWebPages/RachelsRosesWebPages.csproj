@@ -228,6 +228,7 @@
       <DependentUpon>MyRecipeBox.edmx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RecipesAndIngredients.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>

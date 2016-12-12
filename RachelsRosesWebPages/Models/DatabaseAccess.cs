@@ -33,10 +33,6 @@ namespace RachelsRosesWebPages.Models {
             sqlConnection1.Close();
             return items;
         }
-        //public List<Recipe> SortAlphabetically() {
-        //    var myRecipeBox = queryRecipes();
-        //    myRecipeBox.Sort(); 
-        //}
         public void UpdateRecipe(Recipe r) {
             var commandText = "update recipes set name=@name, yield=@yield where recipe_id = @rid;";
             executeVoidQuery(commandText, cmd => {
@@ -63,13 +59,25 @@ namespace RachelsRosesWebPages.Models {
                 return cmd;
             });
         }
+        public void InsertIngredientDensityAndSellingInformation(Ingredient i) {
+            var commandText = @"Insert into densities(name, density, selling_weight, selling_price, price_per_ounce) 
+                            values (@name, @density, @selling_weight, @selling_price, @price_per_ounce);";
+            executeVoidQuery(commandText, cmd => {
+                cmd.Parameters.AddWithValue("@name", i.name);
+                cmd.Parameters.AddWithValue("@density", i.density);
+                cmd.Parameters.AddWithValue("@selling_weight", i.sellingWeight);
+                cmd.Parameters.AddWithValue("@selling_price", i.sellingPrice);
+                cmd.Parameters.AddWithValue("@price_per_ounce", i.pricePerOunce);
+                return cmd;
+            });
+        }
         public void UpdateIngredient(Ingredient i) {
-            var commandText = "update ingredients set name=@name, measurement=@measurement, recipe_id=@recipeId where ing_id=@ingredientId"; 
+            var commandText = "update ingredients set name=@name, measurement=@measurement, recipe_id=@recipeId where ing_id=@ingredientId";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@name", i.name);
                 cmd.Parameters.AddWithValue("@measurement", i.measurement);
                 cmd.Parameters.AddWithValue("@recipeId", i.recipeId);
-                cmd.Parameters.AddWithValue("ingredientId", i.ingredientId); 
+                cmd.Parameters.AddWithValue("ingredientId", i.ingredientId);
                 return cmd;
             });
         }
@@ -81,17 +89,17 @@ namespace RachelsRosesWebPages.Models {
                 return cmd;
             });
         }
-        public List<Recipe> queryRecipes() { 
-            var count = 1; 
+        public List<Recipe> queryRecipes() {
+            var count = 1;
             var MyRecipeBox = queryItems("select * from recipes", reader => {
                 var recipe = new Recipe(reader["name"].ToString());
                 recipe.yield = (int)reader["yield"]; //these are the column names that you're accessing
                 return recipe;
-           });
+            });
             //i want to alphabetize the names in the recipe box, as an addition of a story in the future
-            foreach (var recipe in MyRecipeBox) 
+            foreach (var recipe in MyRecipeBox)
                 recipe.id = count++;
-            return MyRecipeBox; 
+            return MyRecipeBox;
         }
         public List<Ingredient> queryIngredients() {
             var count = 1;
@@ -101,9 +109,33 @@ namespace RachelsRosesWebPages.Models {
                 ingredient.recipeId = (int)reader["recipe_id"];
                 return ingredient;
             });
-            foreach (var ingredient in myIngredientBox) 
+            foreach (var ingredient in myIngredientBox)
                 ingredient.ingredientId = count++;
-            return myIngredientBox; 
+            return myIngredientBox;
+        }
+        public List<Ingredient> queryDensitiesAndPrices() {
+            var ingredientInformation = queryItems("select * from densities", reader => {
+                var ingredient = new Ingredient(reader["name"].ToString());
+                ingredient.density = (decimal)reader["density"];
+                ingredient.sellingWeight = (decimal)reader["selling_weight"];
+                ingredient.sellingPrice = (decimal)reader["selling_price"];
+                ingredient.pricePerOunce = (decimal)reader["price_per_ounce"];
+                return ingredient;
+            });
+            return ingredientInformation; 
+        }
+        public void updateDensitiesAndPrice(Ingredient i) {
+            var commandText = "update densities set name=@name, density=@density, selling_weight=@selling_weight, selling_weight_ounces=@selling_weight_ounces, selling_price=@selling_price, price_per_ounce=@price_per_ounce where ing_id=@ing_id";
+            executeVoidQuery(commandText, cmd => {
+                cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
+                cmd.Parameters.AddWithValue("@name", i.name);
+                cmd.Parameters.AddWithValue("@density", i.density);
+                cmd.Parameters.AddWithValue("@selling_weight", i.sellingWeight);
+                cmd.Parameters.AddWithValue("@selling_weight_ounces", i.sellingWeightInOunces); 
+                cmd.Parameters.AddWithValue("@selling_price", i.sellingPrice);
+                cmd.Parameters.AddWithValue("@price_per_ounce", i.pricePerOunce);
+                return cmd; 
+            });
         }
         public Recipe GetFullRecipe(string myRecipeName) {
             var myRecipeBox = queryRecipes();
@@ -140,6 +172,21 @@ namespace RachelsRosesWebPages.Models {
                         name nvarchar(max), 
                         measurement nvarchar(max)
                      );", a => a);
+            dropTableIfExists("densities");
+            executeVoidQuery(@"create table densities (
+                        ing_id INT NOT NULL IDENTITY(1,1) PRIMARY KEY, 
+                        name nvarchar(max), 
+                        density decimal (4,2),
+                        selling_weight decimal(5,2),
+                        selling_weight_ounces decimal(7, 3),
+                        selling_price decimal(6,2),
+                        price_per_ounce decimal(6,3)
+                     );", a => a);
+            //what's the difference between the densities database and the ingredients database that one allows
+            executeVoidQuery("SET IDENTITY_INSERT densities ON", cmd => cmd); 
+
+            //i'm getting the "cannot inset explicit value for identity colum n in table 'densities' when identity_insert is set to off
+                //steve didn't have any of these roblems before... what happened? What's differentM           
         }
     }
 }
