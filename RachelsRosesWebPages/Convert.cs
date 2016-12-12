@@ -352,8 +352,6 @@ namespace RachelsRosesWebPages {
 }
 /*
  other desired functionalities for the Convert class for measurement ingredients: 
-    *convert the measurement/amount of eggs. this will require some unique methods for this alone, as I won't need to accumulate teaspoons and parse them out to a string of measurements
-        I can intertwine it in the SplitMultiLevelMeasurement, but that seems unnecessary, i want to just have it on its own. the egg quantity will not be a part of a multilevel measurement
     *converting the weight of ingredients based on their density, from and to the ingredient measurement
         if the weight of the ingredient is given, give the ingredient measurement in the comments, based on the density from the ingredient density database
         if the measurement is given, give the ingredient weight for checking the ingredient prices from the rest calls

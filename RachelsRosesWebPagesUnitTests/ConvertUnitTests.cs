@@ -552,6 +552,8 @@ namespace RachelsRosesWebPages.Controllers {
         public void CondenseTeaspoonsMeasurements12() {
             //i'm happy i came across this test, the actual is 13.83 cups 1 tablespoon .5 teaspoons... this is the reason for wanting fractions (but keeping the decimals in the background somewhere!!)
             //i'm going to keep this test failing as a reminder of what needs to be done
+            //i guess it depends on whether or not it's easier to do 1/8th of a cup or 2 tablespoons... 
+            //but 13.83 cups, which is 3/4 cup + 1/8 cup, so 7/8 cup, is not helpful to very many people, myself included, 
             var convert = new Convert();
             var expected = "13.75 cups 2 tablespoons 1.5 teaspoons"; 
             var actual = convert.CondenseTeaspoonMeasurement(667.5m);

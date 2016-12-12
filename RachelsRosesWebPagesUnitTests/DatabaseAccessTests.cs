@@ -31,23 +31,27 @@ namespace RachelsRosesWebPagesUnitTests {
         [Test]
         public void TestIngredientTable() {
             var t = new DatabaseAccess();
-            var i = new Ingredient("all-purpose flour", "2 1/2 cups");
-            var r = new Recipe("White Cake");
+            var i = new Ingredient("all-purpose flour", "2 1/2 cups") {
+                recipeId = 1
+            };
+            var i2 = new Ingredient("butter", "1/2 cup") {
+                recipeId = 1
+            };
+            var r = new Recipe("White Cake") {
+                id = 1
+            };
             t.initializeDatabase();
-            var recipes = t.queryRecipes();
-            foreach (var recipe in recipes) {
-                if (recipe.name == "White Cake")
-                    recipe.name = "Fluffy White Cake";
-            }
             t.InsertRecipe(r);
             t.InsertIngredient(i, r);
+            t.InsertIngredient(i2, r);
+            var recipes = t.queryRecipes();
+            var ingredients = t.queryIngredients(); 
             var myIngredientBox = t.queryIngredients();
-            Assert.AreEqual("all-purpose flour", r.ingredients[0].name);
-            Assert.AreEqual("2 1/2 cups", r.ingredients[0].measurement);
-            Assert.AreEqual("all-purpose flour", recipes[0].ingredients[0].name);
-            Assert.AreEqual("2 1/2 cups", recipes[0].ingredients[0].measurement);
+            Assert.AreEqual("all-purpose flour", ingredients[0].name);
+            Assert.AreEqual("butter", ingredients[1].name); 
+            //this method ins't enacting the functionality of adding the ingredients to the recipe (as the recipe in my database doesn't have the ingredients listed with it
+            //this method wasn't passing because I was asking it to do functionality that I didn't call (assigning recipes an ingredient, with GetFullRecipe wasn't called)
         }
-        //this test above isn't passing, and i don't know why
         [Test]
         public void TestDeleteRecipe() {
             var t = new DatabaseAccess();
@@ -106,7 +110,10 @@ namespace RachelsRosesWebPagesUnitTests {
         [Test]
         public void TestEditRecipeName() {
             var t = new DatabaseAccess();
-            var r = new Recipe("White Cake");
+            var r = new Recipe("White Cake") {
+                id = 1
+            };
+            //this id here, this "for what" is a very important part of this that I forgot
             var newRecipeName = "Fluffy White Cake";
             t.initializeDatabase();
             t.InsertRecipe(r);
@@ -115,11 +122,57 @@ namespace RachelsRosesWebPagesUnitTests {
             var myRecipeBox = t.queryRecipes();
             Assert.AreEqual(newRecipeName, myRecipeBox[0].name);
         }
-        //this itest isn't passing either... is there an issue with my UpdateRecipe? 
+        [Test]
+        public void TestEditRecipeName2() {
+            var t = new DatabaseAccess();
+            var r = new Recipe("Buttermilk Bread") {
+                id = 1
+            };
+            var newRecipeName = "Honey Buttermilk Bread";
+            r.name = newRecipeName;
+            var r2 = new Recipe("Cranberry Swirl Bread") {
+                id = 2
+            };
+            var newRecipe2Name = "Cranberry Nut Cinnamon Swirl Bread";
+            r2.name = newRecipe2Name; 
+            var r3 = new Recipe("Fluffy White Cake") {
+                id = 3
+            };
+            var newRecipe3Name = "My Favorite White Cake";
+            r3.name = newRecipe3Name; 
+            t.initializeDatabase();
+            t.InsertRecipe(r);
+            t.InsertRecipe(r2); 
+            t.InsertRecipe(r3); 
+            t.UpdateRecipe(r);
+            t.UpdateRecipe(r2); 
+            t.UpdateRecipe(r3); 
+            var myRecipeBox = t.queryRecipes();
+            Assert.AreEqual(newRecipeName, myRecipeBox[0].name);
+            Assert.AreEqual(newRecipe2Name, myRecipeBox[1].name);
+            Assert.AreEqual(newRecipe3Name, myRecipeBox[2].name); 
+        }
+        [Test]
+        public void TestEditRecipeName3() {
+            var t = new DatabaseAccess();
+            var r = new Recipe("Cranberry Swirl Bread") {
+                //as a note to self, assign this id with the identity insert (so make sure it's the next chronological id for the recipe in the initialized table
+                id = 89
+            };
+            var newRecipeName = "Cranberry Apple Bread"; 
+            t.initializeDatabase(); 
+            t.InsertRecipe(r);
+            r.name = newRecipeName;
+            t.UpdateRecipe(r);
+            var myRecipeBox = t.queryRecipes();
+            Assert.AreEqual(newRecipeName, myRecipeBox[0].name);
+        }
         [Test]
         public void TestUpdateRecipe() {
             var t = new DatabaseAccess();
-            var r = new Recipe("My Favorite White Cake");
+            var r = new Recipe("My Favorite White Cake") {
+                id = 1
+            };
             var updatedRecipeName = "My Fluffy White Cake";
             t.initializeDatabase();
             t.InsertRecipe(r);
@@ -129,13 +182,12 @@ namespace RachelsRosesWebPagesUnitTests {
             var myRecipeBoxAfterwards = t.queryRecipes();
             Assert.AreEqual("My Favorite White Cake", myRecipeBoxBefore[0].name);
             Assert.AreEqual(r.name, myRecipeBoxAfterwards[0].name); 
-            //ok, so there's something wrong with my UpdateRecipe
         }
         [Test]
         public void TestInsertIngredientToIngredientDatabase() {
             var t = new DatabaseAccess();
             var r = new Recipe("Cranberry Swirl Bread") {
-                id = 1 //this is set to match the recipe in the recipe box, as the query recipes
+                id = 1
             };
             var i = new Ingredient("Cranberries", "2 cups") {
                 recipeId = r.id
@@ -145,9 +197,12 @@ namespace RachelsRosesWebPagesUnitTests {
             t.InsertIngredient(i, r);
             var myRecipeBox = t.queryRecipes();
             var myIngredientBox = t.queryIngredients();
+            var myRecipe = t.GetFullRecipe(r.name); 
             Assert.AreEqual(r.name, myRecipeBox[0].name);
             Assert.AreEqual(i.name, myIngredientBox[0].name);
             Assert.AreEqual(i.measurement, myIngredientBox[0].measurement);
+            Assert.AreEqual(i.name, myRecipe.ingredients[0].name);
+            Assert.AreEqual(i.measurement, myRecipe.ingredients[0].measurement); 
         }
         //[Test]
         //public void TestSortingofQueriedRecipesAlphabetically() {
@@ -272,6 +327,10 @@ namespace RachelsRosesWebPagesUnitTests {
         [Test]
         public void TestGetFullRecipe() {
             var t = new DatabaseAccess();
+            var r = new Recipe("Honey Buttermilk Bread") {
+                id = 1,
+                yield = 24
+            };
             var i = new Ingredient("Honey, raw") {
                 ingredientId = 1,
                 recipeId = 1,
@@ -282,23 +341,19 @@ namespace RachelsRosesWebPagesUnitTests {
                 recipeId = 1,
                 measurement = "6 cups"
             };
-            var r = new Recipe("Honey Buttermilk Bread") {
-                id = 1,
-                yield = 24
-            };
             t.initializeDatabase();
             t.InsertRecipe(r);
             t.InsertIngredient(i, r);
             t.InsertIngredient(i2, r);
             var myRecipeBox = t.queryRecipes();
             var myIngredientBox = t.queryIngredients();
-            //Assert.AreEqual(1, myRecipeBox.Count());
-            Assert.AreEqual(2, myIngredientBox.Count()); 
-            Assert.AreEqual(2, myRecipeBox[0].ingredients.Count());
-            Assert.AreEqual(i.name, myRecipeBox[0].ingredients[0].name);
-            Assert.AreEqual(i.measurement, myRecipeBox[0].ingredients[0].measurement); 
-            Assert.AreEqual(i2.name, myRecipeBox[0].ingredients[1].name);
-            Assert.AreEqual(i2.measurement, myRecipeBox[0].ingredients[1].measurement); 
+            var myRecipe = t.GetFullRecipe(r.name); 
+            Assert.AreEqual(2, myIngredientBox.Count());
+            Assert.AreEqual(2, myRecipe.ingredients.Count()); 
+            Assert.AreEqual(i.name, myRecipe.ingredients[0].name);
+            Assert.AreEqual(i.measurement, myRecipe.ingredients[0].measurement);
+            Assert.AreEqual(i2.name, myRecipe.ingredients[1].name);
+            Assert.AreEqual(i2.measurement, myRecipe.ingredients[1].measurement); 
         }
     }
 }

@@ -34,7 +34,7 @@ namespace RachelsRosesWebPages.Models {
             return items;
         }
         public void UpdateRecipe(Recipe r) {
-            var commandText = "update recipes set name=@name, yield=@yield where recipe_id = @rid;";
+            var commandText = "update recipes set name=@name, yield=@yield where recipe_id=@rid;";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@name", r.name);
                 cmd.Parameters.AddWithValue("@rid", r.id);
@@ -56,6 +56,7 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@rid", r.id);
                 cmd.Parameters.AddWithValue("@name", i.name);
                 cmd.Parameters.AddWithValue("@measurement", i.measurement);
+                //i want to keep the ingredients table and the density table separate here
                 return cmd;
             });
         }
@@ -191,3 +192,11 @@ namespace RachelsRosesWebPages.Models {
     }
 }
 // read up on the Normal Forms of a relational database: e.g what is the 1st normal form and how do you do it
+/*
+ questions for steve:
+ *i have multiple tests that aren't passing,
+    i've already solved one, i was asking it to do functionality that i didn't give it, so that one is passing now
+ *the update recipe tests is bothering me
+    question for Steve regarding syntax: 
+        
+*/

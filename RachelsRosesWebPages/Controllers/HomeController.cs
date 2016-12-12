@@ -8,6 +8,9 @@ using System.Web.Mvc;
 namespace RachelsRosesWebPages.Controllers {
     public class HomeController : Controller {
         public static Recipe currentRecipe = new Recipe();
+        //i don't think currentRecipe is keeping the list of ingredients with it, 
+            //whenever i start up the page, the currentRecipe's ingredients are missing/lost... 
+            //i have to use the GetFullRecipe from DatabaseAccess I think to get the ingredients associated with that recipe
         public static Recipe myDatabaseRecipe = new Recipe();
         public static Ingredient currentIngredient = new Ingredient();
         public List<Recipe> getRecipes() {
@@ -123,15 +126,7 @@ namespace RachelsRosesWebPages.Controllers {
                 foreach (var ing in currentRecipe.ingredients) {
                     if (int.TryParse(ing.measurement, out n)) {
                         ing.measurement = (int.Parse(ing.measurement) * (currentRecipe.yield / oldYield)).ToString();
-                        //there's a bug here with the eggs, i need to look over the code again and see what I can to do to make this better in AdjustIngredientMeasurement
-                            //having this is not only a nonfunctional temporary fix, but it's sloppy and can easily break. I want all my functionality to come from the AdjustIngredientMeasurement
-                            //as a note, the reason why this isn't working with AdjustIngredientMeasurement is because when I AdjustIngredientMeasurement splits the measurements, it separates the "2" and the "eggs", to which the measurment is left with "eggs" and it has no quantity to adjust
-                            //i'm sure there's a simple solution... don't over-complicate it!
-
-                        //also, why are my ingredients not being shown for the currentrecipe?
-                    } else
-                        ing.measurement = convert.AdjustIngredientMeasurement(ing.measurement, oldYield, currentRecipe.yield);
-                }
+                    } else ing.measurement = convert.AdjustIngredientMeasurement(ing.measurement, oldYield, currentRecipe.yield); }
             }
             t.UpdateRecipe(currentRecipe);
             return Redirect("/home/recipe?name=" + currentRecipe.name);
