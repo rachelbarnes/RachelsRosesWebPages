@@ -9,6 +9,7 @@ using System.Web;
 namespace RachelsRosesWebPages.Models {
     public class DatabaseAccess {
         const string connString = "Data Source=(LocalDb)\\MSSQLLocalDB;User Id=RACHELSLAPTOP\\Rachel;Initial Catalog=RachelsRosesWebPagesDB;Integrated Security=True; MultipleActiveResultSets=True";
+        //helper functions: 
         public void executeVoidQuery(string command, Func<SqlCommand, SqlCommand> modifyCommand) {
             var con = new SqlConnection(connString);
             try {
@@ -33,6 +34,18 @@ namespace RachelsRosesWebPages.Models {
             sqlConnection1.Close();
             return items;
         }
+        //recipe table methods: 
+        public List<Recipe> queryRecipes() {
+            var count = 1;
+            var MyRecipeBox = queryItems("select * from recipes", reader => {
+                var recipe = new Recipe(reader["name"].ToString());
+                recipe.yield = (int)reader["yield"]; //these are the column names that you're accessing
+                return recipe;
+            });
+            foreach (var recipe in MyRecipeBox)
+                recipe.id = count++;
+            return MyRecipeBox;
+        }
         public void UpdateRecipe(Recipe r) {
             var commandText = "update recipes set name=@name, yield=@yield where recipe_id=@rid;";
             executeVoidQuery(commandText, cmd => {
@@ -48,94 +61,6 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@name", r.name);
                 cmd.Parameters.AddWithValue("@yield", r.yield);
                 return cmd;
-            });
-        }
-        public void InsertIngredient(Ingredient i, Recipe r) {
-            var commandText = "Insert into ingredients(recipe_id, name, measurement) values (@rid, @name, @measurement);";
-            executeVoidQuery(commandText, cmd => {
-                cmd.Parameters.AddWithValue("@rid", r.id);
-                cmd.Parameters.AddWithValue("@name", i.name);
-                cmd.Parameters.AddWithValue("@measurement", i.measurement);
-                //i want to keep the ingredients table and the density table separate here
-                return cmd;
-            });
-        }
-        public void InsertIngredientDensityAndSellingInformation(Ingredient i) {
-            var commandText = @"Insert into densities(name, density, selling_weight, selling_price, price_per_ounce) 
-                            values (@name, @density, @selling_weight, @selling_price, @price_per_ounce);";
-            executeVoidQuery(commandText, cmd => {
-                cmd.Parameters.AddWithValue("@name", i.name);
-                cmd.Parameters.AddWithValue("@density", i.density);
-                cmd.Parameters.AddWithValue("@selling_weight", i.sellingWeight);
-                cmd.Parameters.AddWithValue("@selling_price", i.sellingPrice);
-                cmd.Parameters.AddWithValue("@price_per_ounce", i.pricePerOunce);
-                return cmd;
-            });
-        }
-        public void UpdateIngredient(Ingredient i) {
-            var commandText = "update ingredients set name=@name, measurement=@measurement, recipe_id=@recipeId where ing_id=@ingredientId";
-            executeVoidQuery(commandText, cmd => {
-                cmd.Parameters.AddWithValue("@name", i.name);
-                cmd.Parameters.AddWithValue("@measurement", i.measurement);
-                cmd.Parameters.AddWithValue("@recipeId", i.recipeId);
-                cmd.Parameters.AddWithValue("ingredientId", i.ingredientId);
-                return cmd;
-            });
-        }
-        public void DeleteRecipe(string recipeTitle) {
-            recipeTitle = recipeTitle.Trim();
-            var delete = "DELETE FROM recipes WHERE name=@title";
-            executeVoidQuery(delete, cmd => {
-                cmd.Parameters.AddWithValue("@title", recipeTitle);
-                return cmd;
-            });
-        }
-        public List<Recipe> queryRecipes() {
-            var count = 1;
-            var MyRecipeBox = queryItems("select * from recipes", reader => {
-                var recipe = new Recipe(reader["name"].ToString());
-                recipe.yield = (int)reader["yield"]; //these are the column names that you're accessing
-                return recipe;
-            });
-            //i want to alphabetize the names in the recipe box, as an addition of a story in the future
-            foreach (var recipe in MyRecipeBox)
-                recipe.id = count++;
-            return MyRecipeBox;
-        }
-        public List<Ingredient> queryIngredients() {
-            var count = 1;
-            var myIngredientBox = queryItems("select * from ingredients", reader => {
-                var ingredient = new Ingredient(reader["name"].ToString());
-                ingredient.measurement = (string)reader["measurement"];
-                ingredient.recipeId = (int)reader["recipe_id"];
-                return ingredient;
-            });
-            foreach (var ingredient in myIngredientBox)
-                ingredient.ingredientId = count++;
-            return myIngredientBox;
-        }
-        public List<Ingredient> queryDensitiesAndPrices() {
-            var ingredientInformation = queryItems("select * from densities", reader => {
-                var ingredient = new Ingredient(reader["name"].ToString());
-                ingredient.density = (decimal)reader["density"];
-                ingredient.sellingWeight = (decimal)reader["selling_weight"];
-                ingredient.sellingPrice = (decimal)reader["selling_price"];
-                ingredient.pricePerOunce = (decimal)reader["price_per_ounce"];
-                return ingredient;
-            });
-            return ingredientInformation; 
-        }
-        public void updateDensitiesAndPrice(Ingredient i) {
-            var commandText = "update densities set name=@name, density=@density, selling_weight=@selling_weight, selling_weight_ounces=@selling_weight_ounces, selling_price=@selling_price, price_per_ounce=@price_per_ounce where ing_id=@ing_id";
-            executeVoidQuery(commandText, cmd => {
-                cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
-                cmd.Parameters.AddWithValue("@name", i.name);
-                cmd.Parameters.AddWithValue("@density", i.density);
-                cmd.Parameters.AddWithValue("@selling_weight", i.sellingWeight);
-                cmd.Parameters.AddWithValue("@selling_weight_ounces", i.sellingWeightInOunces); 
-                cmd.Parameters.AddWithValue("@selling_price", i.sellingPrice);
-                cmd.Parameters.AddWithValue("@price_per_ounce", i.pricePerOunce);
-                return cmd; 
             });
         }
         public Recipe GetFullRecipe(string myRecipeName) {
@@ -154,6 +79,116 @@ namespace RachelsRosesWebPages.Models {
             }
             return myRecipe;
         }
+        public void DeleteRecipe(string recipeTitle) {
+            recipeTitle = recipeTitle.Trim();
+            var delete = "DELETE FROM recipes WHERE name=@title";
+            executeVoidQuery(delete, cmd => {
+                cmd.Parameters.AddWithValue("@title", recipeTitle);
+                return cmd;
+            });
+        }
+
+        //ingredient table methods: 
+        public List<Ingredient> queryIngredients() {
+            var count = 1;
+            var myIngredientBox = queryItems("select * from ingredients", reader => {
+                var ingredient = new Ingredient(reader["name"].ToString());
+                ingredient.measurement = (string)reader["measurement"];
+                ingredient.recipeId = (int)reader["recipe_id"];
+                return ingredient;
+            });
+            foreach (var ingredient in myIngredientBox)
+                ingredient.ingredientId = count++;
+            return myIngredientBox;
+        }
+        public void InsertIngredient(Ingredient i, Recipe r) {
+            var commandText = "Insert into ingredients(recipe_id, name, measurement) values (@rid, @name, @measurement);";
+            executeVoidQuery(commandText, cmd => {
+                cmd.Parameters.AddWithValue("@rid", r.id);
+                cmd.Parameters.AddWithValue("@name", i.name);
+                cmd.Parameters.AddWithValue("@measurement", i.measurement);
+                //i want to keep the ingredients table and the density table separate here
+                return cmd;
+            });
+        }
+        public void UpdateIngredient(Ingredient i) {
+            var commandText = "update ingredients set name=@name, measurement=@measurement, recipe_id=@recipeId where ing_id=@ingredientId";
+            executeVoidQuery(commandText, cmd => {
+                cmd.Parameters.AddWithValue("@name", i.name);
+                cmd.Parameters.AddWithValue("@measurement", i.measurement);
+                cmd.Parameters.AddWithValue("@recipeId", i.recipeId);
+                cmd.Parameters.AddWithValue("ingredientId", i.ingredientId);
+                return cmd;
+            });
+        }
+
+        //densities table methods: 
+        public List<Ingredient> queryDensitiesAndPrices() {
+            var ingredientInformation = queryItems("select * from densities", reader => {
+                var ingredient = new Ingredient(reader["name"].ToString());
+                ingredient.ingredientId = (int)reader["ing_id"];
+                ingredient.density = (decimal)reader["density"];
+                ingredient.sellingWeight = (string)reader["selling_weight"];
+                ingredient.sellingWeightInOunces = (decimal)reader["selling_weight_ounces"];
+                //in the table, it's null... that could have something to do with it... 
+                //i do need this reader, and there's really no reason why i shouldn't be able to read this... there has to be something else wrong... 
+                ingredient.sellingPrice = (decimal)reader["selling_price"];
+                ingredient.pricePerOunce = (decimal)reader["price_per_ounce"];
+                return ingredient;
+            });
+            return ingredientInformation;
+        }
+        public void InsertIngredientDensityAndSellingInformation(Ingredient i) {
+            //if (i.sellingWeightInOunces == null)
+            //    i.sellingWeightInOunces = 0; 
+            //my current thought process is if i don't add anything in that column, then i may get the null, which a decimal data type cannot have a null... hence why i'm getting the casting problem...
+            //it may be better off to just always add all the columns to avoid an error data type like the decimal
+            var commandText = @"Insert into densities(name, density, selling_weight, selling_weight_ounces, selling_price, price_per_ounce) 
+                            values (@name, @density, @selling_weight, @selling_weight_ounces, @selling_price, @price_per_ounce);";
+            executeVoidQuery(commandText, cmd => {
+                cmd.Parameters.AddWithValue("@name", i.name);
+                cmd.Parameters.AddWithValue("@density", i.density);
+                cmd.Parameters.AddWithValue("@selling_weight", i.sellingWeight);
+                cmd.Parameters.AddWithValue("@selling_price", i.sellingPrice);
+                cmd.Parameters.AddWithValue("@price_per_ounce", i.pricePerOunce);
+                cmd.Parameters.AddWithValue("@selling_weight_ounces", i.sellingWeightInOunces); 
+                return cmd;
+            });
+        }
+        public void updateDensitiesAndPrice(Ingredient i) {
+            var commandText = "update densities set name=@name, density=@density, selling_weight=@selling_weight, selling_price=@selling_price, price_per_ounce=@price_per_ounce where ing_id=@ing_id";
+            //selling_weight_ounces = @selling_weight_ounces
+            executeVoidQuery(commandText, cmd => {
+                cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
+                cmd.Parameters.AddWithValue("@name", i.name);
+                cmd.Parameters.AddWithValue("@density", i.density);
+                cmd.Parameters.AddWithValue("@selling_weight", i.sellingWeight);
+                cmd.Parameters.AddWithValue("@selling_weight_ounces", i.sellingWeightInOunces);
+                /*
+                ok, so this is where i'm getting my error, being specified cast is not valid, so having this be the only
+                    one in the parameters, unless there's an error somewhere in my sql commands
+                    this could be because it's calculated... 
+                */
+                cmd.Parameters.AddWithValue("@selling_price", i.sellingPrice);
+                cmd.Parameters.AddWithValue("@price_per_ounce", i.pricePerOunce);
+                return cmd;
+            });
+        }
+        public Func<Ingredient, decimal> CalculatePricePerOunce = i => Math.Round((i.sellingPrice / i.sellingWeightInOunces), 2);
+        public void GetPricePerOunceFromDensityTable(Ingredient i) {
+            var myIngredientBox = queryDensitiesAndPrices();
+            var calculatedPricePerOunce = 0m;
+            foreach (var ingredient in myIngredientBox) {
+                if (ingredient.name == i.name)
+                    calculatedPricePerOunce = Math.Round((i.sellingPrice / i.sellingWeightInOunces), 2);
+            }
+            i.pricePerOunce = calculatedPricePerOunce;
+            updateDensitiesAndPrice(i);
+        }
+
+        //need to change the data types for selling_weight_ounces!!!! going from decimal to strings
+
+        //initalize database tables
         public void dropTableIfExists(string table) {
             var drop = @"IF OBJECT_ID('dbo." + table + " ', 'U') IS NOT NULL DROP TABLE dbo." + table + ";";
             executeVoidQuery(drop, a => a);
@@ -178,25 +213,13 @@ namespace RachelsRosesWebPages.Models {
                         ing_id INT NOT NULL IDENTITY(1,1) PRIMARY KEY, 
                         name nvarchar(max), 
                         density decimal (4,2),
-                        selling_weight decimal(5,2),
-                        selling_weight_ounces decimal(7, 3),
+                        selling_weight varchar(max),
+                        selling_weight_ounces decimal(6,2),
                         selling_price decimal(6,2),
-                        price_per_ounce decimal(6,3)
+                        price_per_ounce decimal(6,2)
                      );", a => a);
-            //what's the difference between the densities database and the ingredients database that one allows
-            executeVoidQuery("SET IDENTITY_INSERT densities ON", cmd => cmd); 
-
-            //i'm getting the "cannot inset explicit value for identity colum n in table 'densities' when identity_insert is set to off
-                //steve didn't have any of these roblems before... what happened? What's differentM           
+            executeVoidQuery("SET IDENTITY_INSERT densities ON", cmd => cmd);
         }
     }
 }
 // read up on the Normal Forms of a relational database: e.g what is the 1st normal form and how do you do it
-/*
- questions for steve:
- *i have multiple tests that aren't passing,
-    i've already solved one, i was asking it to do functionality that i didn't give it, so that one is passing now
- *the update recipe tests is bothering me
-    question for Steve regarding syntax: 
-        
-*/

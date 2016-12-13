@@ -11,7 +11,7 @@ namespace RachelsRosesWebPages {
         public int ingredientId;
         public decimal density;
         public decimal pricePerOunce;
-        public decimal sellingWeight;
+        public string sellingWeight;
         public decimal sellingWeightInOunces; 
         public decimal sellingPrice;
         public List<string> comments;
@@ -21,7 +21,7 @@ namespace RachelsRosesWebPages {
             recipeId = 0;
             ingredientId = 0;
             density = 0m;
-            sellingWeight = 0m;
+            sellingWeight = "";
             sellingWeightInOunces = 0m;
             sellingPrice = 0m; 
             pricePerOunce = 0m;
