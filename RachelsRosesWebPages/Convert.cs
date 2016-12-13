@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using NUnit.Framework;
 namespace RachelsRosesWebPages {
-    public class Convert {
+    public class ConvertMeasurement {
         public decimal teaspoonsToTablespoons(decimal t) {
             var ret = Math.Round((t / 3), 2);
             if (ret.ToString().Contains(".00"))
@@ -327,6 +327,139 @@ namespace RachelsRosesWebPages {
             return updatedMeasurement;
         }
     }
+
+    //convert weights (lbs to ounces, quarts to ounces, etc. 
+    public class ConvertWeight {
+        public decimal PoundsToOunces(decimal lb) {
+            var ret = Math.Round((lb * 16), 2);
+            if (ret.ToString().Contains(".00"))
+                Math.Round(ret, 2);
+            return ret;
+        }
+        public decimal OuncesToPounds(decimal oz) {
+            var ret = Math.Round((oz / 16), 2);
+            if (ret.ToString().Contains(".00"))
+                Math.Round(ret, 2);
+            return ret;
+        }
+        public decimal QuartsToOunces(decimal q) {
+            var ret = Math.Round((q * 32), 2);
+            if (ret.ToString().Contains(".00"))
+                Math.Round(ret, 2);
+            return ret;
+        }
+        public decimal OuncesToQuarts(decimal oz) {
+            var ret = Math.Round((oz / 32), 2);
+            if (ret.ToString().Contains(".00"))
+                Math.Round(ret, 2);
+            return ret;
+        }
+        public decimal GallonsToOunces(decimal g) {
+            var ret = Math.Round((g * 128), 2);
+            if (ret.ToString().Contains(".00"))
+                Math.Round(ret, 2);
+            return ret;
+        }
+        public decimal OuncesToGallons(decimal oz) {
+            var ret = Math.Round((oz / 128), 2);
+            if (ret.ToString().Contains(".00"))
+                Math.Round(ret, 2);
+            return ret;
+        }
+        public decimal PintsToOunces(decimal pint) {
+            var ret = Math.Round((pint * 16), 2);
+            if (ret.ToString().Contains(".00"))
+                Math.Round(ret, 2);
+            return ret;
+        }
+        public decimal OuncesToPints(decimal oz) {
+            var ret = Math.Round((oz / 16), 2);
+            if (ret.ToString().Contains(".00"))
+                Math.Round(ret, 2);
+            return ret;
+        }
+        public decimal CupsToOunces(decimal c) {
+            var ret = Math.Round((c * 8), 2);
+            if (ret.ToString().Contains(".00"))
+                Math.Round(ret, 2);
+            return ret;
+        }
+        public decimal OuncesToCups(decimal oz) {
+            var ret = Math.Round((oz / 8), 2);
+            if (ret.ToString().Contains(".00"))
+                Math.Round(ret, 2);
+            return ret;
+        }
+        public decimal GramsToOunces(decimal g) {
+            var ret = Math.Round((g / 28.3495m), 2);
+            if (ret.ToString().Contains(".00"))
+                Math.Round(ret, 2);
+            return ret;
+        }
+        public decimal OuncesToGrams(decimal oz) {
+            var ret = Math.Round((oz / .0353m), 2);
+            if (ret.ToString().Contains(".00"))
+                Math.Round(ret, 2);
+            return ret;
+        }
+        public decimal PoundsToGrams(decimal lb) {
+            var ret = Math.Round((lb * 453.592m), 2);
+            if (ret.ToString().Contains(".00"))
+                Math.Round(ret, 2);
+            return ret;
+        }
+        public decimal GramsToPounds(decimal g) {
+            var ret = Math.Round((g * .0022m), 2);
+            if (ret.ToString().Contains(".00"))
+                Math.Round(ret, 2);
+            return ret;
+        }
+        //i have to do a similar splitting method to the conversion of measurements, but no where near as extensive...
+        //all i really need is a way to split the weight, convert it to ounces, then put the selling weight in ounces in the database
+        public string[] SplitWeightMeasurement(string weightMeasurement) {
+            var splitWeight = new string[] { };
+            var weightQuantity = "";
+            var weight = "";
+            for (var i = 0; i < weightMeasurement.Count(); i++) {
+                if (i > 0 && (i < weightMeasurement.Count() - 1)) {
+                    var previous = i - 1;
+                    var next = i + 1;
+                    var previousChar = weightMeasurement[previous];
+                    var currentChar = weightMeasurement[i];
+                    var nextChar = weightMeasurement[next];
+                    int n;
+                    if ((weightMeasurement[i] == ' ') && (int.TryParse(weightMeasurement[previous].ToString(), out n)) && (!int.TryParse(weightMeasurement[next].ToString(), out n))) {
+                        weightQuantity = weightMeasurement.Substring(0, i);
+                        weight = weightMeasurement.Substring(next, (weightMeasurement.Count() - (i + 1)));
+                        splitWeight = new string[] { weightQuantity, weight };
+                        break;
+                    }
+                }
+            }
+            return splitWeight;
+        }
+        public decimal ConvertWeightToOunces(string weight) {
+            var parse = new ParseFraction();
+            var splitWeight = SplitWeightMeasurement(weight);
+            var mostCommonWeights = new string[] { "ounce", "gall", "pint", "quart", "cup", "pound", "gram" };
+            if (weight.Contains("gallon") || weight.Contains("gall"))
+                return GallonsToOunces(parse.Parse(splitWeight[0]));
+            if (weight.Contains("pint"))
+                return PintsToOunces(parse.Parse(splitWeight[0]));
+            if (weight.Contains("quart"))
+                return QuartsToOunces(parse.Parse(splitWeight[0]));
+            if (weight.Contains("cups"))
+                return CupsToOunces(parse.Parse(splitWeight[0]));
+            if (weight.Contains("pound") || weight.Contains("lb"))
+                return PoundsToOunces(parse.Parse(splitWeight[0]));
+            if (weight.Contains("gram"))
+                return GramsToOunces(parse.Parse(splitWeight[0])); 
+            else return parse.Parse(splitWeight[0]); 
+        }
+    }
+
+    //do some more tests for weight conversion, make sure they're passing and that my math is absolutely correct
+    //after that, assign that decimal amount to ingredient, and update that selling_weight_ounces in the densities database
 
     public class ParseFraction {
         public decimal Parse(string fraction) {

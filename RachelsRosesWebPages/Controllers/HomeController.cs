@@ -116,7 +116,7 @@ namespace RachelsRosesWebPages.Controllers {
         }
         public ActionResult AdjustYield(int updatedYield) {
             var t = new DatabaseAccess();
-            var convert = new Convert();
+            var convert = new ConvertMeasurement();
             int n;
             if (currentRecipe.yield == 0) {
                 currentRecipe.yield = updatedYield;

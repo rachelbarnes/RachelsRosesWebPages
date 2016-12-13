@@ -1,0 +1,361 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using NUnit.Framework;
+namespace RachelsRosesWebPages {
+    [TestFixture]
+    public class ConversionWeightUnitTests {
+        [Test]
+        public void TestPoundsToOunces() {
+            var convert = new ConvertWeight();
+            var expected = 16m;
+            var actual = convert.PoundsToOunces(1m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestPoundsToOunces2() {
+            var convert = new ConvertWeight();
+            var expected = 88m;
+            var actual = convert.PoundsToOunces(5.5m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestPoundsToOunces3() {
+            var convert = new ConvertWeight();
+            var expected = 1642.08m;
+            var actual = convert.PoundsToOunces(102.63m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestOuncesToPounds() {
+            var convert = new ConvertWeight();
+            var expected = 1m;
+            var actual = convert.OuncesToPounds(16m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestOuncesToPounds2() {
+            var convert = new ConvertWeight();
+            var expected = 5.25m;
+            var actual = convert.OuncesToPounds(84m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestOuncesToPounds3() {
+            var convert = new ConvertWeight();
+            var expected = 10.12m;
+            var actual = convert.OuncesToPounds(162m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestQuartsToOunces() {
+            var convert = new ConvertWeight();
+            var expected = 32m;
+            var actual = convert.QuartsToOunces(1m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestQuartsToOunces2() {
+            var convert = new ConvertWeight();
+            var expected = 48m;
+            var actual = convert.QuartsToOunces(1.5m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestQuartsToOunces3() {
+            var convert = new ConvertWeight();
+            var expected = 182.08m;
+            var actual = convert.QuartsToOunces(5.69m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestOuncesToQuarts() {
+            var convert = new ConvertWeight();
+            var expected = 1m;
+            var actual = convert.OuncesToQuarts(32m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestOuncesToQuarts2() {
+            var convert = new ConvertWeight();
+            var expected = 1.33m;
+            var actual = convert.OuncesToQuarts(42.56m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestOuncesToQuarts3() {
+            var convert = new ConvertWeight();
+            var expected = 6.5m;
+            var actual = convert.OuncesToQuarts(208m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestGallonsToOunces() {
+            var convert = new ConvertWeight();
+            var expected = 128m;
+            var actual = convert.GallonsToOunces(1m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestGallonsToOunces2() {
+            var convert = new ConvertWeight();
+            var expected = 192m;
+            var actual = convert.GallonsToOunces(1.5m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestGallonsToOunces3() {
+            var convert = new ConvertWeight();
+            var expected = 966.40m;
+            var actual = convert.GallonsToOunces(7.55m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestOuncesToGallons() {
+            var convert = new ConvertWeight();
+            var expected = 1m;
+            var actual = convert.OuncesToGallons(128m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestOuncesToGallons2() {
+            var convert = new ConvertWeight();
+            var expected = 1.56m;
+            var actual = convert.OuncesToGallons(199.68m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestPintsToOunces() {
+            var convert = new ConvertWeight();
+            var expected = 16m;
+            var actual = convert.PintsToOunces(1m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestPintsToOunces2() {
+            var convert = new ConvertWeight();
+            var expected = 157.60m;
+            var actual = convert.PintsToOunces(9.85m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestOuncesToPints() {
+            var convert = new ConvertWeight();
+            var expected = 1m;
+            var actual = convert.OuncesToPints(16m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestOuncesToPints2() {
+            var convert = new ConvertWeight();
+            var expected = 7.25m;
+            var actual = convert.OuncesToPints(116m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestCupsToOunces() {
+            var convert = new ConvertWeight();
+            var expected = 8m;
+            var actual = convert.CupsToOunces(1m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestCupsToOunces2() {
+            var convert = new ConvertWeight();
+            var expected = 16m;
+            var actual = convert.CupsToOunces(2m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestOuncesToCups() {
+            var convert = new ConvertWeight();
+            var expected = 1m;
+            var actual = convert.OuncesToCups(8m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestOuncesToCups2() {
+            var convert = new ConvertWeight();
+            var expected = 9.5m;
+            var actual = convert.OuncesToCups(76m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestGramsToOunces() {
+            var convert = new ConvertWeight();
+            var expected = 1m;
+            var actual = convert.GramsToOunces(28.3495m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestGramsToOunces2() {
+            var convert = new ConvertWeight();
+            var expected = 5m;
+            var actual = convert.GramsToOunces(141.748m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestOuncesToGrams() {
+            var convert = new ConvertWeight();
+            var expected = 28.33m;
+            var actual = convert.OuncesToGrams(1m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestOuncesToGrams2() {
+            var convert = new ConvertWeight();
+            var expected = 179.32m;
+            var actual = convert.OuncesToGrams(6.33m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestPoundsToGrams() {
+            var convert = new ConvertWeight();
+            var expected = 453.59m;
+            var actual = convert.PoundsToGrams(1m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestPoundsToGrams2() {
+            var convert = new ConvertWeight();
+            var expected = 2267.96m;
+            var actual = convert.PoundsToGrams(5m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestGramsToPounds() {
+            var convert = new ConvertWeight();
+            var expected = 1m;
+            var actual = convert.GramsToPounds(453.592m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestGramsToPounds2() {
+            var convert = new ConvertWeight();
+            var expected = .24m;
+            var actual = convert.GramsToPounds(106.8663m);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestSplitWeightMeasurement() {
+            var convert = new ConvertWeight();
+            var expected = new string[] { "1", "pound" };
+            var actual = convert.SplitWeightMeasurement("1 pound");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestSplitWeightMeasurement2() {
+            var convert = new ConvertWeight();
+            var expected = new string[] { "1", "gallon whole milk" };
+            var actual = convert.SplitWeightMeasurement("1 gallon whole milk");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestSplitWeightMeasurement3() {
+            var convert = new ConvertWeight();
+            var expected = new string[] { "1/2", "pint heavy whipping cream" };
+            var actual = convert.SplitWeightMeasurement("1/2 pint heavy whipping cream");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestConvertWeightToOunces() {
+            var convert = new ConvertWeight();
+            var expected = 128m;
+            var actual = convert.ConvertWeightToOunces("1 gallon");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestConvertWeightToOunces2() {
+            var convert = new ConvertWeight();
+            var expected = 32m;
+            var actual = convert.ConvertWeightToOunces("1/4 gallon milk");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestConvertWeightToOunces3() {
+            var convert = new ConvertWeight();
+            var expected = 16m;
+            var actual = convert.ConvertWeightToOunces("1 pint");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestConvertWeightToOunces4() {
+            var convert = new ConvertWeight();
+            var expected = 108m;
+            var actual = convert.ConvertWeightToOunces("6.75 pint");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestConvertWeightToOunces5() {
+            var convert = new ConvertWeight();
+            var expected = 16m;
+            var actual = convert.ConvertWeightToOunces("1 lb");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestConvertWeightToOunces6() {
+            var convert = new ConvertWeight();
+            var expected = 58.56;
+            var actual = convert.ConvertWeightToOunces("32/3 pint");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestConvertWeightToOunces7() {
+            var convert = new ConvertWeight();
+            var expected = 8m;
+            var actual = convert.ConvertWeightToOunces("1 cup");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestConvertWeightToOunces8() {
+            var convert = new ConvertWeight();
+            var expected = 24m;
+            var actual = convert.ConvertWeightToOunces("3 cups");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestConvertWeightToOunces9() {
+            var convert = new ConvertWeight();
+            var expected = 128m;
+            var actual = convert.ConvertWeightToOunces("1 gallon");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestConvertWeightToOunces10() {
+            var convert = new ConvertWeight();
+            var expected = 318.6;
+            var actual = convert.ConvertWeightToOunces("2.95 gallons");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestConvertWeightToOunces11() {
+            var convert = new ConvertWeight();
+            var expected = 1m;
+            var actual = convert.ConvertWeightToOunces("28.35 gram");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestConvertWeightToOunces12() {
+            var convert = new ConvertWeight();
+            var expected = 2.26m;
+            var actual = convert.ConvertWeightToOunces("64 grams");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestConvertWeightToOunces13() {
+            var convert = new ConvertWeight();
+            var expected = 1m;
+            var actual = convert.ConvertWeightToOunces("1 ounce");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestConvertWeightToOunces14() {
+            var convert = new ConvertWeight();
+            var expected = 3.66m;
+            var actual = convert.ConvertWeightToOunces("3 2/3 ounces");
+            Assert.AreEqual(expected, actual);
+        }
+    }
+}
