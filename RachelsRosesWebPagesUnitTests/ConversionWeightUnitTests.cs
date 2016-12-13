@@ -197,18 +197,46 @@ namespace RachelsRosesWebPages {
             Assert.AreEqual(expected, actual);
         }
         [Test]
+        public void TestGramsToOunces3() {
+            var convert = new ConvertWeight();
+            var expected = 0.07m;
+            var actual = convert.GramsToOunces(2);
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestGramsToOunces4() {
+            var convert = new ConvertWeight();
+            var expected = 3.95m;
+            var actual = convert.GramsToOunces(112m);
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
         public void TestOuncesToGrams() {
             var convert = new ConvertWeight();
-            var expected = 28.33m;
+            var expected = 28.35m;
             var actual = convert.OuncesToGrams(1m);
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestOuncesToGrams2() {
             var convert = new ConvertWeight();
-            var expected = 179.32m;
+            var expected = 179.45m;
             var actual = convert.OuncesToGrams(6.33m);
             Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestOuncesToGrams3() {
+            var convert = new ConvertWeight();
+            var expected = 326.02m;
+            var actual = convert.OuncesToGrams(11.5m);
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestOuncesToGrams4() {
+            var convert = new ConvertWeight();
+            var expected = 56.7m;
+            var actual = convert.OuncesToGrams(2m);
+            Assert.AreEqual(expected, actual); 
         }
         [Test]
         public void TestPoundsToGrams() {
@@ -297,8 +325,8 @@ namespace RachelsRosesWebPages {
         [Test]
         public void TestConvertWeightToOunces6() {
             var convert = new ConvertWeight();
-            var expected = 58.56;
-            var actual = convert.ConvertWeightToOunces("32/3 pint");
+            var expected = 58.67m;
+            var actual = convert.ConvertWeightToOunces("3 2/3 pint");
             Assert.AreEqual(expected, actual);
         }
         [Test]
@@ -325,7 +353,7 @@ namespace RachelsRosesWebPages {
         [Test]
         public void TestConvertWeightToOunces10() {
             var convert = new ConvertWeight();
-            var expected = 318.6;
+            var expected = 377.60m; ;
             var actual = convert.ConvertWeightToOunces("2.95 gallons");
             Assert.AreEqual(expected, actual);
         }
@@ -353,9 +381,30 @@ namespace RachelsRosesWebPages {
         [Test]
         public void TestConvertWeightToOunces14() {
             var convert = new ConvertWeight();
-            var expected = 3.66m;
+            var expected = 3.67m;
             var actual = convert.ConvertWeightToOunces("3 2/3 ounces");
             Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestConvertWeightToOunces15() {
+            var convert = new ConvertWeight();
+            var expected = 1.67m;
+            var actual = convert.ConvertWeightToOunces("1 2/3 ounces");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestConvertWeightToOunces16() {
+            var convert = new ConvertWeight();
+            var expected = 13.12m;
+            var actual = convert.ConvertWeightToOunces("13 1/8 ounces");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestConvertWeightToOunces17() {
+            var convert = new ConvertWeight();
+            var expected = .33m;
+            var actual = convert.ConvertWeightToOunces("1/3 ounces");
+            Assert.AreEqual(expected, actual); 
         }
     }
 }

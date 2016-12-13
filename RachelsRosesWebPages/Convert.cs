@@ -397,7 +397,7 @@ namespace RachelsRosesWebPages {
             return ret;
         }
         public decimal OuncesToGrams(decimal oz) {
-            var ret = Math.Round((oz / .0353m), 2);
+            var ret = Math.Round((oz / .035274m), 2);
             if (ret.ToString().Contains(".00"))
                 Math.Round(ret, 2);
             return ret;
@@ -441,25 +441,23 @@ namespace RachelsRosesWebPages {
         public decimal ConvertWeightToOunces(string weight) {
             var parse = new ParseFraction();
             var splitWeight = SplitWeightMeasurement(weight);
-            var mostCommonWeights = new string[] { "ounce", "gall", "pint", "quart", "cup", "pound", "gram" };
             if (weight.Contains("gallon") || weight.Contains("gall"))
                 return GallonsToOunces(parse.Parse(splitWeight[0]));
             if (weight.Contains("pint"))
                 return PintsToOunces(parse.Parse(splitWeight[0]));
             if (weight.Contains("quart"))
-                return QuartsToOunces(parse.Parse(splitWeight[0]));
-            if (weight.Contains("cups"))
                 return CupsToOunces(parse.Parse(splitWeight[0]));
             if (weight.Contains("pound") || weight.Contains("lb"))
                 return PoundsToOunces(parse.Parse(splitWeight[0]));
             if (weight.Contains("gram"))
-                return GramsToOunces(parse.Parse(splitWeight[0])); 
-            else return parse.Parse(splitWeight[0]); 
+                return GramsToOunces(parse.Parse(splitWeight[0]));
+            else return Math.Round((parse.Parse(splitWeight[0])), 2);
         }
     }
 
-    //do some more tests for weight conversion, make sure they're passing and that my math is absolutely correct
+
     //after that, assign that decimal amount to ingredient, and update that selling_weight_ounces in the densities database
+    //i can play around w the idea of having an Ingredient i as the parameter for splitting the measurement and using the sellingWeight as the measurement, but it may be easier to apply that method elsewhere to the Ingredient
 
     public class ParseFraction {
         public decimal Parse(string fraction) {

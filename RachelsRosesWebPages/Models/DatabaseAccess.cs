@@ -107,7 +107,6 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@rid", r.id);
                 cmd.Parameters.AddWithValue("@name", i.name);
                 cmd.Parameters.AddWithValue("@measurement", i.measurement);
-                //i want to keep the ingredients table and the density table separate here
                 return cmd;
             });
         }
@@ -130,8 +129,6 @@ namespace RachelsRosesWebPages.Models {
                 ingredient.density = (decimal)reader["density"];
                 ingredient.sellingWeight = (string)reader["selling_weight"];
                 ingredient.sellingWeightInOunces = (decimal)reader["selling_weight_ounces"];
-                //in the table, it's null... that could have something to do with it... 
-                //i do need this reader, and there's really no reason why i shouldn't be able to read this... there has to be something else wrong... 
                 ingredient.sellingPrice = (decimal)reader["selling_price"];
                 ingredient.pricePerOunce = (decimal)reader["price_per_ounce"];
                 return ingredient;
@@ -139,10 +136,6 @@ namespace RachelsRosesWebPages.Models {
             return ingredientInformation;
         }
         public void InsertIngredientDensityAndSellingInformation(Ingredient i) {
-            //if (i.sellingWeightInOunces == null)
-            //    i.sellingWeightInOunces = 0; 
-            //my current thought process is if i don't add anything in that column, then i may get the null, which a decimal data type cannot have a null... hence why i'm getting the casting problem...
-            //it may be better off to just always add all the columns to avoid an error data type like the decimal
             var commandText = @"Insert into densities(name, density, selling_weight, selling_weight_ounces, selling_price, price_per_ounce) 
                             values (@name, @density, @selling_weight, @selling_weight_ounces, @selling_price, @price_per_ounce);";
             executeVoidQuery(commandText, cmd => {
@@ -151,24 +144,18 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@selling_weight", i.sellingWeight);
                 cmd.Parameters.AddWithValue("@selling_price", i.sellingPrice);
                 cmd.Parameters.AddWithValue("@price_per_ounce", i.pricePerOunce);
-                cmd.Parameters.AddWithValue("@selling_weight_ounces", i.sellingWeightInOunces); 
+                cmd.Parameters.AddWithValue("@selling_weight_ounces", i.sellingWeightInOunces);
                 return cmd;
             });
         }
         public void updateDensitiesAndPrice(Ingredient i) {
-            var commandText = "update densities set name=@name, density=@density, selling_weight=@selling_weight, selling_price=@selling_price, price_per_ounce=@price_per_ounce where ing_id=@ing_id";
-            //selling_weight_ounces = @selling_weight_ounces
+            var commandText = "update densities set name=@name, density=@density, selling_weight=@selling_weight, selling_weight_ounces=@selling_weight_ounces, selling_price=@selling_price, price_per_ounce=@price_per_ounce where ing_id=@ing_id";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
                 cmd.Parameters.AddWithValue("@name", i.name);
                 cmd.Parameters.AddWithValue("@density", i.density);
                 cmd.Parameters.AddWithValue("@selling_weight", i.sellingWeight);
                 cmd.Parameters.AddWithValue("@selling_weight_ounces", i.sellingWeightInOunces);
-                /*
-                ok, so this is where i'm getting my error, being specified cast is not valid, so having this be the only
-                    one in the parameters, unless there's an error somewhere in my sql commands
-                    this could be because it's calculated... 
-                */
                 cmd.Parameters.AddWithValue("@selling_price", i.sellingPrice);
                 cmd.Parameters.AddWithValue("@price_per_ounce", i.pricePerOunce);
                 return cmd;
@@ -185,8 +172,17 @@ namespace RachelsRosesWebPages.Models {
             i.pricePerOunce = calculatedPricePerOunce;
             updateDensitiesAndPrice(i);
         }
-
-        //need to change the data types for selling_weight_ounces!!!! going from decimal to strings
+        public void UpdateSellingWeightInOunces(Ingredient i) {
+            var convert = new ConvertWeight();
+            var myIngredientInfo = queryDensitiesAndPrices();
+            foreach (var ingredient in myIngredientInfo) {
+                if (ingredient.name == i.name) {
+                    ingredient.sellingWeightInOunces = convert.ConvertWeightToOunces(ingredient.sellingWeight);
+                    updateDensitiesAndPrice(ingredient);
+                    break; 
+                }
+            }
+        }
 
         //initalize database tables
         public void dropTableIfExists(string table) {
