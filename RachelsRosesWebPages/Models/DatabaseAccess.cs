@@ -184,6 +184,9 @@ namespace RachelsRosesWebPages.Models {
             }
         }
 
+        //next step is a rest call, and to assign those ingredient sellingprices their appropriate assignments 
+
+
         //initalize database tables
         public void dropTableIfExists(string table) {
             var drop = @"IF OBJECT_ID('dbo." + table + " ', 'U') IS NOT NULL DROP TABLE dbo." + table + ";";
