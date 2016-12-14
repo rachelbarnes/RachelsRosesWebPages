@@ -212,6 +212,7 @@
     <Compile Include="Models\apiKey.cs" />
     <Compile Include="Models\DatabaseAccess.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\MakeRESTCalls.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\MyRecipeBox.Context.cs">
       <AutoGen>True</AutoGen>

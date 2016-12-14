@@ -136,8 +136,8 @@ namespace RachelsRosesWebPages.Models {
             return ingredientInformation;
         }
         public void InsertIngredientDensityAndSellingInformation(Ingredient i) {
-            var commandText = @"Insert into densities(name, density, selling_weight, selling_weight_ounces, selling_price, price_per_ounce) 
-                            values (@name, @density, @selling_weight, @selling_weight_ounces, @selling_price, @price_per_ounce);";
+            var commandText = @"Insert into densities(name, density, selling_weight, selling_weight_ounces, selling_price, price_per_ounce, item_id) 
+                            values (@name, @density, @selling_weight, @selling_weight_ounces, @selling_price, @price_per_ounce, @item_id);";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@name", i.name);
                 cmd.Parameters.AddWithValue("@density", i.density);
@@ -145,11 +145,12 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@selling_price", i.sellingPrice);
                 cmd.Parameters.AddWithValue("@price_per_ounce", i.pricePerOunce);
                 cmd.Parameters.AddWithValue("@selling_weight_ounces", i.sellingWeightInOunces);
+                cmd.Parameters.AddWithValue("@item_id", i.itemId); 
                 return cmd;
             });
         }
         public void updateDensitiesAndPrice(Ingredient i) {
-            var commandText = "update densities set name=@name, density=@density, selling_weight=@selling_weight, selling_weight_ounces=@selling_weight_ounces, selling_price=@selling_price, price_per_ounce=@price_per_ounce where ing_id=@ing_id";
+            var commandText = "update densities set name=@name, density=@density, selling_weight=@selling_weight, selling_weight_ounces=@selling_weight_ounces, selling_price=@selling_price, price_per_ounce=@price_per_ounce, item_id=@item_id where ing_id=@ing_id";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
                 cmd.Parameters.AddWithValue("@name", i.name);
@@ -158,6 +159,7 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@selling_weight_ounces", i.sellingWeightInOunces);
                 cmd.Parameters.AddWithValue("@selling_price", i.sellingPrice);
                 cmd.Parameters.AddWithValue("@price_per_ounce", i.pricePerOunce);
+                cmd.Parameters.AddWithValue("@item_id", i.itemId); 
                 return cmd;
             });
         }
@@ -178,6 +180,17 @@ namespace RachelsRosesWebPages.Models {
             foreach (var ingredient in myIngredientInfo) {
                 if (ingredient.name == i.name) {
                     ingredient.sellingWeightInOunces = convert.ConvertWeightToOunces(ingredient.sellingWeight);
+                    updateDensitiesAndPrice(ingredient);
+                    break; 
+                }
+            }
+        }
+        public void UpdateSellingPrice(Ingredient i) {
+            var rest = new MakeRESTCalls();
+            var myIngredientInfo = queryDensitiesAndPrices(); 
+            foreach (var ingredient in myIngredientInfo) {
+                if (ingredient.name == i.name) {
+                    ingredient.sellingPrice = rest.GetItemResponse(ingredient);
                     updateDensitiesAndPrice(ingredient);
                     break; 
                 }
@@ -215,7 +228,8 @@ namespace RachelsRosesWebPages.Models {
                         selling_weight varchar(max),
                         selling_weight_ounces decimal(6,2),
                         selling_price decimal(6,2),
-                        price_per_ounce decimal(6,2)
+                        price_per_ounce decimal(6,2),
+                        item_id int
                      );", a => a);
             executeVoidQuery("SET IDENTITY_INSERT densities ON", cmd => cmd);
         }

@@ -14,6 +14,7 @@ namespace RachelsRosesWebPages {
         public string sellingWeight;
         public decimal sellingWeightInOunces; 
         public decimal sellingPrice;
+        public int itemId;
         public List<string> comments;
         public Ingredient(string _name, string _measurement) {
             name = _name;
@@ -25,6 +26,7 @@ namespace RachelsRosesWebPages {
             sellingWeightInOunces = 0m;
             sellingPrice = 0m; 
             pricePerOunce = 0m;
+            itemId = 0;
         }
         public Ingredient(string _name) {
             name = _name;
@@ -62,12 +64,6 @@ namespace RachelsRosesWebPages {
 }
 /*
  Among the things to do next: 
-
-to do for the density: 
-    make a method
-
-to do for the prices: 
-    make a rest call, and get the price for the list of ingredients from queryIngredients(); 
 
  read files (you could update the density database quicker if you could read through a file and see new insertions, but this will do fine for now 
     (I would prefer word and excel, but if I have to settle for notepad it wouldn't be the end of the world for this project

@@ -449,6 +449,8 @@ namespace RachelsRosesWebPages {
                 return CupsToOunces(parse.Parse(splitWeight[0]));
             if (weight.Contains("pound") || weight.Contains("lb"))
                 return PoundsToOunces(parse.Parse(splitWeight[0]));
+            if (weight.Contains("cup"))
+                return CupsToOunces(parse.Parse(splitWeight[0])); 
             if (weight.Contains("gram"))
                 return GramsToOunces(parse.Parse(splitWeight[0]));
             else return Math.Round((parse.Parse(splitWeight[0])), 2);

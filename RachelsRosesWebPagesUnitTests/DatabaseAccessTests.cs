@@ -503,5 +503,55 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(32, myIngInfo[1].sellingWeightInOunces);
             Assert.AreEqual(10, myIngInfo[2].sellingWeightInOunces); 
         }
+        [Test]
+        public void TestUpdatingSellingPrice() {
+            var t = new DatabaseAccess();
+            var i = new Ingredient("Bread Flour") {
+                ingredientId = 1,
+                sellingWeight = "5 lb"
+            };
+            t.initializeDatabase();
+            t.InsertIngredientDensityAndSellingInformation(i);
+            t.UpdateSellingPrice(i);
+            var myIngInfo = t.queryDensitiesAndPrices();
+            Assert.AreEqual(1, myIngInfo.Count());
+            Assert.AreEqual(2.98m, myIngInfo[0].sellingPrice); 
+        }
+        [Test]
+        public void TestUpdatingSellingPrice2() {
+            var t = new DatabaseAccess();
+            var i = new Ingredient("Bread Flour") {
+                ingredientId = 1,
+                sellingWeight = "5 pound"
+            };
+            var i2 = new Ingredient("Cake Flour") {
+                ingredientId = 2,
+                sellingWeight = "32 ounces"
+            };
+            var i3 = new Ingredient("All-Purpose Flour") {
+                ingredientId = 3,
+                sellingWeight = "2 pounds"
+            };
+            var i4 = new Ingredient("Baking Powder") {
+                ingredientId = 4,
+                sellingWeight = "10 ounces"
+            };
+            t.initializeDatabase();
+            t.InsertIngredientDensityAndSellingInformation(i);
+            t.InsertIngredientDensityAndSellingInformation(i2);
+            t.InsertIngredientDensityAndSellingInformation(i3);
+            t.InsertIngredientDensityAndSellingInformation(i4);
+            t.UpdateSellingPrice(i);
+            t.UpdateSellingPrice(i2);
+            t.UpdateSellingPrice(i3);
+            t.UpdateSellingPrice(i4);
+            var myIngInfo = t.queryDensitiesAndPrices();
+            Assert.AreEqual(4, myIngInfo.Count());
+            Assert.AreEqual(2.98m, myIngInfo[0].sellingPrice);
+            Assert.AreEqual(2.98m, myIngInfo[1].sellingPrice);
+            //Assert.AreEqual(3.14m, myIngInfo[1].sellingPrice); 
+            Assert.AreEqual(2m, myIngInfo[2].sellingPrice);
+            Assert.AreEqual(2.90m, myIngInfo[3].sellingPrice); 
+        }
     }
 }
