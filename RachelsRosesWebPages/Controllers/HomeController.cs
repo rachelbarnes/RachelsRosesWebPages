@@ -11,6 +11,7 @@ namespace RachelsRosesWebPages.Controllers {
         //i don't think currentRecipe is keeping the list of ingredients with it, 
             //whenever i start up the page, the currentRecipe's ingredients are missing/lost... 
             //i have to use the GetFullRecipe from DatabaseAccess I think to get the ingredients associated with that recipe
+            //use the GetFullRecipe to get the ingredients for the currentRecipe before you use the recipe if you're having trouble with getting the ingredients to carry over between running it on the server
         public static Recipe myDatabaseRecipe = new Recipe();
         public static Ingredient currentIngredient = new Ingredient();
         public List<Recipe> getRecipes() {

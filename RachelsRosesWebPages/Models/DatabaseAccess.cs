@@ -122,7 +122,7 @@ namespace RachelsRosesWebPages.Models {
         }
 
         //densities table methods: 
-        public List<Ingredient> queryDensitiesAndPrices() {
+        public List<Ingredient> queryDensityTable() {
             var ingredientInformation = queryItems("select * from densities", reader => {
                 var ingredient = new Ingredient(reader["name"].ToString());
                 ingredient.ingredientId = (int)reader["ing_id"];
@@ -135,8 +135,8 @@ namespace RachelsRosesWebPages.Models {
             });
             return ingredientInformation;
         }
-        public void InsertIngredientDensityAndSellingInformation(Ingredient i) {
-            var commandText = @"Insert into densities(name, density, selling_weight, selling_weight_ounces, selling_price, price_per_ounce, item_id) 
+        public void insertIngredientCostAndDensityData(Ingredient i) {
+            var commandText = @"Insert into densities (name, density, selling_weight, selling_weight_ounces, selling_price, price_per_ounce, item_id) 
                             values (@name, @density, @selling_weight, @selling_weight_ounces, @selling_price, @price_per_ounce, @item_id);";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@name", i.name);
@@ -145,11 +145,11 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@selling_price", i.sellingPrice);
                 cmd.Parameters.AddWithValue("@price_per_ounce", i.pricePerOunce);
                 cmd.Parameters.AddWithValue("@selling_weight_ounces", i.sellingWeightInOunces);
-                cmd.Parameters.AddWithValue("@item_id", i.itemId); 
+                cmd.Parameters.AddWithValue("@item_id", i.itemId);
                 return cmd;
             });
         }
-        public void updateDensitiesAndPrice(Ingredient i) {
+        public void updateDensityTable(Ingredient i) {
             var commandText = "update densities set name=@name, density=@density, selling_weight=@selling_weight, selling_weight_ounces=@selling_weight_ounces, selling_price=@selling_price, price_per_ounce=@price_per_ounce, item_id=@item_id where ing_id=@ing_id";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
@@ -159,24 +159,149 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@selling_weight_ounces", i.sellingWeightInOunces);
                 cmd.Parameters.AddWithValue("@selling_price", i.sellingPrice);
                 cmd.Parameters.AddWithValue("@price_per_ounce", i.pricePerOunce);
-                cmd.Parameters.AddWithValue("@item_id", i.itemId); 
+                cmd.Parameters.AddWithValue("@item_id", i.itemId);
                 return cmd;
             });
         }
-        public Func<Ingredient, decimal> CalculatePricePerOunce = i => Math.Round((i.sellingPrice / i.sellingWeightInOunces), 2);
-        public void UpdateDensityTable(Ingredient i) {
+        public void updateIngredientInformationInDensityTable(Ingredient i) {
             var convert = new ConvertWeight();
-            var rest = new MakeRESTCalls(); 
-            var myIngredientInfo = queryDensitiesAndPrices();
+            var rest = new MakeRESTCalls();
+            var myIngredientInfo = queryDensityTable();
             foreach (var ingredient in myIngredientInfo) {
                 if (ingredient.name == i.name) {
                     ingredient.sellingWeightInOunces = convert.ConvertWeightToOunces(ingredient.sellingWeight);
                     ingredient.sellingPrice = rest.GetItemResponsePrice(ingredient);
-                    ingredient.pricePerOunce = Math.Round((ingredient.sellingPrice / ingredient.sellingWeightInOunces), 4); 
-                    updateDensitiesAndPrice(ingredient);
-                    break; 
+                    ingredient.pricePerOunce = Math.Round((ingredient.sellingPrice / ingredient.sellingWeightInOunces), 4);
+                    updateDensityTable(ingredient);
+                    break;
+                }
+                //later on, i can adapt this to take a list of ingredients, and change entire recipes instead of one at a time? 
+            }
+        }
+
+        //consumption table methods: 
+        public List<Ingredient> queryConsumptionTable() {
+            var ingredientInformation = queryItems("select * from consumption", reader => {
+                var ingredient = new Ingredient(reader["name"].ToString());
+                ingredient.ingredientId = (int)reader["ing_id"];
+                ingredient.density = (decimal)reader["density"];
+                ingredient.ouncesConsumed = (decimal)reader["ounces_consumed"];
+                ingredient.ouncesRemaining = (decimal)reader["ounces_remaining"];
+                return ingredient;
+            });
+            return ingredientInformation;
+        }
+        public void insertIngredientConsumtionData(Ingredient i) {
+            var commandText = @"Insert into consumption (name, density, ounces_consumed, ounces_remaining, price_measured_ingredient) values (@name, @density, @ounces_consumed, @ounces_remaining, @price_measured_ingredient);";
+            executeVoidQuery(commandText, cmd => {
+                cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
+                cmd.Parameters.AddWithValue("@name", i.name);
+                cmd.Parameters.AddWithValue("@density", i.density);
+                cmd.Parameters.AddWithValue("@ounces_consumed", i.ouncesConsumed);
+                cmd.Parameters.AddWithValue("@ounces_remaining", i.ouncesRemaining);
+                //cmd.Parameters.AddWithValue("@price_measured_ingredient", i.priceOfMeasuredConsumption);
+                return cmd;
+            });
+        }
+        public void updateConsumptionTable(Ingredient i) {
+            var commandText = "update consumption set name=@name, density=@density, ounces_consumed=@ounces_consumed, ounces_remaining=@ounces_remaining, price_measured_ingredient=@price_measured_ingredient where ing_id=@ing_id;";
+            executeVoidQuery(commandText, cmd => {
+                cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
+                cmd.Parameters.AddWithValue("@name", i.name);
+                cmd.Parameters.AddWithValue("@density", i.density);
+                cmd.Parameters.AddWithValue("@ounces_consumed", i.ouncesConsumed);
+                cmd.Parameters.AddWithValue("@ounces_remaining", i.ouncesRemaining);
+                //cmd.Parameters.AddWithValue("@price_measured_ingredient", i.priceOfMeasuredConsumption);
+                return cmd;
+            });
+        }
+        public void updateConsumptionTableOuncesRemaining(Ingredient i) {
+            var myIngredientConsumptionData = queryConsumptionTable();
+            var myIngredientDensityData = queryDensityTable();
+            foreach (var ingredient in myIngredientDensityData) {
+                if (ingredient.name == i.name) {
+                    i.itemId = ingredient.itemId;
+                    i.sellingPrice = ingredient.sellingPrice;
+                    i.pricePerOunce = ingredient.pricePerOunce;
+                    i.sellingWeight = ingredient.sellingWeight;
+                    i.sellingWeightInOunces = ingredient.sellingWeightInOunces;
+                    i.density = ingredient.density;
+                    break;
                 }
             }
+            foreach (var ingredient in myIngredientConsumptionData) {
+                if (ingredient.name == i.name) {
+                    ingredient.ouncesConsumed = CalculateOuncesConsumedFromMeasurement(i);
+                    ingredient.ouncesRemaining = i.ouncesRemaining - ingredient.ouncesConsumed;
+                    ingredient.priceOfMeasuredConsumption = Math.Round((decimal)((ingredient.ouncesConsumed / i.sellingWeightInOunces) * i.sellingPrice), 2);
+                    updateConsumptionTable(ingredient);
+                    break;
+                }
+            }
+        }
+
+        //cost table 
+        public List<Ingredient> queryCostTable() {
+            var ingredientInformation = queryItems("select * from costs", reader => {
+                var ingredient = new Ingredient(reader["name"].ToString());
+                ingredient.ingredientId = (int)reader["ing_id"];
+                ingredient.measurement = (string)reader["measurement"];
+                ingredient.sellingPrice = (decimal)reader["selling_price"];
+                ingredient.pricePerOunce = (decimal)reader["price_per_ounce"];
+                ingredient.priceOfMeasuredConsumption = (decimal)reader["price_measured_ingredient"];
+                return ingredient;
+            });
+            return ingredientInformation; 
+        }
+        public void insertIngredientCostDataCostTable(Ingredient i) {
+            var commandText = @"Insert into costs (name, measurement, selling_price, price_per_ounce, price_measured_ingredient) values (@name, @measurement, @selling_price, @price_per_ounce, @price_measured_ingredient);";
+            executeVoidQuery(commandText, cmd => {
+                cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
+                cmd.Parameters.AddWithValue("@name", i.name);
+                cmd.Parameters.AddWithValue("@measurement", i.measurement);
+                cmd.Parameters.AddWithValue("@selling_price", i.sellingPrice);
+                //cmd.Parameters.AddWithValue("@selling_weight_ounces", i.sellingWeightInOunces); 
+                cmd.Parameters.AddWithValue("@price_per_ounce", i.pricePerOunce);
+                cmd.Parameters.AddWithValue("@price_measured_ingredient", i.priceOfMeasuredConsumption);
+                return cmd;
+            });
+        }
+        public void updateIngredientCostDataTable(Ingredient i) {
+            var commandText = @"Update costs set name=@name, measurement=@measurement, selling_weight=@selling_weight, price_per_ounce=@price_per_ounce, price_measured_ingredient=@price_measured_ingredient where ing_id=@ing_id;"; 
+            executeVoidQuery(commandText, cmd => {
+                cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
+                cmd.Parameters.AddWithValue("@name", i.name);
+                cmd.Parameters.AddWithValue("@measurement", i.measurement);
+                cmd.Parameters.AddWithValue("@selling_price", i.sellingPrice);
+                //cmd.Parameters.AddWithValue("@selling_weight_ounces", i.sellingWeightInOunces); 
+                cmd.Parameters.AddWithValue("@price_per_ounce", i.pricePerOunce);
+                cmd.Parameters.AddWithValue("@price_measured_ingredient", i.priceOfMeasuredConsumption);
+                return cmd;
+            });
+        }
+
+
+
+        //public decimal getSellingPriceForMeasurementMultiplier(Ingredient i) {
+        //    //divide the ounces used by the selling weight
+        //    var multiplier = (decimal)(i.ouncesConsumed / i.sellingWeightInOunces); 
+
+        //}
+
+        //need to have a way to add more to ouncesRemaining
+        public decimal CalculateOuncesConsumedFromMeasurement(Ingredient i) {
+            var convert = new ConvertDensity();
+            var myIngredientConsumptionData = queryConsumptionTable();
+            var myConsumedOunces = 0m;
+            foreach (var ingredient in myIngredientConsumptionData) {
+                if (ingredient.name == i.name) {
+                    myConsumedOunces = convert.CalculateOuncesUsed(i);
+                }
+            }
+            return myConsumedOunces;
+        }
+        public void CalculatePriceForIngredient(Ingredient i) {
+            //multiply price per ounce by how many ounces we use
         }
 
         //initalize database tables
@@ -204,13 +329,33 @@ namespace RachelsRosesWebPages.Models {
                         ing_id INT NOT NULL IDENTITY(1,1) PRIMARY KEY, 
                         name nvarchar(max), 
                         density decimal (4,2),
-                        selling_weight varchar(max),
+                        selling_weight varchar(250),
                         selling_weight_ounces decimal(6,2),
                         selling_price decimal(6,2),
                         price_per_ounce decimal(8,4),
                         item_id int
                      );", a => a);
+            dropTableIfExists("consumption");
+            executeVoidQuery(@"create table consumption (
+                        ing_id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+                        name varchar(max),
+                        density decimal (4,2),
+                        ounces_consumed decimal (5,2),
+                        ounces_remaining decimal(6,2),
+                        price_measured_ingredient decimal(6,2)
+                     );", a => a);
+            dropTableIfExists("costs");
+            executeVoidQuery(@"create table costs (
+                        ing_id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+                        name varchar (max),
+                        measurement varchar (max)
+                        selling_price decimal(6,2),
+                        price_per_ounce decimal (6,2),
+                        price_measured_ingredient decimal(6,2)
+                    );", a => a);
             executeVoidQuery("SET IDENTITY_INSERT densities ON", cmd => cmd);
+
+            //i am not a fan of price_measured_ingredient here... 
         }
     }
 }

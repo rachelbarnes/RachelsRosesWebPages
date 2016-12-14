@@ -15,6 +15,9 @@ namespace RachelsRosesWebPages {
         public decimal sellingWeightInOunces; 
         public decimal sellingPrice;
         public int itemId;
+        public decimal ouncesConsumed;
+        public decimal ouncesRemaining;
+        public decimal priceOfMeasuredConsumption; 
         public List<string> comments;
         public Ingredient(string _name, string _measurement) {
             name = _name;
@@ -27,6 +30,9 @@ namespace RachelsRosesWebPages {
             sellingPrice = 0m; 
             pricePerOunce = 0m;
             itemId = 0;
+            ouncesConsumed = 0m;
+            ouncesRemaining = 0m;
+            priceOfMeasuredConsumption = 0m; 
         }
         public Ingredient(string _name) {
             name = _name;

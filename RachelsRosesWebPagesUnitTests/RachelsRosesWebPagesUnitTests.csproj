@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConversionWeightUnitTests.cs" />
+    <Compile Include="ConvertDensityUnitTests.cs" />
     <Compile Include="ConvertUnitTests.cs" />
     <Compile Include="DatabaseAccessTests.cs" />
     <Compile Include="ParseFractionTests.cs" />
