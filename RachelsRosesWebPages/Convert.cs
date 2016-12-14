@@ -440,6 +440,7 @@ namespace RachelsRosesWebPages {
         }
         public decimal ConvertWeightToOunces(string weight) {
             var parse = new ParseFraction();
+            weight = weight.ToLower(); 
             var splitWeight = SplitWeightMeasurement(weight);
             if (weight.Contains("gallon") || weight.Contains("gall"))
                 return GallonsToOunces(parse.Parse(splitWeight[0]));

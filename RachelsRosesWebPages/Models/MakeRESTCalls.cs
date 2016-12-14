@@ -17,6 +17,7 @@ namespace RachelsRosesWebPages {
         public string name { get; set; }
         [DataMember(Name = "itemId")]
         public int itemId { get; set; }
+        public ItemResponse() { }
     }
     [DataContract]
     public class SearchResponse {
@@ -40,26 +41,26 @@ namespace RachelsRosesWebPages {
                 return default(T);
             }
         }
-        public decimal GetItemResponse(Ingredient i) {
-            var convert = new ConvertWeight(); 
+        public decimal GetItemResponsePrice(Ingredient i) {
+            var convert = new ConvertWeight();
             var items = MakeRequest<SearchResponse>(buildSearchRequest(i)).Items;
             var sellingWeightOunces = convert.ConvertWeightToOunces(i.sellingWeight);
             var itemPrice = 0m;
             foreach (var item in items) {
-                if (CompareWeightInOuncesFromItemResponseToIngredientSellingWeight(item.name, i)) {
+                if ((parseItemResponseName(item).Count() != 0) && (!item.name.ToLower().Contains("pack of")) && (CompareWeightInOuncesFromItemResponseToIngredientSellingWeight(item, i) && (CompareItemResponseNameAndIngredientName(item, i)))) {
                     itemPrice = item.salePrice;
-                    break; 
+                    break;
                 }
             }
-            //var myItems = items.Where(item => item.name.ToLower().Contains(i.sellingWeight));
-            //var firstItem = myItems.First();
-            //var firstItemName = myItems.First().name;
-            //var firstItemPrice = 0m;
-            //if (CompareWeightInOuncesFromItemResponseToIngredientSellingWeight(firstItemName, i))
-            //    firstItemPrice = myItems.First().salePrice;
             return itemPrice;
             //i would like to be able to return all brands that fit a certain selling weight, and give all of them as an option, and give the best price? 
         }
+        //var myItems = items.Where(item => item.name.ToLower().Contains(i.sellingWeight));
+        //var firstItem = myItems.First();
+        //var firstItemName = myItems.First().name;
+        //var firstItemPrice = 0m;
+        //if (CompareWeightInOuncesFromItemResponseToIngredientSellingWeight(firstItemName, i))
+        //    firstItemPrice = myItems.First().salePrice;
         //public List<ItemResponse> GetListOfItemsFromItemResponse(Ingredient i) {
         //    var items = MakeRequest<SearchResponse>(buildSearchRequest(i)).Items;
         //    var myItems = items.Where(item => item.name.ToLower().Contains(i.sellingWeight));
@@ -79,23 +80,23 @@ namespace RachelsRosesWebPages {
         Pillsbury Bread Flour 5 lb 
         King Arthur Flour 100% Whole Grain Whole Wheat Flour, 5.0 LB
         */
-        public string[] parseItemResponseName(string itemResponseProductName) {
+        public string[] parseItemResponseName(ItemResponse response) {
             var itemResponseArray = new string[] { };
             var product = "";
             var productWeight = "";
-            var count = itemResponseProductName.Count();
+            var count = response.name.Count();
             for (int i = count - 1; i > 0; i--) {
-                if (i > 0 && i < itemResponseProductName.Count() - 2) {
+                if (i > 0 && i < count - 2) {
                     int n;
-                    var previous = i + 1;
-                    var next = i - 1;
-                    var previousChar = itemResponseProductName[previous];
-                    var currentChar = itemResponseProductName[i];
-                    var nextChar = itemResponseProductName[next];
-                    if ((itemResponseProductName[i] == ' ') && (!int.TryParse((itemResponseProductName[next].ToString()), out n)) && (int.TryParse((itemResponseProductName[previous].ToString()), out n))) {
-                        var weightSubstringLength = (itemResponseProductName.Count() - i);
-                        productWeight = itemResponseProductName.Substring(i, weightSubstringLength).Trim();
-                        product = itemResponseProductName.Substring(0, i).Trim();
+                    var next = i + 1;
+                    var previous = i - 1;
+                    var previousChar = response.name[next];
+                    var currentChar = response.name[i];
+                    var nextChar = response.name[previous];
+                    if ((response.name[i] == ' ') && !int.TryParse(((response.name[previous].ToString())), out n) && (((int.TryParse((response.name[next].ToString()), out n))) || (response.name[next] == '.'))) {
+                        var weightSubstringLength = (count - i);
+                        productWeight = response.name.Substring(i, weightSubstringLength).Trim();
+                        product = response.name.Substring(0, i).Trim();
                         itemResponseArray = new string[] { product, productWeight };
                         break;
                     }
@@ -103,11 +104,9 @@ namespace RachelsRosesWebPages {
             }
             return itemResponseArray;
         }
-        //this method is impt because it will allow me to compare the weight of the ingredient with the weight of the product
-        //right now, i can have 1 lb be presented in 1 lb or 1 pound, which I have to be able to choose either, not just what i have in my ingredient selling weight and my product response name
-        public bool CompareWeightInOuncesFromItemResponseToIngredientSellingWeight(string productName, Ingredient i) {
+        public bool CompareWeightInOuncesFromItemResponseToIngredientSellingWeight(ItemResponse response, Ingredient i) {
             var convert = new ConvertWeight();
-            var productNameArray = parseItemResponseName(productName);
+            var productNameArray = parseItemResponseName(response);
             var productWeight = productNameArray[1];
             //this is where i'm getting the out of bounds exception
             var productWeightOunces = convert.ConvertWeightToOunces(productWeight);
@@ -115,6 +114,23 @@ namespace RachelsRosesWebPages {
                 return true;
             else return false;
         }
-
+        public bool CompareItemResponseNameAndIngredientName(ItemResponse response, Ingredient i) {
+            var responseNameParsed = parseItemResponseName(response);
+            var responseNameNoWeight = responseNameParsed[0];
+            var ingredientName = i.name.ToLower().Split(' ');
+            var countSimilarWordsFromIngredientNameWithProductName = 0;
+            var countIngredientNameWords = ingredientName.Count();
+            foreach (var word in ingredientName) {
+                if (response.name.ToLower().Contains(word))
+                    countSimilarWordsFromIngredientNameWithProductName++;
+            }
+            var similarities = 0m;
+            if (CompareWeightInOuncesFromItemResponseToIngredientSellingWeight(response, i)) {
+                similarities = countSimilarWordsFromIngredientNameWithProductName / countIngredientNameWords;
+            }
+            if (similarities > .85m || (countSimilarWordsFromIngredientNameWithProductName == countIngredientNameWords))
+                return true;
+            else return false;
+        }
     }
 }

@@ -164,41 +164,20 @@ namespace RachelsRosesWebPages.Models {
             });
         }
         public Func<Ingredient, decimal> CalculatePricePerOunce = i => Math.Round((i.sellingPrice / i.sellingWeightInOunces), 2);
-        public void GetPricePerOunceFromDensityTable(Ingredient i) {
-            var myIngredientBox = queryDensitiesAndPrices();
-            var calculatedPricePerOunce = 0m;
-            foreach (var ingredient in myIngredientBox) {
-                if (ingredient.name == i.name)
-                    calculatedPricePerOunce = Math.Round((i.sellingPrice / i.sellingWeightInOunces), 2);
-            }
-            i.pricePerOunce = calculatedPricePerOunce;
-            updateDensitiesAndPrice(i);
-        }
-        public void UpdateSellingWeightInOunces(Ingredient i) {
+        public void UpdateDensityTable(Ingredient i) {
             var convert = new ConvertWeight();
+            var rest = new MakeRESTCalls(); 
             var myIngredientInfo = queryDensitiesAndPrices();
             foreach (var ingredient in myIngredientInfo) {
                 if (ingredient.name == i.name) {
                     ingredient.sellingWeightInOunces = convert.ConvertWeightToOunces(ingredient.sellingWeight);
+                    ingredient.sellingPrice = rest.GetItemResponsePrice(ingredient);
+                    ingredient.pricePerOunce = Math.Round((ingredient.sellingPrice / ingredient.sellingWeightInOunces), 4); 
                     updateDensitiesAndPrice(ingredient);
                     break; 
                 }
             }
         }
-        public void UpdateSellingPrice(Ingredient i) {
-            var rest = new MakeRESTCalls();
-            var myIngredientInfo = queryDensitiesAndPrices(); 
-            foreach (var ingredient in myIngredientInfo) {
-                if (ingredient.name == i.name) {
-                    ingredient.sellingPrice = rest.GetItemResponse(ingredient);
-                    updateDensitiesAndPrice(ingredient);
-                    break; 
-                }
-            }
-        }
-
-        //next step is a rest call, and to assign those ingredient sellingprices their appropriate assignments 
-
 
         //initalize database tables
         public void dropTableIfExists(string table) {
@@ -228,7 +207,7 @@ namespace RachelsRosesWebPages.Models {
                         selling_weight varchar(max),
                         selling_weight_ounces decimal(6,2),
                         selling_price decimal(6,2),
-                        price_per_ounce decimal(6,2),
+                        price_per_ounce decimal(8,4),
                         item_id int
                      );", a => a);
             executeVoidQuery("SET IDENTITY_INSERT densities ON", cmd => cmd);
