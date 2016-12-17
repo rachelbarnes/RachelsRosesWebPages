@@ -28,7 +28,7 @@ namespace RachelsRosesWebPagesUnitTests {
                 ingredientId = 1,
                 sellingWeight = "5 lb"
             };
-            var expected = 2.99m;
+            var expected = 3.65m;
             var actual = rest.GetItemResponsePrice(i);
             Assert.AreEqual(expected, actual);
         }
@@ -39,9 +39,22 @@ namespace RachelsRosesWebPagesUnitTests {
                 ingredientId = 1,
                 sellingWeight = "10 lb"
             };
-            var expected = 4.88m;
+            var expected = 5.12m;
+            //this is taking after the God Medal Unblached All-Purpose FLour 10 lb Bag
             var actual = rest.GetItemResponsePrice(i);
             Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestAllPurposeFlour10LbNoHyphen() {
+            var rest = new MakeRESTCalls();
+            var i = new Ingredient("All Purpose Flour") {
+                ingredientId = 1,
+                sellingWeight = "10 lb"
+            };
+            var expected = 3.98m;
+            //Pillsbury is originally 4.64, but on sale it was 3.98
+            var actual = rest.GetItemResponsePrice(i);
+            Assert.AreEqual(expected, actual); 
         }
         [Test]
         public void TestBreadFlourRestCallKingArthur() {
@@ -50,7 +63,7 @@ namespace RachelsRosesWebPagesUnitTests {
                 ingredientId = 1,
                 sellingWeight = "5 lb"
             };
-            var expected = 4.34m;
+            var expected = 4.2m;
             var actual = rest.GetItemResponsePrice(i);
             Assert.AreEqual(expected, actual);
         }
@@ -61,7 +74,7 @@ namespace RachelsRosesWebPagesUnitTests {
                 ingredientId = 1,
                 sellingWeight = "10 oz"
             };
-            var expected = 2.9m;
+            var expected = 2.23m;
             var actual = rest.GetItemResponsePrice(i);
             Assert.AreEqual(expected, actual);
         }
@@ -92,7 +105,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var rest = new MakeRESTCalls();
             var i = new Ingredient("Baking Soda") {
                 ingredientId = 1,
-                sellingWeight = "8 oz"
+                sellingWeight = "32 oz"
             };
             var expected = 2.00m;
             var actual = rest.GetItemResponsePrice(i);
