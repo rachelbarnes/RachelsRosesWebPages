@@ -288,6 +288,20 @@ namespace RachelsRosesWebPages {
             Assert.AreEqual(expected, actual);
         }
         [Test]
+        public void TestSplitWeightMeasurement4() {
+            var convert = new ConvertWeight();
+            var expected = new string[] { "11", "oz" };
+            var actual = convert.SplitWeightMeasurement("11oz");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestSplitWeightMeasurement5() {
+            var convert = new ConvertWeight();
+            var expected = new string[] { "56", "Gall" };
+            var actual = convert.SplitWeightMeasurement("56Gall");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
         public void TestConvertWeightToOunces() {
             var convert = new ConvertWeight();
             var expected = 128m;

@@ -55,13 +55,26 @@ namespace RachelsRosesWebPages {
             var sellingWeightOunces = convert.ConvertWeightToOunces(i.sellingWeight);
             var itemPrice = 0m;
             foreach (var item in items) {
-                if ((parseItemResponseName(item).Count() != 0) && (!item.name.ToLower().Contains("pack of")) && (CompareWeightInOuncesFromItemResponseToIngredientSellingWeight(item, i) && (CompareItemResponseNameAndIngredientName(item, i)))) {
-                    itemPrice = item.salePrice;
-                    break;
+                if ((!item.name.ToLower().Contains("pack of")) || (!item.name.ToLower().Contains(("pk")))) {
+                    if ((parseItemResponseName(item).Count() != 0) && (CompareWeightInOuncesFromItemResponseToIngredientSellingWeight(item, i) && (CompareItemResponseNameAndIngredientName(item, i)))) {
+                        return item.salePrice;
+                    }
                 }
             }
             return itemPrice;
             //i would like to be able to return all brands that fit a certain selling weight, and give all of them as an option, and give the best price? 
+            //i think a good idea would be to have the item id associated with the ingredient in the ingredient database or the cost database, that way you can get the exact same item
+        }
+        public List<ItemResponse> GetListOfItemResponses(Ingredient i) {
+            var convert = new ConvertWeight();
+            var items = MakeRequest<SearchResponse>(buildSearchRequest(i)).Items;
+            var sellingWeightOunces = convert.ConvertWeightToOunces(i.sellingWeight);
+            var myItems = new List<ItemResponse>();
+            foreach (var item in items) {
+                if ((parseItemResponseName(item).Count() != 0) && (!item.name.ToLower().Contains("pack of")) && (CompareWeightInOuncesFromItemResponseToIngredientSellingWeight(item, i)) && CompareItemResponseNameAndIngredientName(item, i))
+                    myItems.Add(item);
+            }
+            return myItems;
         }
         //var myItems = items.Where(item => item.name.ToLower().Contains(i.sellingWeight));
         //var firstItem = myItems.First();
@@ -79,15 +92,6 @@ namespace RachelsRosesWebPages {
         //    }
         //    return myReturnedItems;
         //}
-        /*
-        Samples: 
-        Red Star: Active Dry Yeast, .25 Oz
-        Fleischmann's ActiveDry Yeast Original, 4.0 OZ
-        King Arthur Flour Unbleached Bread Flour, 5.0 LB
-        Gold Medal® Better for Bread® Flour 5 lb. Bag
-        Pillsbury Bread Flour 5 lb 
-        King Arthur Flour 100% Whole Grain Whole Wheat Flour, 5.0 LB
-        */
         public string[] parseItemResponseName(ItemResponse response) {
             var itemResponseArray = new string[] { };
             var product = "";
@@ -98,9 +102,6 @@ namespace RachelsRosesWebPages {
                     int n;
                     var next = i + 1;
                     var previous = i - 1;
-                    var previousChar = response.name[next];
-                    var currentChar = response.name[i];
-                    var nextChar = response.name[previous];
                     if ((response.name[i] == ' ') && !int.TryParse(((response.name[previous].ToString())), out n) && (((int.TryParse((response.name[next].ToString()), out n))) || (response.name[next] == '.'))) {
                         var weightSubstringLength = (count - i);
                         productWeight = response.name.Substring(i, weightSubstringLength).Trim();
@@ -136,7 +137,7 @@ namespace RachelsRosesWebPages {
             if (CompareWeightInOuncesFromItemResponseToIngredientSellingWeight(response, i)) {
                 similarities = countSimilarWordsFromIngredientNameWithProductName / countIngredientNameWords;
             }
-            if (similarities > .85m || (countSimilarWordsFromIngredientNameWithProductName == countIngredientNameWords))
+            if (similarities == 1 || (countSimilarWordsFromIngredientNameWithProductName == countIngredientNameWords))
                 return true;
             else return false;
         }

@@ -413,8 +413,6 @@ namespace RachelsRosesWebPages {
                 Math.Round(ret, 2);
             return ret;
         }
-        //i have to do a similar splitting method to the conversion of measurements, but no where near as extensive...
-        //all i really need is a way to split the weight, convert it to ounces, then put the selling weight in ounces in the database
         public string[] SplitWeightMeasurement(string weightMeasurement) {
             var splitWeight = new string[] { };
             var weightQuantity = "";
@@ -435,25 +433,46 @@ namespace RachelsRosesWebPages {
                     }
                 }
             }
+            if (splitWeight.Count() == 0) {
+                //if there are no spaces, split it at the end of the numbers
+                for (var i = 0; i < weightMeasurement.Count(); i++) {
+                    if (i > 0 && (i < weightMeasurement.Count() - 1)) {
+                        var previous = i - 1;
+                        var next = i + 1;
+                        var previousChar = weightMeasurement[previous];
+                        var currentChar = weightMeasurement[i];
+                        var nextChar = weightMeasurement[next];
+                        int n;
+                        if ((int.TryParse(weightMeasurement[i].ToString(), out n)) && (!int.TryParse(weightMeasurement[next].ToString(), out n))) {
+                            weightQuantity = weightMeasurement.Substring(0, next);
+                            weight = weightMeasurement.Substring(next, (weightMeasurement.Count() - (i + 1)));
+                            splitWeight = new string[] { weightQuantity, weight };
+                            break;
+                        }
+                    }
+                }
+            }
             return splitWeight;
         }
         public decimal ConvertWeightToOunces(string weight) {
             var parse = new ParseFraction();
             weight = weight.ToLower();
             var splitWeight = SplitWeightMeasurement(weight);
+            var weightToBeConverted = parse.Parse(splitWeight[0]);
             if (weight.Contains("gallon") || weight.Contains("gall"))
-                return GallonsToOunces(parse.Parse(splitWeight[0]));
+                return GallonsToOunces(weightToBeConverted);
             if (weight.Contains("pint"))
-                return PintsToOunces(parse.Parse(splitWeight[0]));
+                return PintsToOunces(weightToBeConverted);
             if (weight.Contains("quart"))
-                return CupsToOunces(parse.Parse(splitWeight[0]));
+                return CupsToOunces(weightToBeConverted);
             if (weight.Contains("pound") || weight.Contains("lb"))
-                return PoundsToOunces(parse.Parse(splitWeight[0]));
+                return PoundsToOunces(weightToBeConverted);
             if (weight.Contains("cup"))
-                return CupsToOunces(parse.Parse(splitWeight[0]));
+                return CupsToOunces(weightToBeConverted);
             if (weight.Contains("gram"))
-                return GramsToOunces(parse.Parse(splitWeight[0]));
-            else return Math.Round((parse.Parse(splitWeight[0])), 2);
+                return GramsToOunces(weightToBeConverted);
+            //if (weight.Contains("oz") || weight.Contains("ounce"))
+            else return Math.Round((weightToBeConverted), 2);
         }
     }
 
@@ -461,9 +480,7 @@ namespace RachelsRosesWebPages {
         //stories: 
         //be able to read my density file from my previous project, put that in the density database
         //ultimate goal: if i have 3 1/2 cups of ap flour, i want to show that i used 15.75 oz of flour (if the density is 4.5)
-        //create another field in Ingredient, ouncesUsed, which i don't know where to put in a table... 
         //have another field in Ingredient, total ounces used... 
-        //maybe is should have a table just for densities used... it would help majorly in 
 
         public decimal PercentageUsedMeasurementToStandardMeasurement(Ingredient i) {
             var convert = new ConvertMeasurement();
@@ -471,33 +488,33 @@ namespace RachelsRosesWebPages {
             return Math.Round((decimal)(measurementInOunces / convert.AccumulatedTeaspoonMeasurement("1 cup")), 4);
         }
 
-        public decimal CalculateOuncesUsed (Ingredient i) {
-            return Math.Round((PercentageUsedMeasurementToStandardMeasurement(i) * i.density),2); 
+        public decimal CalculateOuncesUsed(Ingredient i) {
+            return Math.Round((PercentageUsedMeasurementToStandardMeasurement(i) * i.density), 2);
             //why can't i use PercentageUsedMeasurementToStandardMeasurement() in a lamba?
         }
-}
-
-public class ParseFraction {
-    public decimal Parse(string fraction) {
-        var splitComplexFraction = new string[] { };
-        var finaldecimal = 0m;
-        if (!fraction.Contains('/') && !fraction.Contains(' ')) {
-            finaldecimal = decimal.Parse(fraction);
-            return finaldecimal;
-        }
-        if (fraction.Contains(' ')) {
-            splitComplexFraction = fraction.Split(' ');
-            var split = splitComplexFraction[1].Split('/');
-            var final = new decimal[] { decimal.Parse(splitComplexFraction[0]), decimal.Parse(split[0]), decimal.Parse(split[1]) };
-            finaldecimal = (((final[0] * final[2]) + final[1]) / final[2]);
-        }
-        if (!fraction.Contains(' ')) {
-            splitComplexFraction = fraction.Split('/');
-            finaldecimal = decimal.Parse(splitComplexFraction[0]) / decimal.Parse(splitComplexFraction[1]);
-        }
-        return Math.Round(finaldecimal, 4);
     }
-}
+
+    public class ParseFraction {
+        public decimal Parse(string fraction) {
+            var splitComplexFraction = new string[] { };
+            var finaldecimal = 0m;
+            if (!fraction.Contains('/') && !fraction.Contains(' ')) {
+                finaldecimal = decimal.Parse(fraction);
+                return finaldecimal;
+            }
+            if (fraction.Contains(' ')) {
+                splitComplexFraction = fraction.Split(' ');
+                var split = splitComplexFraction[1].Split('/');
+                var final = new decimal[] { decimal.Parse(splitComplexFraction[0]), decimal.Parse(split[0]), decimal.Parse(split[1]) };
+                finaldecimal = (((final[0] * final[2]) + final[1]) / final[2]);
+            }
+            if (!fraction.Contains(' ')) {
+                splitComplexFraction = fraction.Split('/');
+                finaldecimal = decimal.Parse(splitComplexFraction[0]) / decimal.Parse(splitComplexFraction[1]);
+            }
+            return Math.Round(finaldecimal, 4);
+        }
+    }
 }
 /*
  other desired functionalities for the Convert class for measurement ingredients: 

@@ -91,7 +91,7 @@ namespace RachelsRosesWebPages.Controllers {
                 newIngredient.recipeId = currentRecipe.id;
                 currentRecipe.ingredients.Add(newIngredient);
                 currentIngredient = newIngredient;
-                db.InsertIngredient(currentIngredient, currentRecipe);
+                db.insertIngredient(currentIngredient, currentRecipe);
             }
             return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
