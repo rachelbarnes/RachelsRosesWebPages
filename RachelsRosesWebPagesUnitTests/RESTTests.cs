@@ -54,7 +54,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var expected = 3.98m;
             //Pillsbury is originally 4.64, but on sale it was 3.98
             var actual = rest.GetItemResponsePrice(i);
-            Assert.AreEqual(expected, actual); 
+            Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestBreadFlourRestCallKingArthur() {
@@ -129,7 +129,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var response = new ItemResponse() {
                 name = "Red Star Active Dry Yeast 4 oz"
             };
-            var actual = rest.parseItemResponseName(response); 
+            var actual = rest.parseItemResponseName(response);
             Assert.AreEqual(expected, actual);
         }
         [Test]
@@ -139,8 +139,8 @@ namespace RachelsRosesWebPagesUnitTests {
             var response = new ItemResponse() {
                 name = "Whole Wheat Flour 3 1/4 lb"
             };
-            var actual = rest.parseItemResponseName(response); 
-            Assert.AreEqual(expected, actual); 
+            var actual = rest.parseItemResponseName(response);
+            Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestComparingWeight() {
@@ -153,7 +153,7 @@ namespace RachelsRosesWebPagesUnitTests {
             };
             var expected = true;
             var actual = rest.CompareWeightInOuncesFromItemResponseToIngredientSellingWeight(response, i);
-            Assert.AreEqual(expected, actual); 
+            Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestSplitCompareItemResponse() {
@@ -165,7 +165,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var response = new ItemResponse() {
                 name = "Red Star: Active Dry Yeast 4 oz"
             };
-            var actual = rest.CompareItemResponseNameAndIngredientName(response, i); 
+            var actual = rest.CompareItemResponseNameAndIngredientName(response, i);
             Assert.AreEqual(5, i.name.Split(' ').Count());
             Assert.AreEqual(true, actual);
         }
@@ -180,7 +180,7 @@ namespace RachelsRosesWebPagesUnitTests {
                 name = "King Arthur Flour 100% Whole Grain Whole Wheat Flour, 5.0 LB"
             };
             var actual = rest.CompareItemResponseNameAndIngredientName(response, i);
-            Assert.AreEqual(true, actual); 
+            Assert.AreEqual(true, actual);
         }
         [Test]
         public void TestSplitCompareItemResponse3() {
@@ -193,8 +193,135 @@ namespace RachelsRosesWebPagesUnitTests {
                 name = "King Arthur Flour 100% Whole Grain Whole Wheat Flour, 5.0 LB"
             };
             var actual = rest.CompareItemResponseNameAndIngredientName(response, i);
-            Assert.AreEqual(false, actual); 
+            Assert.AreEqual(false, actual);
         }
-
+        [Test]
+        public void TestAverage6() {
+            var rest = new MakeRESTCalls();
+            var response = new ItemResponse() {
+                name = "All Purpose Flour",
+                salePrice = 4.20m,
+            };
+            var response2 = new ItemResponse() {
+                name = "All-Purpose Flour",
+                salePrice = 2.69m,
+            };
+            var response3 = new ItemResponse() {
+                name = "AP Flour",
+                salePrice = 71.20m
+            };
+            var response4 = new ItemResponse() {
+                name = "Flour",
+                salePrice = 3.45m
+            };
+            var myItemResponses = new List<ItemResponse> { response, response2, response3, response4 };
+            var expected = new List<ItemResponse> { response, response2, response4 };
+            var actual = rest.AverageItemResponseSalePrices(myItemResponses);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestAverage7() {
+            var rest = new MakeRESTCalls();
+            var response = new ItemResponse() {
+                name = "All Purpose Flour",
+                salePrice = 4.20m,
+            };
+            var response2 = new ItemResponse() {
+                name = "All-Purpose Flour",
+                salePrice = 2.69m,
+            };
+            var response3 = new ItemResponse() {
+                name = "AP Flour",
+                salePrice = 71.20m
+            };
+            var response4 = new ItemResponse() {
+                name = "Flour",
+                salePrice = 3.45m
+            };
+            var response5 = new ItemResponse() {
+                name = "Flour",
+                salePrice = 4.50m,
+            };
+            var response6 = new ItemResponse() {
+                name = "Flour",
+                salePrice = 1.30m,
+            };
+            var response7 = new ItemResponse() {
+                name = "Flour",
+                salePrice = 6.5m,
+            };
+            var response8 = new ItemResponse() {
+                name = "Flour",
+                salePrice = 4.69m,
+            };
+            var response9 = new ItemResponse() {
+                name = "Flour",
+                salePrice = 5.31m
+            };
+            var response10 = new ItemResponse() {
+                name = "Flour",
+                salePrice = 4.99m,
+            };
+            var response11 = new ItemResponse() {
+                name = "Flour",
+                salePrice = 56.83m
+            };
+            var myItemResponses = new List<ItemResponse> { response, response2, response3, response4, response5, response6, response7, response8, response9, response10 };
+            var expected = new List<ItemResponse> { response, response2, response4, response5, response6, response7, response8, response9, response10 };
+            var actual = rest.AverageItemResponseSalePrices(myItemResponses);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestAverage8() {
+            var rest = new MakeRESTCalls();
+            var response = new ItemResponse() {
+                name = "All Purpose Flour",
+                salePrice = 4.20m,
+            };
+            var response2 = new ItemResponse() {
+                name = "All-Purpose Flour",
+                salePrice = 2.69m,
+            };
+            var response3 = new ItemResponse() {
+                name = "AP Flour",
+                salePrice = 71.20m
+            };
+            var response4 = new ItemResponse() {
+                name = "Flour",
+                salePrice = 3.45m
+            };
+            var response5 = new ItemResponse() {
+                name = "Flour",
+                salePrice = 4.50m,
+            };
+            var response6 = new ItemResponse() {
+                name = "Flour",
+                salePrice = 1.30m,
+            };
+            var response7 = new ItemResponse() {
+                name = "Flour",
+                salePrice = 6.5m,
+            };
+            var response8 = new ItemResponse() {
+                name = "Flour",
+                salePrice = 4.69m,
+            };
+            var response9 = new ItemResponse() {
+                name = "Flour",
+                salePrice = 5.31m
+            };
+            var response10 = new ItemResponse() {
+                name = "Flour",
+                salePrice = 4.99m,
+            };
+            var response11 = new ItemResponse() {
+                name = "Flour",
+                salePrice = 56.83m
+            };
+            var myItemResponses = new List<ItemResponse> { response, response2, response3, response4, response5, response6, response7, response8, response9, response10 };
+            var expected = new List<ItemResponse> { response, response2, response4, response5, response6, response7, response8, response9, response10 };
+            var actual = rest.AverageItemResponseSalePrices(myItemResponses);
+            Assert.AreEqual(expected, actual);
+        }
     }
 }

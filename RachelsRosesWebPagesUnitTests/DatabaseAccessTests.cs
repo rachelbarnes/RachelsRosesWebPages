@@ -501,7 +501,7 @@ namespace RachelsRosesWebPagesUnitTests {
             };
             var i4 = new Ingredient("Vanilla Extract") {
                 ingredientId = 4,
-                sellingWeight = "8 fl oz", 
+                sellingWeight = "8 fl oz",
                 sellingWeightInOunces = 8m
             };
             var response = new ItemResponse() {
@@ -617,7 +617,7 @@ namespace RachelsRosesWebPagesUnitTests {
             };
             t.initializeDatabase();
             t.insertIngredient(i, r);
-            t.insertIngredient(i2, r); 
+            t.insertIngredient(i2, r);
             t.insertIngredientConsumtionData(i);
             t.insertIngredientConsumtionData(i2);
             var myIngInfo = t.queryConsumptionTable();
@@ -649,7 +649,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var myIngInfo = t.queryConsumptionTable();
             Assert.AreEqual(1, myIngInfo.Count());
             Assert.AreEqual(10.8m, myIngInfo[0].ouncesConsumed);
-            Assert.AreEqual(69.2m, myIngInfo[0].ouncesRemaining); 
+            Assert.AreEqual(69.2m, myIngInfo[0].ouncesRemaining);
         }
         [Test]
         public void TestUpdateConsumptionTable2() {
@@ -684,159 +684,15 @@ namespace RachelsRosesWebPagesUnitTests {
                 id = 1
             };
             t.initializeDatabase();
-            t.insertIngredient(i, r); 
+            t.insertIngredient(i, r);
             t.insertIngredientConsumtionData(i);
-            t.updateConsumptionTable(i); 
+            t.updateConsumptionTable(i);
             //after this refactoring, i want to have all of this updating ingredients for the initial calculated ounces consumed and such to be in the insert ingredient to the consumption table!!
             var myIngInfo = t.queryConsumptionTable();
             Assert.AreEqual(1, myIngInfo.Count());
             Assert.AreEqual(2.37m, myIngInfo[0].ouncesConsumed);
             Assert.AreEqual(77.63m, myIngInfo[0].ouncesRemaining);
         }
-        //[Test]
-        //public void TestCalculatedOuncesUsedFromGivenMeasurments2() {
-        //    var t = new DatabaseAccess();
-        //    var i = new Ingredient("Bread Flour") {
-        //        ingredientId = 1,
-        //        density = 5.4m,
-        //        measurement = "5 2/3 cups",
-        //        ouncesRemaining = 60
-        //    };
-        //    var i2 = new Ingredient("Buttermilk") {
-        //        ingredientId = 2,
-        //        density = 8.5m,
-        //        measurement = "2 cups",
-        //        ouncesRemaining = 32
-        //    };
-        //    var i3 = new Ingredient("Baking Soda") {
-        //        ingredientId = 3,
-        //        density = 8.57m,
-        //        measurement = "1 1/2 teaspoons",
-        //        ouncesRemaining = 44m
-        //    };
-        //    var i4 = new Ingredient("Active Dry Yeast") {
-        //        ingredientId = 4,
-        //        density = 5.49m,
-        //        measurement = "2 1/4 teaspoons",
-        //        ouncesRemaining = .2m
-        //    };
-        //    t.initializeDatabase();
-        //    t.insertIngredientConsumtionData(i);
-        //    t.insertIngredientConsumtionData(i2);
-        //    t.insertIngredientConsumtionData(i3);
-        //    t.insertIngredientConsumtionData(i4);
-        //    t.updateConsumptionTableOuncesRemaining(i);
-        //    t.updateConsumptionTableOuncesRemaining(i2);
-        //    t.updateConsumptionTableOuncesRemaining(i3);
-        //    t.updateConsumptionTableOuncesRemaining(i4);
-        //    var myIngInfo = t.queryConsumptionTable();
-        //    Assert.AreEqual(4, myIngInfo.Count());
-        //    Assert.AreEqual(30.60m, myIngInfo[0].ouncesConsumed);
-        //    Assert.AreEqual(29.40m, myIngInfo[0].ouncesRemaining);
-        //    Assert.AreEqual(17m, myIngInfo[1].ouncesConsumed);
-        //    Assert.AreEqual(15m, myIngInfo[1].ouncesRemaining);
-        //    Assert.AreEqual(.27m, myIngInfo[2].ouncesConsumed);
-        //    Assert.AreEqual(43.73m, myIngInfo[2].ouncesRemaining);
-        //    Assert.AreEqual(.26m, myIngInfo[3].ouncesConsumed);
-        //    Assert.AreEqual(-.06, myIngInfo[3].ouncesRemaining);
-        //}
-        //[Test]
-        //public void TestNegativeReturnForOuncesRemaining() {
-        //    var t = new DatabaseAccess();
-        //    var i = new Ingredient("Confectioner's Sugar") {
-        //        density = 4.4m,
-        //        ingredientId = 1,
-        //        measurement = "3 cups",
-        //        ouncesRemaining = 6
-        //    };
-        //    t.initializeDatabase();
-        //    t.insertIngredientConsumtionData(i);
-        //    t.updateConsumptionTableOuncesRemaining(i);
-        //    var myIngInfo = t.queryConsumptionTable();
-        //    Assert.AreEqual(13.2m, myIngInfo[0].ouncesConsumed);
-        //    Assert.AreEqual(-7.2m, myIngInfo[0].ouncesRemaining);
-        //}
-        //[Test]
-        //public void TestPriceForIndividualIngredientMeasurement() {
-        //    var t = new DatabaseAccess();
-        //    var rest = new MakeRESTCalls();
-        //    var i = new Ingredient("Confectioners Sugar") {
-        //        density = 4.4m,
-        //        ingredientId = 1,
-        //        measurement = "3 cups",
-        //        ouncesRemaining = 128m,
-        //        sellingWeight = "4 pounds",
-        //        sellingWeightInOunces = 32m
-        //    };
-        //    t.initializeDatabase();
-        //    t.insertIngredientConsumtionData(i);
-        //    t.insertIngredientDensityData(i);
-        //    i.sellingPrice = rest.GetItemResponsePrice(i);
-        //    t.updateDensityTable(i);
-        //    t.updateConsumptionTableOuncesRemaining(i);
-        //    var myIngInfo = t.queryConsumptionTable();
-        //    Assert.AreEqual(13.2m, myIngInfo[0].ouncesConsumed);
-        //    Assert.AreEqual(114.8m, myIngInfo[0].ouncesRemaining);
-        //    Assert.AreEqual(1.86m, myIngInfo[0].priceOfMeasuredConsumption);
-        //    Assert.AreEqual((i.pricePerOunce * i.ouncesConsumed), myIngInfo[0].priceOfMeasuredConsumption);
-        //    Assert.AreEqual("3 cups", myIngInfo[0].measurement);
-        //}
-        //[Test]
-        //public void TestInsertionIntoCostDatabase() {
-        //    var t = new DatabaseAccess();
-        //    var i = new Ingredient("King Arthur Bread Flour") {
-        //        ingredientId = 1,
-        //        //sellingPrice = 4.64m,
-        //        //pricePerOunce = .05m,
-        //        sellingWeight = "5 lb"
-        //    };
-        //    t.initializeDatabase();
-        //    t.insertIngredientCostDataCostTable(i);
-        //    var myIngInfo = t.queryCostTable();
-        //    Assert.AreEqual(1, myIngInfo.Count());
-        //    Assert.AreEqual(1, myIngInfo[0].ingredientId);
-        //    Assert.AreEqual(i.name, myIngInfo[0].name);
-        //    Assert.AreEqual(4.20m, myIngInfo[0].sellingPrice);
-        //    Assert.AreEqual(.0525m, myIngInfo[0].pricePerOunce);
-        //}
-        //[Test]
-        //public void TestUpdateOfCostDatabase() {
-        //    var t = new DatabaseAccess();
-        //    var rest = new MakeRESTCalls();
-        //    var i = new Ingredient("King Arthur Bread Flour") {
-        //        ingredientId = 1,
-        //        sellingWeight = "5 lb"
-        //    };
-        //    t.initializeDatabase();
-        //    t.insertIngredientCostDataCostTable(i);
-        //    i.sellingPrice = rest.GetItemResponsePrice(i);
-        //    t.updateIngredientCostDataTable(i);
-        //    var myIngInfo = t.queryCostTable();
-        //    Assert.AreEqual(1, myIngInfo.Count());
-        //    Assert.AreEqual(i.name, myIngInfo[0].name);
-        //    Assert.AreEqual(i.sellingWeight, myIngInfo[0].sellingWeight);
-        //    Assert.AreEqual(4.20m, myIngInfo[0].sellingPrice);
-        //}
-        //[Test]
-        //public void TestUpdateOfCostDatabasePricePerOunce() {
-        //    var t = new DatabaseAccess();
-        //    var rest = new MakeRESTCalls();
-        //    var i = new Ingredient("king arthur bread flour") {
-        //        ingredientId = 1,
-        //        sellingWeight = "5 lb"
-        //    };
-        //    t.initializeDatabase();
-        //    t.insertIngredientCostDataCostTable(i);
-        //    i.sellingPrice = rest.GetItemResponsePrice(i);
-        //    t.updateIngredientCostDataTable(i);
-        //    t.getPricePerOunce(i);
-        //    t.updateIngredientCostDataTable(i);
-        //    var myIngInfo = t.queryCostTable();
-        //    Assert.AreEqual(1, myIngInfo.Count());
-        //    Assert.AreEqual(i.sellingPrice, myIngInfo[0].sellingPrice);
-        //    Assert.AreEqual(4.20m, myIngInfo[0].sellingPrice);
-        //    Assert.AreEqual(.0525m, myIngInfo[0].pricePerOunce);
-        //}
         [Test]
         public void TestCalculatedOuncesConsumedFromMeasurmeent() {
             var t = new DatabaseAccess();
@@ -852,10 +708,9 @@ namespace RachelsRosesWebPagesUnitTests {
             t.initializeDatabase();
             t.insertIngredient(i, r);
             t.insertIngredientConsumtionData(i);
-            //i refactored the insert method here... i just have to do it for the rest
             var myIngInfo = t.queryConsumptionTable();
             Assert.AreEqual(32.4m, myIngInfo[0].ouncesConsumed);
-            Assert.AreEqual(47.6m, myIngInfo[0].ouncesRemaining); 
+            Assert.AreEqual(47.6m, myIngInfo[0].ouncesRemaining);
         }
         //[Test]
         //public void TestCostDatabaseInsertionAndUpdates() {
@@ -889,26 +744,22 @@ namespace RachelsRosesWebPagesUnitTests {
             var rest = new MakeRESTCalls();
             var r = new Recipe("Honey Buttermilk Bread") {
                 id = 1
-            }; 
+            };
             var i = new Ingredient("king arthur bread flour") {
                 recipeId = 1,
                 ingredientId = 1,
                 sellingWeight = "5 lb",
-                //sellingPrice = 4.20m,
-                //sellingWeightInOunces = 80m,
                 measurement = "6 cups",
-                //ouncesConsumed = 32.4m,
                 density = 5.4m,
-                //pricePerOunce = .0525m
             };
             t.initializeDatabase();
             t.insertIngredient(i, r);
             t.insertIngredientConsumtionData(i);
             t.insertIngredientDensityData(i);
             t.insertIngredientCostDataCostTable(i);
-            var IngredientMeasuredPrice = t.GetMeasuredIngredientPrice(i);
+            var IngredientMeasuredPrice = t.MeasuredIngredientPrice(i);
             var myIngInfo = t.queryCostTable();
-            Assert.AreEqual(1.70m, IngredientMeasuredPrice); 
+            Assert.AreEqual(1.70m, IngredientMeasuredPrice);
         }
         [Test]
         public void TestMeasuredIngredientPriceIngredientsTablew() {
@@ -929,7 +780,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.insertIngredientConsumtionData(i);
             t.insertIngredientDensityData(i);
             t.insertIngredientCostDataCostTable(i);
-            var IngredientMeasuredPrice = t.GetMeasuredIngredientPrice(i);
+            var IngredientMeasuredPrice = t.MeasuredIngredientPrice(i);
             var myIngInfo = t.queryCostTable();
             Assert.AreEqual(.43m, IngredientMeasuredPrice);
         }
@@ -940,7 +791,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var r = new Recipe("Wholesome Whole Wheat Bread") {
                 id = 1
             };
-            var i = new Ingredient("King Arthur Whole Wheat Bread") {
+            var i = new Ingredient("King Arthur Whole Wheat Flour") {
                 recipeId = 1,
                 ingredientId = 1,
                 sellingWeight = "5 lb",
@@ -957,7 +808,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var i3 = new Ingredient("King Arthur All Purpose Flour") {
                 recipeId = 1,
                 ingredientId = 3,
-                sellingWeight = "10 lb",
+                sellingWeight = "5 lb",
                 measurement = "2 cups",
                 density = 5
             };
@@ -974,15 +825,135 @@ namespace RachelsRosesWebPagesUnitTests {
             t.insertIngredientCostDataCostTable(i);
             t.insertIngredientCostDataCostTable(i2);
             t.insertIngredientCostDataCostTable(i3);
-            t.GetMeasuredIngredientPrice(i);
-            t.GetMeasuredIngredientPrice(i2);
-            t.GetMeasuredIngredientPrice(i3);
-            var ingredientMeasuredPrice = t.GetMeasuredIngredientPrice(i);
-            var ingredient2MeasuredPrice = t.GetMeasuredIngredientPrice(i2);
-            var ingredient3MeasuredPrice = t.GetMeasuredIngredientPrice(i3);
-            Assert.AreEqual(.79m, ingredientMeasuredPrice);
-            Assert.AreEqual(.39m, ingredient2MeasuredPrice);
-            Assert.AreEqual(.46m, ingredient3MeasuredPrice); 
+            var ingredientMeasuredPrice1 = t.MeasuredIngredientPrice(i);
+            var ingredient2MeasuredPrice = t.MeasuredIngredientPrice(i2);
+            var ingredient3MeasuredPrice = t.MeasuredIngredientPrice(i3);
+            Assert.AreEqual(.79m, ingredientMeasuredPrice1);
+            Assert.AreEqual(.04m, ingredient2MeasuredPrice);
+            Assert.AreEqual(.46m, ingredient3MeasuredPrice);
+        }
+        //ok, so my thought process from here is to be able to insert a recipe and all it's information into the proper tables only from the insertIngredient method... add the other ingredients to the other tables in a catch all kind of method
+        //something else that needs to happen is i need to be able to filter our itemrepsonse names that are causing out of range exceptions for my parsers. 
+        [Test]
+        public void TestInsertionIntoAllTables() {
+            var t = new DatabaseAccess();
+            var r = new Recipe("Honey Buttermilk Bread") {
+                id = 1
+            };
+            var i = new Ingredient("King Arthur Bread Flour") {
+                recipeId = 1,
+                ingredientId = 1,
+                sellingWeight = "5 lb",
+                measurement = "6 cups",
+                density = 5.4m
+            };
+            t.initializeDatabase();
+            t.insertIngredientIntoAllTables(i, r);
+            var myIngInfo = t.queryIngredients();
+            var myIngCons = t.queryConsumptionTable();
+            var myIngDens = t.queryDensityTable();
+            var myIngCost = t.queryCostTable();
+            Assert.AreEqual(1, myIngInfo.Count());
+            Assert.AreEqual(1, myIngCons.Count());
+            Assert.AreEqual(1, myIngDens.Count());
+            Assert.AreEqual(1, myIngCost.Count());
+        }
+        [Test]
+        public void TestInsertionIntoAllTables2() {
+            var t = new DatabaseAccess();
+            var r = new Recipe("Honey Buttermilk Bread") {
+                id = 1
+            };
+            var i = new Ingredient("King Arthur Bread Flour") {
+                recipeId = 1,
+                ingredientId = 1,
+                sellingWeight = "5 lb",
+                measurement = "6 cups",
+                density = 5.4m
+            };
+            t.initializeDatabase();
+            t.GetIngredientMeasuredPrice(i, r);
+            var myIngInfo = t.queryIngredients();
+            Assert.AreEqual(1, myIngInfo.Count());
+            Assert.AreEqual(1.7m, myIngInfo[0].priceOfMeasuredConsumption);
+        }
+        [Test]
+        public void TestInsertionIntoTables3() {
+            var t = new DatabaseAccess();
+            var r = new Recipe("Sour Cream Chocolate Cake") {
+                id = 1
+            };
+            var i = new Ingredient("Hershey's Dark Cocoa") {
+                recipeId = 1,
+                ingredientId = 1,
+                sellingWeight = "8 ounces",
+                measurement = "1 cup",
+                density = 4.16m
+            };
+            t.initializeDatabase();
+            t.GetIngredientMeasuredPrice(i, r);
+            var myIngInfo = t.queryIngredients();
+            var myInfoCostInfo = t.queryCostTable();
+            Assert.AreEqual(1, myIngInfo.Count());
+            Assert.AreEqual(3.34m, myInfoCostInfo[0].sellingPrice);
+            Assert.AreEqual(1.74m, myIngInfo[0].priceOfMeasuredConsumption);
+        }
+        [Test]
+        public void TestHersheysUnsweetenedCocoa() {
+            var t = new DatabaseAccess();
+            var r = new Recipe("Chocolate Something") {
+                id = 1
+            };
+            var i = new Ingredient("Hershey's Special Dark Cocoa") {
+                recipeId = 1,
+                ingredientId = 1,
+                sellingWeight = "8 oz",
+                measurement = "1/2 cup",
+                density = 4.16m
+            };
+            t.initializeDatabase();
+            t.InsertRecipe(r);
+            t.insertIngredient(i, r);
+            t.GetIngredientMeasuredPrice(i, r); 
+            var myIngInfo = t.queryIngredients();
+            var myRecipesInfo = t.queryRecipes(); 
+            //Assert.AreEqual(2, myIngInfo.Count());
+            Assert.AreEqual(1, myRecipesInfo.Count()); 
+            Assert.AreEqual(.87m, myIngInfo[0].priceOfMeasuredConsumption);
+        }
+        [Test]
+        public void TestAggregatedRecipeMeasurement() {
+            var t = new DatabaseAccess();
+            var r = new Recipe("Sour Cream Chocolate Cake") {
+                id = 1
+            };
+            var i = new Ingredient("Hershey's Special Dark Cocoa") {
+                recipeId = 1,
+                ingredientId = 1,
+                sellingWeight = "8 oz",
+                measurement = "1/2 cup",
+                density = 4.16m
+            };
+            var i2 = new Ingredient("Softasilk Cake Flour") {
+                recipeId = 1,
+                ingredientId = 2,
+                sellingWeight = "32 oz",
+                measurement = "1 1/2 cups",
+                density = 4.5m
+            };
+            var myIngredients = new List<Ingredient> { i, i2 };
+            t.initializeDatabase();
+            t.InsertRecipe(r);
+            t.insertIngredient(i, r);
+            t.insertIngredient(i2, r); 
+            t.GetFullRecipePrice(r);
+            var myIngInfo = t.queryIngredients();
+            var myRecipesInfo = t.queryRecipes(); 
+            Assert.AreEqual(2, myIngInfo.Count());
+            Assert.AreEqual(1, myRecipesInfo.Count()); 
+            Assert.AreEqual(.86m, myIngInfo[0].priceOfMeasuredConsumption);
+            Assert.AreEqual(.63m, myIngInfo[1].priceOfMeasuredConsumption);
+            Assert.AreEqual(1.49m, myRecipesInfo[0].aggregatedPrice); 
         }
     }
 }

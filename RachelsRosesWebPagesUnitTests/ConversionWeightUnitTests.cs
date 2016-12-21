@@ -420,5 +420,19 @@ namespace RachelsRosesWebPages {
             var actual = convert.ConvertWeightToOunces("1/3 ounces");
             Assert.AreEqual(expected, actual); 
         }
+        [Test]
+        public void TestCOovertImproperWeight() {
+            var convert = new ConvertWeight();
+            var expected = 0m;
+            var actual = convert.ConvertWeightToOunces("6)");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestConvertImproperWeight() {
+            var convert = new ConvertWeight();
+            var expected = 0m;
+            var actual = convert.ConvertWeightToOunces("5-6");
+            Assert.AreEqual(expected, actual); 
+        }
     }
 }

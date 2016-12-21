@@ -455,33 +455,35 @@ namespace RachelsRosesWebPages {
             return splitWeight;
         }
         public decimal ConvertWeightToOunces(string weight) {
-            var parse = new ParseFraction();
-            weight = weight.ToLower();
-            var splitWeight = SplitWeightMeasurement(weight);
-            var weightToBeConverted = parse.Parse(splitWeight[0]);
-            if (weight.Contains("gallon") || weight.Contains("gall"))
-                return GallonsToOunces(weightToBeConverted);
-            if (weight.Contains("pint"))
-                return PintsToOunces(weightToBeConverted);
-            if (weight.Contains("quart"))
-                return CupsToOunces(weightToBeConverted);
-            if (weight.Contains("pound") || weight.Contains("lb"))
-                return PoundsToOunces(weightToBeConverted);
-            if (weight.Contains("cup"))
-                return CupsToOunces(weightToBeConverted);
-            if (weight.Contains("gram"))
-                return GramsToOunces(weightToBeConverted);
-            //if (weight.Contains("oz") || weight.Contains("ounce"))
-            else return Math.Round((weightToBeConverted), 2);
+            var measurements = new string[] { "gall", "cup", "pint", "quart", "g", "pound", "lb", "oz", "ounce" };
+            var count = 0m;
+            foreach (var measurement in measurements) {
+                if (weight.Contains(measurement))
+                    count++;
+            }
+            if (count == 1) {
+                var parse = new ParseFraction();
+                weight = weight.ToLower();
+                var splitWeight = SplitWeightMeasurement(weight);
+                var weightToBeConverted = parse.Parse(splitWeight[0]);
+                if (weight.Contains("gall"))
+                    return GallonsToOunces(weightToBeConverted);
+                if (weight.Contains("pint"))
+                    return PintsToOunces(weightToBeConverted);
+                if (weight.Contains("quart"))
+                    return CupsToOunces(weightToBeConverted);
+                if (weight.Contains("pound") || weight.Contains("lb"))
+                    return PoundsToOunces(weightToBeConverted);
+                if (weight.Contains("cup"))
+                    return CupsToOunces(weightToBeConverted);
+                if (weight.Contains("gram"))
+                    return GramsToOunces(weightToBeConverted);
+                else return Math.Round((weightToBeConverted), 2);
+            } else return 0m;
         }
     }
 
     public class ConvertDensity {
-        //stories: 
-        //be able to read my density file from my previous project, put that in the density database
-        //ultimate goal: if i have 3 1/2 cups of ap flour, i want to show that i used 15.75 oz of flour (if the density is 4.5)
-        //have another field in Ingredient, total ounces used... 
-
         public decimal PercentageUsedMeasurementToStandardMeasurement(Ingredient i) {
             var convert = new ConvertMeasurement();
             var measurementInOunces = convert.AccumulatedTeaspoonMeasurement(i.measurement);
@@ -490,12 +492,16 @@ namespace RachelsRosesWebPages {
 
         public decimal CalculateOuncesUsed(Ingredient i) {
             return Math.Round((PercentageUsedMeasurementToStandardMeasurement(i) * i.density), 2);
-            //why can't i use PercentageUsedMeasurementToStandardMeasurement() in a lamba?
         }
     }
 
     public class ParseFraction {
         public decimal Parse(string fraction) {
+            foreach (var ch in fraction) {
+                int n;
+                if ((!int.TryParse(ch.ToString(), out n)) && (ch != '/') && (ch != '.') && (ch != ' '))
+                    return 0m;
+            }
             var splitComplexFraction = new string[] { };
             var finaldecimal = 0m;
             if (!fraction.Contains('/') && !fraction.Contains(' ')) {
@@ -518,11 +524,10 @@ namespace RachelsRosesWebPages {
 }
 /*
  other desired functionalities for the Convert class for measurement ingredients: 
-    *converting the weight of ingredients based on their density, from and to the ingredient measurement
-        if the weight of the ingredient is given, give the ingredient measurement in the comments, based on the density from the ingredient density database
-        if the measurement is given, give the ingredient weight for checking the ingredient prices from the rest calls
     *convert the decimals from the decimals returned from the AdjustIngredientMeasurement to fractions, but keep the decimals in a database so i can multiply those decimals 
         with the multiplier as opposed to multiplying the approximate fractions given (keeping the best precision I can
            for example, .1667 (1/6) is only .0417 from .125 (1/8), but multiply 1/6 * 5 = 0.8335 whereas 1/8 * 5 = .625
            I realize this may not be as dramatic of a difference, but it's still important to get correct. 
+    *make sure i can parse through the itemresponse names... some of them are giving me trouble by not being able to separate the names... 
+        maybe say that foreach item that passes through the 
 */

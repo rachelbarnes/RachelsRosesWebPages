@@ -79,6 +79,23 @@ namespace RachelsRosesWebPages.Models {
             }
             return myRecipe;
         }
+        public void GetFullRecipePrice(Recipe r) {
+            //var myCurrentRecipe = GetFullRecipe(r.name);
+            var myIngredients = queryIngredients();
+            foreach (var ing in myIngredients) {
+                if (ing.recipeId == r.id) {
+                    GetIngredientMeasuredPrice(ing, r);
+                    r.ingredients.Add(ing);
+                }
+            }
+            //var myRecipeIngredients = myCurrentRecipe.ingredients;
+            var aggregatedPrice = 0m; 
+            foreach (var ing in r.ingredients) {
+                aggregatedPrice += ing.priceOfMeasuredConsumption; 
+            }
+            r.aggregatedPrice = aggregatedPrice; 
+            UpdateRecipe(r); 
+        }
         public void DeleteRecipe(string recipeTitle) {
             recipeTitle = recipeTitle.Trim();
             var delete = "DELETE FROM recipes WHERE name=@title";
@@ -103,7 +120,6 @@ namespace RachelsRosesWebPages.Models {
             return myIngredientBox;
         }
         public void insertIngredient(Ingredient i, Recipe r) {
-            //i.priceOfMeasuredConsumption = GetMeasuredIngredientPrice(i); 
             var commandText = "Insert into ingredients(recipe_id, name, measurement, price_measured_ingredient) values (@rid, @name, @measurement, @price_measured_ingredient);";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@rid", r.id);
@@ -114,7 +130,6 @@ namespace RachelsRosesWebPages.Models {
             });
         }
         public void UpdateIngredient(Ingredient i) {
-            //i.priceOfMeasuredConsumption = GetMeasuredIngredientPrice(i); 
             var commandText = "update ingredients set name=@name, measurement=@measurement, recipe_id=@recipeId, price_measured_ingredient=@price_measured_ingredient where ing_id=@ingredientId";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@name", i.name);
@@ -125,7 +140,7 @@ namespace RachelsRosesWebPages.Models {
                 return cmd;
             });
         }
-        public decimal GetMeasuredIngredientPrice(Ingredient i) {
+        public decimal MeasuredIngredientPrice(Ingredient i) {
             var convertWeight = new ConvertWeight();
             var convert = new ConvertMeasurement();
             var myCostData = queryCostTable();
@@ -145,21 +160,36 @@ namespace RachelsRosesWebPages.Models {
                     temp.sellingWeightInOunces = ingredient.sellingWeightInOunces;
                 }
             }
-            foreach (var ingredient in myCostData) {
-                if (ingredient.name == i.name) {
-                }
-            }
+            //foreach (var ingredient in myCostData) {
+            //    if (ingredient.name == i.name) {
+            //    }
+            //}
             foreach (var ingredient in myIngredients) {
                 if (ingredient.name == i.name) {
                     ingredient.pricePerOunce = temp.pricePerOunce;
                     ingredient.ouncesConsumed = temp.ouncesConsumed;
                     ingredient.sellingPrice = temp.sellingPrice;
                     var accumulatedTeaspoons = convert.AccumulatedTeaspoonMeasurement(ingredient.measurement);
-                    var measuredOuncesDividedBySellingWeight = Math.Round((ingredient.ouncesConsumed / temp.sellingWeightInOunces), 4);
+                    var measuredOuncesDividedBySellingWeight = 0m;
+                    if (temp.sellingWeightInOunces != 0)
+                        measuredOuncesDividedBySellingWeight = Math.Round((ingredient.ouncesConsumed / temp.sellingWeightInOunces), 4);
                     measuredIngredientPrice = Math.Round((measuredOuncesDividedBySellingWeight * temp.sellingPrice), 2);
                 }
             }
             return measuredIngredientPrice;
+        }
+        public void insertIngredientIntoAllTables(Ingredient i, Recipe r) {
+            insertIngredient(i, r);
+            insertIngredientConsumtionData(i);
+            insertIngredientDensityData(i);
+            insertIngredientCostDataCostTable(i);
+        }
+        public void GetIngredientMeasuredPrice(Ingredient i, Recipe r) {
+            insertIngredientIntoAllTables(i, r);
+            i.priceOfMeasuredConsumption = MeasuredIngredientPrice(i);
+            UpdateIngredient(i); 
+            var MyIng = queryIngredients();
+            var MyIngMeasuredPrice = MyIng[0].priceOfMeasuredConsumption; 
         }
 
         //densities table methods: 
@@ -177,6 +207,7 @@ namespace RachelsRosesWebPages.Models {
             return ingredientInformation;
         }
         public void insertIngredientDensityData(Ingredient i) {
+            //try {
             var convert = new ConvertWeight();
             var rest = new MakeRESTCalls();
             i.sellingPrice = rest.GetItemResponsePrice(i);
@@ -194,6 +225,9 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@item_id", i.itemId);
                 return cmd;
             });
+            //} catch (Exception e) {
+            //    Console.WriteLine("There was not a specific product found that matches your request");
+            //}
         }
         public void updateDensityTable(Ingredient i) {
             var commandText = "update densities set name=@name, density=@density, selling_weight=@selling_weight, selling_weight_ounces=@selling_weight_ounces, selling_price=@selling_price, price_per_ounce=@price_per_ounce, item_id=@item_id where ing_id=@ing_id";

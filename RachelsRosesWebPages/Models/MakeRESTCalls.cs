@@ -36,14 +36,6 @@ namespace RachelsRosesWebPages {
                     DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(T));
                     return (T)jsonSerializer.ReadObject(response.GetResponseStream());
                 }
-
-                //}
-                //    HttpWebRequest request = WebRequest.Create(requestUrl) as HttpWebRequest;
-                //using (HttpWebResponse response = request.GetResponse() as HttpWebResponse) {
-                //    if (response.StatusCode != HttpStatusCode.OK)
-                //        throw new Exception(string.Format("Server error (HTTP {0}: {1}).", response.StatusCode, response.StatusDescription));
-                //    DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(T));
-                //    return (T)jsonSerializer.ReadObject(response.GetResponseStream());
             } catch (Exception e) {
                 Console.WriteLine(e.Message);
                 return default(T);
@@ -52,12 +44,15 @@ namespace RachelsRosesWebPages {
         public decimal GetItemResponsePrice(Ingredient i) {
             var convert = new ConvertWeight();
             var items = MakeRequest<SearchResponse>(buildSearchRequest(i)).Items;
+            var condensedItems = AverageItemResponseSalePrices(items); 
             var sellingWeightOunces = convert.ConvertWeightToOunces(i.sellingWeight);
-            var itemPrice = 0m;
-            foreach (var item in items) {
-                if ((!item.name.ToLower().Contains("pack of")) || (!item.name.ToLower().Contains(("pk")))) {
-                    if ((parseItemResponseName(item).Count() != 0) && (CompareWeightInOuncesFromItemResponseToIngredientSellingWeight(item, i) && (CompareItemResponseNameAndIngredientName(item, i)))) {
-                        return item.salePrice;
+            var itemPrice = 0m; 
+            foreach (var item in condensedItems) {
+                if (!item.name.Contains('(')) {
+                    if ((!item.name.ToLower().Contains("pack of")) || (!item.name.ToLower().Contains(("pk")))) {
+                        if ((parseItemResponseName(item).Count() != 0) && (CompareWeightInOuncesFromItemResponseToIngredientSellingWeight(item, i) && (CompareItemResponseNameAndIngredientName(item, i)))) {
+                            return item.salePrice;
+                        }
                     }
                 }
             }
@@ -65,6 +60,38 @@ namespace RachelsRosesWebPages {
             //i would like to be able to return all brands that fit a certain selling weight, and give all of them as an option, and give the best price? 
             //i think a good idea would be to have the item id associated with the ingredient in the ingredient database or the cost database, that way you can get the exact same item
         }
+        public decimal AverageDecimals(List<ItemResponse> ItemPrices) {
+            var ItemResponsePrices = new List<decimal>(); 
+            foreach (var response in ItemPrices) 
+                ItemResponsePrices.Add(response.salePrice); 
+            var addedValue = 0m;
+            var countOfPrices = ItemResponsePrices.Count();
+            foreach (var dec in ItemResponsePrices)
+                addedValue += dec;
+            return Math.Round((addedValue / countOfPrices), 2);
+        }
+        public List<ItemResponse> AverageItemResponseSalePrices(List<ItemResponse> ItemPrices) {
+            var average = AverageDecimals(ItemPrices);
+            var condensedItems = new List<ItemResponse>();
+            var greatestPrice = 0m;
+            var greatestPriceItem = new ItemResponse(); 
+            var secondGreatestPrice = 0m;
+            var secondGreatestPricedItem = new ItemResponse(); 
+            foreach (var item in ItemPrices) {
+                if (item.salePrice > greatestPrice) {
+                    secondGreatestPrice = greatestPrice;
+                    secondGreatestPricedItem = greatestPriceItem; 
+                    greatestPrice = item.salePrice;
+                    greatestPriceItem = item; 
+                }
+            }
+            condensedItems = ItemPrices; 
+            condensedItems.Remove(greatestPriceItem);
+            if (condensedItems.Count() > 4 && (secondGreatestPrice > (average + (average * 3))))
+                condensedItems.Remove(secondGreatestPricedItem);
+            return condensedItems;
+        }
+
         public List<ItemResponse> GetListOfItemResponses(Ingredient i) {
             var convert = new ConvertWeight();
             var items = MakeRequest<SearchResponse>(buildSearchRequest(i)).Items;
@@ -117,7 +144,6 @@ namespace RachelsRosesWebPages {
             var convert = new ConvertWeight();
             var productNameArray = parseItemResponseName(response);
             var productWeight = productNameArray[1];
-            //this is where i'm getting the out of bounds exception
             var productWeightOunces = convert.ConvertWeightToOunces(productWeight);
             if (convert.ConvertWeightToOunces(i.sellingWeight) == productWeightOunces)
                 return true;

@@ -92,5 +92,19 @@ namespace RachelsRosesWebPagesUnitTests {
             var actual = parse.Parse("16.58");
             Assert.AreEqual(expected, actual); 
         }
+        [Test]
+        public void TestIncorrectCharParsing() {
+            var parse = new ParseFraction();
+            var expected = 0m;
+            var actual = parse.Parse("6)");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TesIncorrectCharParsing2() {
+            var parse = new ParseFraction();
+            var expected = 0m;
+            var actual = parse.Parse("5-6");
+            Assert.AreEqual(expected, actual); 
+        }
     }
 }
