@@ -455,10 +455,10 @@ namespace RachelsRosesWebPages {
             return splitWeight;
         }
         public decimal ConvertWeightToOunces(string weight) {
-            var measurements = new string[] { "gall", "cup", "pint", "quart", "g", "pound", "lb", "oz", "ounce" };
+            var measurements = new string[] { "gall", "cup", "pint", "quart", "pound", "lb", "oz", "ounce", "gram"};
             var count = 0m;
             foreach (var measurement in measurements) {
-                if (weight.Contains(measurement))
+                if (weight.ToLower().Contains(measurement))
                     count++;
             }
             if (count == 1) {

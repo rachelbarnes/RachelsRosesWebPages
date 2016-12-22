@@ -39,7 +39,7 @@ namespace RachelsRosesWebPagesUnitTests {
                 ingredientId = 1,
                 sellingWeight = "10 lb"
             };
-            var expected = 5.12m;
+            var expected = 6.29m;
             //this is taking after the God Medal Unblached All-Purpose FLour 10 lb Bag
             var actual = rest.GetItemResponsePrice(i);
             Assert.AreEqual(expected, actual);

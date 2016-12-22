@@ -7,6 +7,7 @@ using System.Net;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
+using RachelsRosesWebPages.Models; 
 
 namespace RachelsRosesWebPages {
     [DataContract]
@@ -42,15 +43,20 @@ namespace RachelsRosesWebPages {
             }
         }
         public decimal GetItemResponsePrice(Ingredient i) {
+            var db = new DatabaseAccess(); 
             var convert = new ConvertWeight();
             var items = MakeRequest<SearchResponse>(buildSearchRequest(i)).Items;
             var condensedItems = AverageItemResponseSalePrices(items); 
+            //why isn't this condensed items one or two less than items? The method worked by itself... hmmm...
             var sellingWeightOunces = convert.ConvertWeightToOunces(i.sellingWeight);
             var itemPrice = 0m; 
-            foreach (var item in condensedItems) {
+            foreach (var item in items) {
                 if (!item.name.Contains('(')) {
                     if ((!item.name.ToLower().Contains("pack of")) || (!item.name.ToLower().Contains(("pk")))) {
                         if ((parseItemResponseName(item).Count() != 0) && (CompareWeightInOuncesFromItemResponseToIngredientSellingWeight(item, i) && (CompareItemResponseNameAndIngredientName(item, i)))) {
+                            //i.itemId = item.itemId;
+                            //i.sellingPrice = item.salePrice;
+                            //db.updateCostDataTable(i); 
                             return item.salePrice;
                         }
                     }
@@ -145,6 +151,7 @@ namespace RachelsRosesWebPages {
             var productNameArray = parseItemResponseName(response);
             var productWeight = productNameArray[1];
             var productWeightOunces = convert.ConvertWeightToOunces(productWeight);
+            //this product weight in ounces is incorrect...
             if (convert.ConvertWeightToOunces(i.sellingWeight) == productWeightOunces)
                 return true;
             else return false;
