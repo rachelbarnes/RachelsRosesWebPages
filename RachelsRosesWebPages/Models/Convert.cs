@@ -458,8 +458,10 @@ namespace RachelsRosesWebPages {
             var measurements = new string[] { "gall", "cup", "pint", "quart", "pound", "lb", "oz", "ounce", "gram"};
             var count = 0m;
             foreach (var measurement in measurements) {
-                if (weight.ToLower().Contains(measurement))
+                if (weight.ToLower().Contains(measurement)) {
                     count++;
+                    break; 
+                }
             }
             if (count == 1) {
                 var parse = new ParseFraction();

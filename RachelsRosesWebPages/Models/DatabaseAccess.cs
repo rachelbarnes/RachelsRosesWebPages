@@ -86,9 +86,11 @@ namespace RachelsRosesWebPages.Models {
             var myIngredients = queryIngredients();
             //of course this isn't working... i'm not querying all the tables, i'm only querying the ingredients table, which has no cost, selling weight, etc. 
             foreach (var ing in myIngredients) {
+                //ok, so my chocolateChips's recipeId is changed to 1
                 if (ing.recipeId == r.id) {
-                    GetIngredientMeasuredPrice(ing, r);
+                    getIngredientMeasuredPrice(ing, r);
                     r.ingredients.Add(ing);
+                    updateAllTables(ing, r);
                 }
             }
             var aggregatedPrice = 0m;
@@ -168,7 +170,7 @@ namespace RachelsRosesWebPages.Models {
                     //why am i having so much trouble here? 
                     if (ing.pricePerOunce == 0m)
                         i.pricePerOunce = (i.sellingPrice / i.sellingWeightInOunces);
-                    else i.pricePerOunce = ing.pricePerOunce; 
+                    else i.pricePerOunce = ing.pricePerOunce;
                     i.sellingWeight = ing.sellingWeight;
                     i.itemId = ing.itemId;
                     break;
@@ -210,6 +212,7 @@ namespace RachelsRosesWebPages.Models {
                 return cmd;
             });
         }
+        //maybe it would be worth to have a sql command that will update every ingredient table... while it'll be more work to maintain, i think that's a good idea, instead of calling each method, incase i forget one or something... or i can just have a method that calls all of the methods, and then call the overarhcing method....    
         public decimal MeasuredIngredientPrice(Ingredient i) {
             var convertWeight = new ConvertWeight();
             var convert = new ConvertMeasurement();
@@ -258,28 +261,68 @@ namespace RachelsRosesWebPages.Models {
             insertIngredientDensityData(i);
             insertIngredientCostDataCostTable(i);
         }
-        public void insertAllIngredientsIntoAllTables(List<Ingredient> ListOfI, Recipe r) {
+        public void insertAllIngredientsIntoAllTables(List<Ingredient> ListOfIngredients, Recipe r) {
             var myRecipes = queryRecipes();
-            var count = 0;
+            var myIngredients = queryIngredients();
+            var myListOfIngredientIds = new List<int>();
+            var countRecipes = 0;
+            var countIngredients = 0;
             foreach (var recipe in myRecipes) {
                 if (recipe.id == r.id)
-                    count++;
+                    countRecipes++;
             }
-            if (count == 0)
+            foreach (var ingredient in myIngredients) 
+                countIngredients++;  
+            if (countRecipes == 0)
                 InsertRecipe(r);
-            foreach (var i in ListOfI) {
-                insertIngredient(i, r);
-                insertIngredientConsumtionData(i);
-                insertIngredientDensityData(i);
-                insertIngredientCostDataCostTable(i);
+            if (countIngredients == 0) {
+                foreach (var ingredient in ListOfIngredients)
+                    insertIngredientIntoAllTables(ingredient, r);
+            } else {
+                for (int i = 0; i < ListOfIngredients.Count(); i++)
+                    myListOfIngredientIds.Add(ListOfIngredients[i].ingredientId);
+                for (int i = 0; i < myIngredients.Count(); i++) {
+                    if (!myListOfIngredientIds.Contains(myIngredients[i].ingredientId))
+                        insertIngredientIntoAllTables(myIngredients[i], r);
+                    //else updateAllTables(myIngredients[i], r);
+                }
             }
+            //foreach (var ingredient in ListOfIngredients) {
+            //    if (!myIngredients.Contains(ingredient.ingredientId))
+            //        insertIngredientIntoAllTables(ingredient, r);
+            //    else
+            //        updateAllTables(ingredient, r);
+            //}
         }
-        public void GetIngredientMeasuredPrice(Ingredient i, Recipe r) {
+        //for(int i = 0; i < myIngredients.Count(); i++) {
+        //    if (.Contains(myListOfIngredientIds)
+        //        updateAllTables(, r); 
+        //    else 
+        //}
+        //foreach (var i in ListOfIngredients) {
+        //    if (myIngredients.Contains(i))
+        //        updateAllTables(i, r);
+        //    else insertIngredientIntoAllTables(i, r);
+        //need to put a trap here... if the ingredientId is already in the database, then just update the database, don't insert it
+
+        //insertIngredient(i, r);
+        //insertIngredientConsumtionData(i);
+        //insertIngredientDensityData(i);
+        //insertIngredientCostDataCostTable(i);
+        //    }
+        //}
+        public void getIngredientMeasuredPrice(Ingredient i, Recipe r) {
             queryAllTablesForIngredient(i);
             i.priceOfMeasuredConsumption = MeasuredIngredientPrice(i);
             UpdateIngredient(i);
         }
-
+        public void updateAllTables(Ingredient i, Recipe r) {
+            UpdateRecipe(r);
+            UpdateIngredient(i); //this has the recipe id as well as the ingredient id, so unless these are missing or are not a part of the updateIngredient method (which they are), then we're good here
+            updateDensityTable(i);
+            updateConsumptionTable(i);
+            updateCostDataTable(i);
+        }
         //densities table methods: 
         public List<Ingredient> queryDensityTable() {
             var ingredientInformation = queryItems("select * from densities", reader => {

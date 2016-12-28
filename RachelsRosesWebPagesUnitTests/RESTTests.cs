@@ -74,7 +74,7 @@ namespace RachelsRosesWebPagesUnitTests {
                 ingredientId = 1,
                 sellingWeight = "10 oz"
             };
-            var expected = 2.23m;
+            var expected = 2.14m;
             var actual = rest.GetItemResponsePrice(i);
             Assert.AreEqual(expected, actual);
         }
