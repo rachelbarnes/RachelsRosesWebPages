@@ -46,7 +46,7 @@ namespace RachelsRosesWebPages {
             var db = new DatabaseAccess(); 
             var convert = new ConvertWeight();
             var items = MakeRequest<SearchResponse>(buildSearchRequest(i)).Items;
-            var condensedItems = AverageItemResponseSalePrices(items); 
+            //var condensedItems = AverageItemResponseSalePrices(items); 
             //why isn't this condensed items one or two less than items? The method worked by itself... hmmm...
             var sellingWeightOunces = convert.ConvertWeightToOunces(i.sellingWeight);
             var itemPrice = 0m; 

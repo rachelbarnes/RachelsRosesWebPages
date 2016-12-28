@@ -43,8 +43,9 @@ namespace RachelsRosesWebPages.Models {
                 recipe.aggregatedPrice = (decimal)reader["aggregated_price"];
                 return recipe;
             });
-            foreach (var recipe in MyRecipeBox)
+            foreach (var recipe in MyRecipeBox) {
                 recipe.id = count++;
+            }
             return MyRecipeBox;
         }
         public void UpdateRecipe(Recipe r) {
@@ -66,31 +67,43 @@ namespace RachelsRosesWebPages.Models {
                 return cmd;
             });
         }
-        public Recipe GetFullRecipe(string myRecipeName) {
+        public Recipe GetFullRecipe(Recipe r) {
             var myRecipeBox = queryRecipes();
             var myIngredients = queryIngredients();
             var myRecipe = new Recipe();
             foreach (var recipe in myRecipeBox) {
-                if (recipe.name == myRecipeName) {
+                if (recipe.id == r.id) {
                     myRecipe = recipe;
                     break;
                 }
             }
             foreach (var ingredient in myIngredients) {
-                if (ingredient.recipeId == myRecipe.id)
+                if (ingredient.recipeId == myRecipe.id) {
+                    var currentIngredient = queryAllTablesForIngredient(ingredient);
                     myRecipe.ingredients.Add(ingredient);
+                }
             }
             return myRecipe;
         }
+        public List<Recipe> GetRecipeBox() {
+            var myRecipes = queryRecipes(); 
+            var myRecipeBox = new List<Recipe>(); 
+            foreach (var recipe in myRecipes) {
+                recipe.ingredients = ReturnRecipeIngredients(recipe); 
+                //the hershey's dark cocoa got added twice
+                recipe.aggregatedPrice = ReturnFullRecipePrice(recipe);
+                myRecipeBox.Add(recipe); 
+            }
+            return myRecipeBox; 
+        }
         public void GetFullRecipePrice(Recipe r) {
-            var myIngredients = queryIngredients();
-            //of course this isn't working... i'm not querying all the tables, i'm only querying the ingredients table, which has no cost, selling weight, etc. 
+            var myIngredients = GetFullRecipe(r).ingredients;
             foreach (var ing in myIngredients) {
-                //ok, so my chocolateChips's recipeId is changed to 1
                 if (ing.recipeId == r.id) {
                     getIngredientMeasuredPrice(ing, r);
                     r.ingredients.Add(ing);
                     updateAllTables(ing, r);
+                    var currentIngredient = queryAllTablesForIngredient(ing);
                 }
             }
             var aggregatedPrice = 0m;
@@ -99,6 +112,32 @@ namespace RachelsRosesWebPages.Models {
             }
             r.aggregatedPrice = aggregatedPrice;
             UpdateRecipe(r);
+        }
+        public List<Ingredient> ReturnRecipeIngredients(Recipe r) {
+            var myIngredients = GetFullRecipe(r).ingredients;
+            foreach (var ing in myIngredients) {
+                if (ing.recipeId == r.id) {
+                    getIngredientMeasuredPrice(ing, r);
+                    r.ingredients.Add(ing);
+                }
+            }
+            return r.ingredients; 
+        }
+        public decimal ReturnFullRecipePrice(Recipe r) {
+            var myIngredients = GetFullRecipe(r).ingredients;
+            foreach (var ing in myIngredients) {
+                if (ing.recipeId == r.id) {
+                    getIngredientMeasuredPrice(ing, r);
+                    //r.ingredients.Add(ing);
+                    updateAllTables(ing, r);
+                    var currentIngredient = queryAllTablesForIngredient(ing);
+                }
+            }
+            var aggregatedPrice = 0m;
+            foreach (var ing in r.ingredients) {
+                aggregatedPrice += ing.priceOfMeasuredConsumption;
+            }
+            return aggregatedPrice;
         }
         public void DeleteRecipe(string recipeTitle) {
             recipeTitle = recipeTitle.Trim();
@@ -116,6 +155,7 @@ namespace RachelsRosesWebPages.Models {
                 var ingredient = new Ingredient(reader["name"].ToString());
                 ingredient.measurement = (string)reader["measurement"];
                 ingredient.recipeId = (int)reader["recipe_id"];
+                //ingredient.ingredientId = (int)reader["ing_id"];
                 ingredient.priceOfMeasuredConsumption = (decimal)reader["price_measured_ingredient"];
                 ingredient.itemId = (int)reader["item_id"];
                 return ingredient;
@@ -158,6 +198,7 @@ namespace RachelsRosesWebPages.Models {
                 if (ing.ingredientId == i.ingredientId) {
                     i.sellingWeight = ing.sellingWeight;
                     i.sellingWeightInOunces = ing.sellingWeightInOunces;
+                    //if sellingweightinounces is 0, then you have to calculate it... i don't know why i'm getting a problem here suddendly. look back on old tests and see the inconsistency
                     i.itemId = ing.itemId;
                     break;
                 }
@@ -195,6 +236,7 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@rid", r.id);
                 cmd.Parameters.AddWithValue("@name", i.name);
                 cmd.Parameters.AddWithValue("@measurement", i.measurement);
+                //cmd.Parameters.AddWithValue("@ing_id", i.ingredientId); 
                 cmd.Parameters.AddWithValue("@price_measured_ingredient", i.priceOfMeasuredConsumption);
                 cmd.Parameters.AddWithValue("@item_id", i.itemId);
                 return cmd;
@@ -207,12 +249,12 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@measurement", i.measurement);
                 cmd.Parameters.AddWithValue("@recipeId", i.recipeId);
                 cmd.Parameters.AddWithValue("@ingredientId", i.ingredientId);
+                //cmd.Parameters.AddWithValue("@ing_id", i.ingredientId); 
                 cmd.Parameters.AddWithValue("@price_measured_ingredient", i.priceOfMeasuredConsumption);
                 cmd.Parameters.AddWithValue("@item_id", i.itemId);
                 return cmd;
             });
         }
-        //maybe it would be worth to have a sql command that will update every ingredient table... while it'll be more work to maintain, i think that's a good idea, instead of calling each method, incase i forget one or something... or i can just have a method that calls all of the methods, and then call the overarhcing method....    
         public decimal MeasuredIngredientPrice(Ingredient i) {
             var convertWeight = new ConvertWeight();
             var convert = new ConvertMeasurement();
@@ -249,68 +291,58 @@ namespace RachelsRosesWebPages.Models {
         }
         public void insertIngredientIntoAllTables(Ingredient i, Recipe r) {
             var myRecipes = queryRecipes();
+            var myIngredients = queryIngredients();
             var count = 0;
+            var countIngredients = 0;
             foreach (var recipe in myRecipes) {
                 if (recipe.id == r.id)
                     count++;
             }
             if (count == 0)
                 InsertRecipe(r);
-            insertIngredient(i, r);
-            insertIngredientConsumtionData(i);
-            insertIngredientDensityData(i);
-            insertIngredientCostDataCostTable(i);
+            foreach (var ingredient in myIngredients) {
+                if (ingredient.ingredientId == i.ingredientId) {
+                    countIngredients++;
+                    break;
+                }
+            }
+            if (countIngredients == 0) {
+                insertIngredient(i, r);
+                insertIngredientConsumtionData(i);
+                insertIngredientDensityData(i);
+                insertIngredientCostDataCostTable(i);
+            } else {
+                UpdateIngredient(i);
+                updateConsumptionTable(i);
+                updateDensityTable(i);
+                updateCostDataTable(i);
+            }
         }
-        public void insertAllIngredientsIntoAllTables(List<Ingredient> ListOfIngredients, Recipe r) {
+        public void insertListOfIngredientsIntoAllTables(List<Ingredient> ListOfIngredients, Recipe r) {
             var myRecipes = queryRecipes();
             var myIngredients = queryIngredients();
             var myListOfIngredientIds = new List<int>();
-            var countRecipes = 0;
+            var myListOfRecipeIds = new List<int>();
+            foreach (var ingredient in myIngredients)
+                myListOfIngredientIds.Add(ingredient.ingredientId);
+            foreach (var recipe in myRecipes)
+                myListOfRecipeIds.Add(recipe.id);
             var countIngredients = 0;
-            foreach (var recipe in myRecipes) {
-                if (recipe.id == r.id)
-                    countRecipes++;
-            }
-            foreach (var ingredient in myIngredients) 
-                countIngredients++;  
-            if (countRecipes == 0)
+            if (!myListOfRecipeIds.Contains(r.id))
                 InsertRecipe(r);
             if (countIngredients == 0) {
                 foreach (var ingredient in ListOfIngredients)
                     insertIngredientIntoAllTables(ingredient, r);
-            } else {
-                for (int i = 0; i < ListOfIngredients.Count(); i++)
-                    myListOfIngredientIds.Add(ListOfIngredients[i].ingredientId);
-                for (int i = 0; i < myIngredients.Count(); i++) {
-                    if (!myListOfIngredientIds.Contains(myIngredients[i].ingredientId))
-                        insertIngredientIntoAllTables(myIngredients[i], r);
-                    //else updateAllTables(myIngredients[i], r);
-                }
             }
-            //foreach (var ingredient in ListOfIngredients) {
-            //    if (!myIngredients.Contains(ingredient.ingredientId))
-            //        insertIngredientIntoAllTables(ingredient, r);
-            //    else
-            //        updateAllTables(ingredient, r);
-            //}
+            var myRecipe = GetFullRecipe(r);
+            //this is happening 2-3 times in a row... i don't want this going through the same thing... have 
+            foreach (var ingredient in myRecipe.ingredients) {
+                if (!myListOfIngredientIds.Contains(ingredient.ingredientId))
+                    insertIngredientIntoAllTables(ingredient, r);
+                else updateAllTables(ingredient, r);
+            }
+            var myIngredientsSecond = queryAllTablesForAllIngredients(ListOfIngredients, r);
         }
-        //for(int i = 0; i < myIngredients.Count(); i++) {
-        //    if (.Contains(myListOfIngredientIds)
-        //        updateAllTables(, r); 
-        //    else 
-        //}
-        //foreach (var i in ListOfIngredients) {
-        //    if (myIngredients.Contains(i))
-        //        updateAllTables(i, r);
-        //    else insertIngredientIntoAllTables(i, r);
-        //need to put a trap here... if the ingredientId is already in the database, then just update the database, don't insert it
-
-        //insertIngredient(i, r);
-        //insertIngredientConsumtionData(i);
-        //insertIngredientDensityData(i);
-        //insertIngredientCostDataCostTable(i);
-        //    }
-        //}
         public void getIngredientMeasuredPrice(Ingredient i, Recipe r) {
             queryAllTablesForIngredient(i);
             i.priceOfMeasuredConsumption = MeasuredIngredientPrice(i);
@@ -323,6 +355,7 @@ namespace RachelsRosesWebPages.Models {
             updateConsumptionTable(i);
             updateCostDataTable(i);
         }
+
         //densities table methods: 
         public List<Ingredient> queryDensityTable() {
             var ingredientInformation = queryItems("select * from densities", reader => {
