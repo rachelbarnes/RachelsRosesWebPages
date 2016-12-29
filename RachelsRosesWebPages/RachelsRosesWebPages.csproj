@@ -208,6 +208,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\Reader.cs" />
     <Compile Include="Models\apiKey.cs" />
     <Compile Include="Models\Convert.cs" />
     <Compile Include="Models\DatabaseAccess.cs" />

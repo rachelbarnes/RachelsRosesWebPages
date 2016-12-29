@@ -86,15 +86,15 @@ namespace RachelsRosesWebPages.Models {
             return myRecipe;
         }
         public List<Recipe> GetRecipeBox() {
-            var myRecipes = queryRecipes(); 
-            var myRecipeBox = new List<Recipe>(); 
+            var myRecipes = queryRecipes();
+            var myRecipeBox = new List<Recipe>();
             foreach (var recipe in myRecipes) {
-                recipe.ingredients = ReturnRecipeIngredients(recipe); 
+                recipe.ingredients = ReturnRecipeIngredients(recipe);
                 //the hershey's dark cocoa got added twice
                 recipe.aggregatedPrice = ReturnFullRecipePrice(recipe);
-                myRecipeBox.Add(recipe); 
+                myRecipeBox.Add(recipe);
             }
-            return myRecipeBox; 
+            return myRecipeBox;
         }
         public void GetFullRecipePrice(Recipe r) {
             var myIngredients = GetFullRecipe(r).ingredients;
@@ -121,7 +121,7 @@ namespace RachelsRosesWebPages.Models {
                     r.ingredients.Add(ing);
                 }
             }
-            return r.ingredients; 
+            return r.ingredients;
         }
         public decimal ReturnFullRecipePrice(Recipe r) {
             var myIngredients = GetFullRecipe(r).ingredients;
@@ -218,8 +218,10 @@ namespace RachelsRosesWebPages.Models {
                 }
             }
             foreach (var ing in myIngredients) {
-                if (ing.ingredientId == i.ingredientId) // || i.priceOfMeasuredConsumption != 0m)
+                if (ing.ingredientId == i.ingredientId) { // || i.priceOfMeasuredConsumption != 0m) 
                     i.priceOfMeasuredConsumption = MeasuredIngredientPrice(i);
+                    break;
+                }
             }
             return i;
         }
@@ -520,13 +522,42 @@ namespace RachelsRosesWebPages.Models {
             }
             return pricePerOunce;
         }
-
-        //need to have a way to add more to ouncesRemaining
+        public List<Ingredient> queryDensityInfoDatabase() {
+            var DensityInfo = queryItems("select * from densityInfo", reader => {
+                var densityIngredientInformation = new Ingredient(reader["ingredient"].ToString());
+                densityIngredientInformation.density = (decimal)reader["density"];
+                return densityIngredientInformation;
+            });
+            return DensityInfo; 
+        }
+        public void insertIntoDensityInfoDatabase(string filename) {
+            var read = new Reader();
+            var DensityTextDatabaseDictionary = read.ReadDensityTextFile(filename);
+            var myDensityTable = queryDensityInfoDatabase(); 
+            foreach (var densityInfo in myDensityTable) {
+                //check to make sure i'm not adding multiples of each ingredient
+            } 
+            var commandText = @"Insert into densityInfo (ingredient, density) values (@ingredient, @density);";
+            foreach (KeyValuePair<string, decimal> pair in DensityTextDatabaseDictionary) {
+                
+                executeVoidQuery(commandText, cmd => {
+                    cmd.Parameters.AddWithValue("@ingredient", pair.Key);
+                    cmd.Parameters.AddWithValue("@density", pair.Value);
+                    return cmd; 
+                }); 
+            }
+        }
 
         //initalize database tables
         public void dropTableIfExists(string table) {
             var drop = @"IF OBJECT_ID('dbo." + table + " ', 'U') IS NOT NULL DROP TABLE dbo." + table + ";";
             executeVoidQuery(drop, a => a);
+        }
+        public void createDensityDatabase() {
+            executeVoidQuery(@"create table densityInfo (
+                        ingredient nvarchar(max),
+                        density decimal(4,2)
+                        );", a => a);
         }
         public void initializeDatabase() {
             dropTableIfExists("recipes");

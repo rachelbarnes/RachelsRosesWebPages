@@ -1476,7 +1476,7 @@ namespace RachelsRosesWebPagesUnitTests {
                 density = 5.4m,
                 sellingWeight = "5 lb"
             };
-            var granSugar = new Ingredient("Granualted Sugar") {
+            var granSugar = new Ingredient("Domino Granulated Sugar") {
                 recipeId = 1,
                 measurement = "1/3 cup",
                 ingredientId = 2,
@@ -1490,96 +1490,96 @@ namespace RachelsRosesWebPagesUnitTests {
                 density = 4.4m,
                 sellingWeight = "8.75 oz"
             };
-            var butter = new Ingredient("Unsalted Butter") {
-                recipeId = 1,
-                measurement = "1/4 cup",
-                ingredientId = 4,
-                density = 8m,
-                sellingWeight = "1 lb",
-                sellingPrice = 2.99m
-            };
+            //var butter = new Ingredient("Unsalted Butter") {
+            //    recipeId = 1,
+            //    measurement = "1/4 cup",
+            //    ingredientId = 4,
+            //    density = 8m,
+            //    sellingWeight = "1 lb",
+            //    sellingPrice = 2.99m
+            //};
             var breadFlour2 = new Ingredient("King Arthur Bread Flour") {
                 recipeId = 2,
                 measurement = "6 cups",
-                ingredientId = 5,
+                ingredientId = 4,
                 density = 5.4m,
                 sellingWeight = "5 lb"
             };
             var ginger = new Ingredient("Ground Ginger") {
                 recipeId = 2,
                 measurement = "1 pinch",
-                ingredientId = 6,
+                ingredientId = 5,
                 density = 4.4m,
                 sellingWeight = "8 oz"
             };
             var granSugar2 = new Ingredient("Granulated Sugar") {
                 recipeId = 2,
                 measurement = "1 teaspoon",
-                ingredientId = 7,
+                ingredientId = 6,
                 density = 7.1m,
                 sellingWeight = "4 lb"
             };
             var bakingSoda = new Ingredient("Baking Soda") {
                 recipeId = 2,
                 measurement = "3/4 teaspoon",
-                ingredientId = 8,
+                ingredientId = 7,
                 density = 8.57m,
                 sellingWeight = "4 lb"
             };
             var activeDryYeast = new Ingredient("Active Dry Yeast") {
                 recipeId = 2,
                 measurement = "2 1/4 teaspoons",
-                ingredientId = 9,
+                ingredientId = 8,
                 density = 5.49m,
                 sellingWeight = "4 oz"
             };
             var honey = new Ingredient("Honey") {
                 recipeId = 2,
                 measurement = "1/3 cup",
-                ingredientId = 10,
+                ingredientId = 9,
                 density = 12m,
                 sellingWeight = "32 oz"
             };
             var wholeWheatFlour = new Ingredient("Whole Wheat Flour") {
                 recipeId = 3,
                 measurement = "4 1/2 cups",
-                ingredientId = 11,
+                ingredientId = 10,
                 density = 5m,
                 sellingWeight = "5 lb"
             };
             var honey2 = new Ingredient("Honey") {
                 recipeId = 3,
                 measurement = "1/3 cup",
-                ingredientId = 12,
+                ingredientId = 11,
                 density = 12m,
                 sellingWeight = "32 oz"
             };
             var granSugar3 = new Ingredient("Granulated Sugar") {
                 recipeId = 3,
                 measurement = "1 tablespoon",
-                ingredientId = 13,
+                ingredientId = 12,
                 density = 7.1m,
                 sellingWeight = "4 lb"
             };
             var salt = new Ingredient("Morton Salt") {
                 recipeId = 3,
                 measurement = "1 tablespoon",
-                ingredientId = 14,
+                ingredientId = 13,
                 density = 10.72m,
                 sellingWeight = "48 oz"
             };
             var allPurposeFlour = new Ingredient("All Purpose Flour") {
                 recipeId = 3,
                 measurement = "2 3/4 cups",
-                ingredientId = 15,
+                ingredientId = 14,
                 density = 5m,
                 sellingWeight = "5 lb"
             };
-            var cinnamonBreadIngredients = new List<Ingredient> { breadFlour, cinnamon, granSugar, butter };
+            var cinnamonBreadIngredients = new List<Ingredient> { breadFlour, granSugar, cinnamon};
             var buttermilkBreadIngredients = new List<Ingredient> { breadFlour2, ginger, granSugar2, bakingSoda, activeDryYeast, honey };
             var wholeWheatBreadIngredients = new List<Ingredient> {wholeWheatFlour, honey2, granSugar3, salt, allPurposeFlour };
+            t.initializeDatabase(); 
             t.insertListOfIngredientsIntoAllTables(cinnamonBreadIngredients, cinnamonSwirlBread);
-            //i'm not getting a selling weight in ounces for this
             t.insertListOfIngredientsIntoAllTables(buttermilkBreadIngredients, honeyButtermilkBread);
             t.insertListOfIngredientsIntoAllTables(wholeWheatBreadIngredients, wholeWheatBread);
             t.GetFullRecipePrice(cinnamonSwirlBread);
@@ -1591,18 +1591,26 @@ namespace RachelsRosesWebPagesUnitTests {
             var myIngredients = t.queryIngredients();
             var myRecipes = t.queryRecipes();
             Assert.AreEqual(3, myRecipes.Count());
-            Assert.AreEqual(15, myIngredients.Count()); 
-
-
-
-            //t.GetFullRecipePrice(brownies);
-            //t.GetFullRecipePrice(cake);
-            //var myIngredients = t.queryIngredients();
-            //var myRecipeBox = t.GetRecipeBox();
-            //Assert.AreEqual(2, myRecipeBox.Count());
-            //Assert.AreEqual(1.74m, myRecipeBox[0].ingredients[0].priceOfMeasuredConsumption);
-            //Assert.AreEqual(1.74m, myIngredients[0].priceOfMeasuredConsumption);
-            //Assert.AreEqual(.63m, myRecipeBox[1].ingredients[0].priceOfMeasuredConsumption);
+            //Assert.AreEqual(15, myIngredients.Count()); //this is with the butter included
+            Assert.AreEqual(14, myIngredients.Count());
+            Assert.AreEqual(1.70m, myIngredients[0].priceOfMeasuredConsumption);
+            Assert.AreEqual(.09m, myIngredients[1].priceOfMeasuredConsumption);
+            Assert.AreEqual(.52m, myIngredients[2].priceOfMeasuredConsumption);
+            //Assert.AreEqual(.37m, myIngredients[3].priceOfMeasuredConsumption); //this is the butter
+            Assert.AreEqual(1.70m, myIngredients[3].priceOfMeasuredConsumption);
+            Assert.AreEqual(.01m, myIngredients[4].priceOfMeasuredConsumption);
+            Assert.AreEqual(.02m, myIngredients[5].priceOfMeasuredConsumption);
+            Assert.AreEqual(.00m, myIngredients[6].priceOfMeasuredConsumption);
+            Assert.AreEqual(.30m, myIngredients[7].priceOfMeasuredConsumption);
+            Assert.AreEqual(.98m, myIngredients[8].priceOfMeasuredConsumption);
+            Assert.AreEqual(1.18m, myIngredients[9].priceOfMeasuredConsumption);
+            Assert.AreEqual(.98m, myIngredients[10].priceOfMeasuredConsumption); 
+            Assert.AreEqual(.02m, myIngredients[11].priceOfMeasuredConsumption);
+            Assert.AreEqual(.03m, myIngredients[12].priceOfMeasuredConsumption);
+            Assert.AreEqual(.63m, myIngredients[13].priceOfMeasuredConsumption);
+            Assert.AreEqual(2.31m, myRecipes[0].aggregatedPrice);
+            Assert.AreEqual(3.01m, myRecipes[1].aggregatedPrice);
+            Assert.AreEqual(2.84m, myRecipes[2].aggregatedPrice); 
         }
         [Test]
         public void TestColumnsFromCostTable() {

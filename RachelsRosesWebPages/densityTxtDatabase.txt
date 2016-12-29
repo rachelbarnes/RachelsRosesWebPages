@@ -1,4 +1,4 @@
-flour: 5
+all purpose flour: 5
 bread flour: 5.4
 cake flour: 4.5
 pastry flour: 4.25
@@ -15,7 +15,7 @@ baking soda: 8.57
 baking powder:8.4
 salt: 10.72
 cinnamon: 4.4 
-yeast, active dry: 5.49 
+active dry yeast: 5.49 
 vegetable oil: 7.7
 milk: 8 
 egg(1 egg): 1.7
@@ -35,6 +35,7 @@ oats: 3
 chocolate chips: 5.35
 walnuts, chopped: 4.3
 walnuts, halved: 3.5
+pecans, chopped: 3.84
 pecans, halved: 3.5
 bananas, mashed: 12
 zucchini, shredded: 8
