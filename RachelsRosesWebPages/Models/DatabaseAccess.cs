@@ -90,7 +90,6 @@ namespace RachelsRosesWebPages.Models {
             var myRecipeBox = new List<Recipe>();
             foreach (var recipe in myRecipes) {
                 recipe.ingredients = ReturnRecipeIngredients(recipe);
-                //the hershey's dark cocoa got added twice
                 recipe.aggregatedPrice = ReturnFullRecipePrice(recipe);
                 myRecipeBox.Add(recipe);
             }
@@ -114,7 +113,7 @@ namespace RachelsRosesWebPages.Models {
             UpdateRecipe(r);
         }
         public List<Ingredient> ReturnRecipeIngredients(Recipe r) {
-            var myIngredients = GetFullRecipe(r).ingredients;
+            var myIngredients = queryIngredients(); 
             foreach (var ing in myIngredients) {
                 if (ing.recipeId == r.id) {
                     getIngredientMeasuredPrice(ing, r);
@@ -165,13 +164,13 @@ namespace RachelsRosesWebPages.Models {
             return myIngredientBox;
         }
         public Ingredient queryAllTablesForIngredient(Ingredient i) {
-            //this isn't doing what it needs to do in the cost table???
             var rest = new MakeRESTCalls();
             var myRecipes = queryRecipes();
             var myIngredients = queryIngredients();
             var myIngredientConsumption = queryConsumptionTable();
             var myIngredientDensity = queryDensityTable();
             var myIngredientCost = queryCostTable();
+            var myDensityInfoTable = queryDensityInfoTable();
             var temp = new Recipe();
             foreach (var rec in myRecipes) {
                 if (rec.id == i.recipeId) {
@@ -198,7 +197,6 @@ namespace RachelsRosesWebPages.Models {
                 if (ing.ingredientId == i.ingredientId) {
                     i.sellingWeight = ing.sellingWeight;
                     i.sellingWeightInOunces = ing.sellingWeightInOunces;
-                    //if sellingweightinounces is 0, then you have to calculate it... i don't know why i'm getting a problem here suddendly. look back on old tests and see the inconsistency
                     i.itemId = ing.itemId;
                     break;
                 }
@@ -208,7 +206,6 @@ namespace RachelsRosesWebPages.Models {
                     if (ing.sellingPrice == 0m)
                         i.sellingPrice = rest.GetItemResponsePrice(i);
                     else i.sellingPrice = ing.sellingPrice;
-                    //why am i having so much trouble here? 
                     if (ing.pricePerOunce == 0m)
                         i.pricePerOunce = (i.sellingPrice / i.sellingWeightInOunces);
                     else i.pricePerOunce = ing.pricePerOunce;
@@ -217,8 +214,12 @@ namespace RachelsRosesWebPages.Models {
                     break;
                 }
             }
+            foreach (var ing in myDensityInfoTable) {
+                if (ing.ingredientId == i.ingredientId)
+                    i.density = ing.density;
+            }
             foreach (var ing in myIngredients) {
-                if (ing.ingredientId == i.ingredientId) { // || i.priceOfMeasuredConsumption != 0m) 
+                if (ing.ingredientId == i.ingredientId) {
                     i.priceOfMeasuredConsumption = MeasuredIngredientPrice(i);
                     break;
                 }
@@ -228,8 +229,7 @@ namespace RachelsRosesWebPages.Models {
         public List<Ingredient> queryAllTablesForAllIngredients(List<Ingredient> ListOfIngredients, Recipe r) {
             var queriedListOfIngredients = new List<Ingredient>();
             foreach (var ingredient in ListOfIngredients)
-
-                queriedListOfIngredients.Add(queryAllTablesForIngredient(ingredient)); //, r)); 
+                queriedListOfIngredients.Add(queryAllTablesForIngredient(ingredient));
             return queriedListOfIngredients;
         }
         public void insertIngredient(Ingredient i, Recipe r) {
@@ -310,11 +310,13 @@ namespace RachelsRosesWebPages.Models {
             }
             if (countIngredients == 0) {
                 insertIngredient(i, r);
+                insertIngredientDensityData(i);
                 insertIngredientConsumtionData(i);
                 insertIngredientDensityData(i);
                 insertIngredientCostDataCostTable(i);
             } else {
                 UpdateIngredient(i);
+                updateDensityInfoTable(i);
                 updateConsumptionTable(i);
                 updateDensityTable(i);
                 updateCostDataTable(i);
@@ -329,15 +331,13 @@ namespace RachelsRosesWebPages.Models {
                 myListOfIngredientIds.Add(ingredient.ingredientId);
             foreach (var recipe in myRecipes)
                 myListOfRecipeIds.Add(recipe.id);
-            var countIngredients = 0;
             if (!myListOfRecipeIds.Contains(r.id))
                 InsertRecipe(r);
-            if (countIngredients == 0) {
-                foreach (var ingredient in ListOfIngredients)
+            foreach (var ingredient in ListOfIngredients) {
+                if (!myListOfIngredientIds.Contains(ingredient.ingredientId))
                     insertIngredientIntoAllTables(ingredient, r);
             }
             var myRecipe = GetFullRecipe(r);
-            //this is happening 2-3 times in a row... i don't want this going through the same thing... have 
             foreach (var ingredient in myRecipe.ingredients) {
                 if (!myListOfIngredientIds.Contains(ingredient.ingredientId))
                     insertIngredientIntoAllTables(ingredient, r);
@@ -352,11 +352,31 @@ namespace RachelsRosesWebPages.Models {
         }
         public void updateAllTables(Ingredient i, Recipe r) {
             UpdateRecipe(r);
-            UpdateIngredient(i); //this has the recipe id as well as the ingredient id, so unless these are missing or are not a part of the updateIngredient method (which they are), then we're good here
+            UpdateIngredient(i);
+            updateDensityInfoTable(i);
             updateDensityTable(i);
             updateConsumptionTable(i);
             updateCostDataTable(i);
         }
+        //public void updateListOfIngredientsForAllTables(List<Ingredient> myIngredients, Recipe r) {
+        //    var myRecipes = queryRecipes();
+        //    var myIngredient = queryIngredients();
+        //    var myListOfIngredientIds = new List<int>();
+        //    var myListOfRecipeIds = new List<int>();
+        //    foreach (var ingredient in myIngredients)
+        //        myListOfIngredientIds.Add(ingredient.ingredientId);
+        //    foreach (var recipe in myRecipes)
+        //        myListOfRecipeIds.Add(recipe.id);
+        //    if (!myListOfRecipeIds.Contains(r.id))
+        //        InsertRecipe(r);
+        //    var myRecipe = GetFullRecipe(r);
+        //    foreach (var ingredient in myRecipe.ingredients) {
+        //        if (!myListOfIngredientIds.Contains(ingredient.ingredientId))
+        //            insertIngredientIntoAllTables(ingredient, r);
+        //        else updateAllTables(ingredient, r);
+        //    }
+        //    var myIngredientsSecond = queryAllTablesForAllIngredients(myIngredient, r);
+        //}
 
         //densities table methods: 
         public List<Ingredient> queryDensityTable() {
@@ -522,29 +542,99 @@ namespace RachelsRosesWebPages.Models {
             }
             return pricePerOunce;
         }
-        public List<Ingredient> queryDensityInfoDatabase() {
+        public List<Ingredient> queryDensityInfoTable() {
             var DensityInfo = queryItems("select * from densityInfo", reader => {
                 var densityIngredientInformation = new Ingredient(reader["ingredient"].ToString());
                 densityIngredientInformation.density = (decimal)reader["density"];
                 return densityIngredientInformation;
             });
-            return DensityInfo; 
+            return DensityInfo;
         }
-        public void insertIntoDensityInfoDatabase(string filename) {
-            var read = new Reader();
-            var DensityTextDatabaseDictionary = read.ReadDensityTextFile(filename);
-            var myDensityTable = queryDensityInfoDatabase(); 
-            foreach (var densityInfo in myDensityTable) {
-                //check to make sure i'm not adding multiples of each ingredient
-            } 
+        public void insertIngredientIntoDensityInfoDatabase(Ingredient myIngredient) {
             var commandText = @"Insert into densityInfo (ingredient, density) values (@ingredient, @density);";
-            foreach (KeyValuePair<string, decimal> pair in DensityTextDatabaseDictionary) {
-                
+            executeVoidQuery(commandText, cmd => {
+                cmd.Parameters.AddWithValue("@ingredient", myIngredient.name);
+                cmd.Parameters.AddWithValue("@density", myIngredient.density);
+                return cmd;
+            });
+        }
+        public List<Ingredient> assignIngredientDensityDictionaryValuesToListIngredients(Dictionary<string, decimal> myDensityIngredientDictionary) {
+            var myIngredients = new List<Ingredient>();
+            foreach (var pair in myDensityIngredientDictionary) {
+                var currentIngredient = new Ingredient(pair.Key) {
+                    density = pair.Value
+                };
+                myIngredients.Add(currentIngredient);
+            }
+            return myIngredients;
+        }
+        public void insertDensityTextFileIntoDensityInfoDatabase(string filename) {
+            filename = @"C: \Users\Rachel\Documents\Visual Studio 2015\Projects\RachelsRosesWebPages\RachelsRosesWebPages\densityTxtDatabase.txt";
+            var read = new Reader(); //the filename below for the moment is hardcoded... 
+            var DensityTextDatabaseDictionary = read.ReadDensityTextFile(@"C: \Users\Rachel\Documents\Visual Studio 2015\Projects\RachelsRosesWebPages\RachelsRosesWebPages\densityTxtDatabase.txt");
+            var myDensityTable = queryDensityInfoTable();
+            var myDensityTableNames = new List<string>();
+            foreach (var ingredient in myDensityTable)
+                myDensityTableNames.Add(ingredient.name);
+            //this is going to need to allow for user error and grace in the name... need to have a similaries check, or make sure the name.tolower contains the ingredient's name, as opposed to == it
+            foreach (var ingredient in DensityTextDatabaseDictionary) {
+                if (!myDensityTableNames.Contains(ingredient.Key)) {
+                    var commandText = @"Insert into densityInfo (ingredient, density) values (@ingredient, @density);";
+                    executeVoidQuery(commandText, cmd => {
+                        cmd.Parameters.AddWithValue("@ingredient", ingredient.Key);
+                        cmd.Parameters.AddWithValue("@density", ingredient.Value);
+                        return cmd;
+                    });
+                }
+            }
+            var myDensityTableAfter = queryDensityInfoTable();
+        }
+        public void insertListIntoDensityInfoDatabase(List<Ingredient> MyIngredients) {
+            var read = new Reader(); //the filename below for the moment is hardcoded... but i would prefer to not keep it that way... bad business
+            var myDensityTable = queryDensityInfoTable();
+            var myDensityTableNames = new List<string>();
+            foreach (var ingredient in myDensityTable)
+                myDensityTableNames.Add(ingredient.name);
+            if (MyIngredients.Count() > myDensityTable.Count()) {
+                for (int i = 0; i < MyIngredients.Count(); i++) {
+                    if (!myDensityTableNames.Contains(MyIngredients[i].name)) {
+                        var commandText = @"Insert into densityInfo (ingredient, density) values (@ingredient, @density);";
+                        executeVoidQuery(commandText, cmd => {
+                            cmd.Parameters.AddWithValue("@ingredient", MyIngredients[i].name);
+                            cmd.Parameters.AddWithValue("@density", MyIngredients[i].density);
+                            return cmd;
+                        });
+                        //i assume that it's necessary to have this command go for every turn
+                    }
+                }
+            }
+        }
+        public void updateDensityInfoTable(Ingredient myIngredient) {
+            var myDensityTableInfo = queryDensityInfoTable();
+            var myDensityTableInfoNames = new List<string>();
+            foreach (var ingredient in myDensityTableInfo)
+                myDensityTableInfoNames.Add(ingredient.name);
+            if (!myDensityTableInfoNames.Contains(myIngredient.name))
+                insertIngredientIntoDensityInfoDatabase(myIngredient);
+            else {
+                var commandText = @"Update densityInfo set density=@density where ingredient=@ingredient;";
                 executeVoidQuery(commandText, cmd => {
-                    cmd.Parameters.AddWithValue("@ingredient", pair.Key);
-                    cmd.Parameters.AddWithValue("@density", pair.Value);
-                    return cmd; 
-                }); 
+                    cmd.Parameters.AddWithValue("@ingredient", myIngredient.name);
+                    cmd.Parameters.AddWithValue("@density", myIngredient.density);
+                    return cmd;
+                });
+            }
+        }
+        public void updateListOfIngredientsInDensityInfoTable(List<Ingredient> MyIngredients) {
+            var myDensityTableInfo = queryDensityInfoTable();
+            var myDensityTableInfoNames = new List<string>();
+            foreach (var ingredient in myDensityTableInfo)
+                myDensityTableInfoNames.Add(ingredient.name);
+            for (int i = 0; i < MyIngredients.Count(); i++) {
+                if (!myDensityTableInfoNames.Contains(MyIngredients[i].name))
+                    insertIngredientIntoDensityInfoDatabase(MyIngredients[i]);
+                else
+                    updateDensityInfoTable(MyIngredients[i]);
             }
         }
 
@@ -605,6 +695,11 @@ namespace RachelsRosesWebPages.Models {
                         price_per_ounce decimal (6,4),
                         item_id int
                     );", a => a);
+            dropTableIfExists("densityInfo");
+            executeVoidQuery(@"create table densityInfo (
+                        ingredient nvarchar(max),
+                        density decimal(4,2)
+                        );", a => a);
             executeVoidQuery("SET IDENTITY_INSERT densities ON", cmd => cmd);
             //this column was originally in the cost table, but i think it would be better in the ingredients table
             //price_measured_ingredient decimal(6, 2)

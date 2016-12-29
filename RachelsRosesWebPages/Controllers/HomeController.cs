@@ -16,7 +16,7 @@ namespace RachelsRosesWebPages.Controllers {
         public static Ingredient currentIngredient = new Ingredient();
         public List<Recipe> getRecipes() {
             var db = new DatabaseAccess();
-            return db.queryRecipes();
+            return db.GetRecipeBox();
         }
         public ActionResult Recipes() {
             var myRecipes = getRecipes();
@@ -29,15 +29,12 @@ namespace RachelsRosesWebPages.Controllers {
                 return Redirect("/home/recipes");
             name = name.Trim();
             myDatabaseRecipe = getRecipes().First(x => x.name == name);
-            if (currentRecipe.ingredients == null || currentRecipe.ingredients.Count() == 0) {
-                currentRecipe.ingredients = myDatabaseRecipe.ingredients;
-            } else {
-                myDatabaseRecipe.ingredients = currentRecipe.ingredients;
-            }
-            currentRecipe.name = myDatabaseRecipe.name;
-            currentRecipe.id = myDatabaseRecipe.id;
-            currentRecipe.yield = myDatabaseRecipe.yield;
-
+            //if (currentRecipe.ingredients == null || currentRecipe.ingredients.Count() == 0) {
+            //    currentRecipe.ingredients = myDatabaseRecipe.ingredients;
+            //} else {
+            //    myDatabaseRecipe.ingredients = currentRecipe.ingredients;
+            //}
+            currentRecipe = myDatabaseRecipe; 
             ViewBag.currentingredient = currentIngredient;
             ViewBag.currentrecipe = currentRecipe;
             return View();
