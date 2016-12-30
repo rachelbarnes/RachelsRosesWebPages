@@ -68,6 +68,7 @@ namespace RachelsRosesWebPages.Models {
             });
         }
         public Recipe GetFullRecipe(Recipe r) {
+            var aggregatedPrice = 0m; 
             var myRecipeBox = queryRecipes();
             var myIngredients = queryIngredients();
             var myRecipe = new Recipe();
@@ -80,10 +81,18 @@ namespace RachelsRosesWebPages.Models {
             foreach (var ingredient in myIngredients) {
                 if (ingredient.recipeId == myRecipe.id) {
                     var currentIngredient = queryAllTablesForIngredient(ingredient);
+                    aggregatedPrice += currentIngredient.priceOfMeasuredConsumption; 
                     myRecipe.ingredients.Add(ingredient);
                 }
             }
+            myRecipe.aggregatedPrice = aggregatedPrice; 
             return myRecipe;
+            //var myIngredients = GetFullRecipe(r).ingredients;
+            //var aggregatedPrice = 0m;
+            //foreach (var ing in r.ingredients) {
+            //    aggregatedPrice += ing.priceOfMeasuredConsumption;
+            //}
+            //return aggregatedPrice;
         }
         public List<Recipe> GetRecipeBox() {
             var myRecipes = queryRecipes();
@@ -113,10 +122,10 @@ namespace RachelsRosesWebPages.Models {
             UpdateRecipe(r);
         }
         public List<Ingredient> ReturnRecipeIngredients(Recipe r) {
-            var myIngredients = queryIngredients(); 
+            var myIngredients = queryIngredients();
             foreach (var ing in myIngredients) {
                 if (ing.recipeId == r.id) {
-                    getIngredientMeasuredPrice(ing, r);
+                    queryAllTablesForIngredient(ing);
                     r.ingredients.Add(ing);
                 }
             }
@@ -124,14 +133,6 @@ namespace RachelsRosesWebPages.Models {
         }
         public decimal ReturnFullRecipePrice(Recipe r) {
             var myIngredients = GetFullRecipe(r).ingredients;
-            foreach (var ing in myIngredients) {
-                if (ing.recipeId == r.id) {
-                    getIngredientMeasuredPrice(ing, r);
-                    //r.ingredients.Add(ing);
-                    updateAllTables(ing, r);
-                    var currentIngredient = queryAllTablesForIngredient(ing);
-                }
-            }
             var aggregatedPrice = 0m;
             foreach (var ing in r.ingredients) {
                 aggregatedPrice += ing.priceOfMeasuredConsumption;
@@ -215,8 +216,10 @@ namespace RachelsRosesWebPages.Models {
                 }
             }
             foreach (var ing in myDensityInfoTable) {
-                if (ing.ingredientId == i.ingredientId)
+                if (ing.ingredientId == i.ingredientId) {
                     i.density = ing.density;
+                    break; 
+                }
             }
             foreach (var ing in myIngredients) {
                 if (ing.ingredientId == i.ingredientId) {
@@ -245,6 +248,8 @@ namespace RachelsRosesWebPages.Models {
             });
         }
         public void UpdateIngredient(Ingredient i) {
+            if (i.priceOfMeasuredConsumption == 0)
+                i.priceOfMeasuredConsumption = returnIngredientMeasuredPrice(i);
             var commandText = "update ingredients set name=@name, measurement=@measurement, recipe_id=@recipeId, price_measured_ingredient=@price_measured_ingredient, item_id=@item_id where ing_id=@ingredientId;";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@name", i.name);
@@ -267,14 +272,17 @@ namespace RachelsRosesWebPages.Models {
             var temp = new Ingredient();
             var measuredIngredientPrice = 0m;
             foreach (var ingredient in myConsumptionData) {
-                if (ingredient.name == i.name)
+                if (ingredient.name == i.name) {
                     temp.ouncesConsumed = ingredient.ouncesConsumed;
+                    break; 
+                }
             }
             foreach (var ingredient in myDensityData) {
                 if (ingredient.name == i.name) {
                     temp.sellingPrice = ingredient.sellingPrice;
                     temp.density = ingredient.density;
                     temp.sellingWeightInOunces = ingredient.sellingWeightInOunces;
+                    break; 
                 }
             }
             foreach (var ingredient in myIngredients) {
@@ -287,6 +295,7 @@ namespace RachelsRosesWebPages.Models {
                     if (temp.sellingWeightInOunces != 0)
                         measuredOuncesDividedBySellingWeight = Math.Round((ingredient.ouncesConsumed / temp.sellingWeightInOunces), 4);
                     measuredIngredientPrice = Math.Round((measuredOuncesDividedBySellingWeight * temp.sellingPrice), 2);
+                    break; 
                 }
             }
             return measuredIngredientPrice;
@@ -312,38 +321,48 @@ namespace RachelsRosesWebPages.Models {
                 insertIngredient(i, r);
                 insertIngredientDensityData(i);
                 insertIngredientConsumtionData(i);
-                insertIngredientDensityData(i);
+                //insertIngredientDensityData(i);
                 insertIngredientCostDataCostTable(i);
+                UpdateIngredient(i);
             } else {
                 UpdateIngredient(i);
                 updateDensityInfoTable(i);
                 updateConsumptionTable(i);
                 updateDensityTable(i);
                 updateCostDataTable(i);
+                UpdateIngredient(i);
             }
         }
         public void insertListOfIngredientsIntoAllTables(List<Ingredient> ListOfIngredients, Recipe r) {
-            var myRecipes = queryRecipes();
-            var myIngredients = queryIngredients();
             var myListOfIngredientIds = new List<int>();
             var myListOfRecipeIds = new List<int>();
-            foreach (var ingredient in myIngredients)
-                myListOfIngredientIds.Add(ingredient.ingredientId);
+            foreach (var ingredient in ListOfIngredients) {
+                if (!myListOfIngredientIds.Contains(ingredient.ingredientId)) {
+                    insertIngredientIntoAllTables(ingredient, r);
+                    myListOfIngredientIds.Add(ingredient.ingredientId);
+                }
+            }
+            var myRecipes = queryRecipes();
+            var myIngredients = queryIngredients();
             foreach (var recipe in myRecipes)
                 myListOfRecipeIds.Add(recipe.id);
             if (!myListOfRecipeIds.Contains(r.id))
                 InsertRecipe(r);
-            foreach (var ingredient in ListOfIngredients) {
+            foreach (var ingredient in myIngredients) {
                 if (!myListOfIngredientIds.Contains(ingredient.ingredientId))
-                    insertIngredientIntoAllTables(ingredient, r);
+                    myListOfIngredientIds.Add(ingredient.ingredientId);
             }
             var myRecipe = GetFullRecipe(r);
             foreach (var ingredient in myRecipe.ingredients) {
                 if (!myListOfIngredientIds.Contains(ingredient.ingredientId))
                     insertIngredientIntoAllTables(ingredient, r);
-                else updateAllTables(ingredient, r);
+                //else updateAllTables(ingredient, r);
             }
             var myIngredientsSecond = queryAllTablesForAllIngredients(ListOfIngredients, r);
+        }
+        public decimal returnIngredientMeasuredPrice(Ingredient i) {
+            queryAllTablesForIngredient(i);
+            return MeasuredIngredientPrice(i);
         }
         public void getIngredientMeasuredPrice(Ingredient i, Recipe r) {
             queryAllTablesForIngredient(i);
@@ -695,6 +714,7 @@ namespace RachelsRosesWebPages.Models {
                         price_per_ounce decimal (6,4),
                         item_id int
                     );", a => a);
+            //changes need to be maid: density in consumption, density in consumption
             dropTableIfExists("densityInfo");
             executeVoidQuery(@"create table densityInfo (
                         ingredient nvarchar(max),
