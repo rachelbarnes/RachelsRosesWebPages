@@ -68,7 +68,7 @@ namespace RachelsRosesWebPages.Models {
             });
         }
         public Recipe GetFullRecipe(Recipe r) {
-            var aggregatedPrice = 0m; 
+            var aggregatedPrice = 0m;
             var myRecipeBox = queryRecipes();
             var myIngredients = queryIngredients();
             var myRecipe = new Recipe();
@@ -81,11 +81,11 @@ namespace RachelsRosesWebPages.Models {
             foreach (var ingredient in myIngredients) {
                 if (ingredient.recipeId == myRecipe.id) {
                     var currentIngredient = queryAllTablesForIngredient(ingredient);
-                    aggregatedPrice += currentIngredient.priceOfMeasuredConsumption; 
+                    aggregatedPrice += currentIngredient.priceOfMeasuredConsumption;
                     myRecipe.ingredients.Add(ingredient);
                 }
             }
-            myRecipe.aggregatedPrice = aggregatedPrice; 
+            myRecipe.aggregatedPrice = aggregatedPrice;
             return myRecipe;
             //var myIngredients = GetFullRecipe(r).ingredients;
             //var aggregatedPrice = 0m;
@@ -139,13 +139,30 @@ namespace RachelsRosesWebPages.Models {
             }
             return aggregatedPrice;
         }
-        public void DeleteRecipe(string recipeTitle) {
-            recipeTitle = recipeTitle.Trim();
+        public void DeleteRecipe(Recipe r) {
+            r.name = r.name.Trim();
             var delete = "DELETE FROM recipes WHERE name=@title";
             executeVoidQuery(delete, cmd => {
-                cmd.Parameters.AddWithValue("@title", recipeTitle);
+                cmd.Parameters.AddWithValue("@title", r.name);
                 return cmd;
             });
+        }
+        public void UpdateRecipeYield(Recipe r) {
+            var convert = new ConvertMeasurement();
+            var myRecipeBox = GetRecipeBox();
+            foreach (var recipe in myRecipeBox) {
+                var myIngredients = queryAllTablesForAllIngredients(recipe.ingredients);
+                if (recipe.id == r.id) {
+                    foreach (var ingredient in recipe.ingredients) {
+                        var density = returnIngredientDensityFromDensityTable(ingredient);
+                        var newIngredientMeasurement = convert.AdjustIngredientMeasurement(ingredient.measurement, recipe.yield, r.yield);
+                        ingredient.measurement = newIngredientMeasurement;
+                        updateAllTables(ingredient, r);
+                    }
+                    recipe.yield = r.yield;
+                    GetFullRecipePrice(recipe);
+                }
+            }
         }
 
         //ingredient table methods: 
@@ -181,8 +198,11 @@ namespace RachelsRosesWebPages.Models {
             }
             foreach (var ing in myIngredients) {
                 if (ing.ingredientId == i.ingredientId) {
+                    i.recipeId = ing.recipeId;
                     i.measurement = ing.measurement;
-                    i.itemId = ing.itemId;
+                    if (i.itemId == 0)
+                        i.itemId = rest.GetItemResponse(i).itemId;
+                    else i.itemId = ing.itemId;
                     break;
                 }
             }
@@ -205,7 +225,7 @@ namespace RachelsRosesWebPages.Models {
             foreach (var ing in myIngredientCost) {
                 if (ing.ingredientId == i.ingredientId) {
                     if (ing.sellingPrice == 0m)
-                        i.sellingPrice = rest.GetItemResponsePrice(i);
+                        i.sellingPrice = rest.GetItemResponse(i).salePrice;
                     else i.sellingPrice = ing.sellingPrice;
                     if (ing.pricePerOunce == 0m)
                         i.pricePerOunce = (i.sellingPrice / i.sellingWeightInOunces);
@@ -218,7 +238,7 @@ namespace RachelsRosesWebPages.Models {
             foreach (var ing in myDensityInfoTable) {
                 if (ing.ingredientId == i.ingredientId) {
                     i.density = ing.density;
-                    break; 
+                    break;
                 }
             }
             foreach (var ing in myIngredients) {
@@ -229,13 +249,16 @@ namespace RachelsRosesWebPages.Models {
             }
             return i;
         }
-        public List<Ingredient> queryAllTablesForAllIngredients(List<Ingredient> ListOfIngredients, Recipe r) {
+        public List<Ingredient> queryAllTablesForAllIngredients(List<Ingredient> ListOfIngredients) { //, Recipe r) {
             var queriedListOfIngredients = new List<Ingredient>();
             foreach (var ingredient in ListOfIngredients)
                 queriedListOfIngredients.Add(queryAllTablesForIngredient(ingredient));
             return queriedListOfIngredients;
         }
         public void insertIngredient(Ingredient i, Recipe r) {
+            var rest = new MakeRESTCalls();
+            if (i.itemId == 0)
+                i.itemId = rest.GetItemResponse(i).itemId;
             var commandText = "Insert into ingredients(recipe_id, name, measurement, price_measured_ingredient, item_id) values (@rid, @name, @measurement, @price_measured_ingredient, @item_id);";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@rid", r.id);
@@ -248,6 +271,9 @@ namespace RachelsRosesWebPages.Models {
             });
         }
         public void UpdateIngredient(Ingredient i) {
+            var rest = new MakeRESTCalls();
+            if (i.itemId == 0)
+                i.itemId = rest.GetItemResponse(i).itemId;
             if (i.priceOfMeasuredConsumption == 0)
                 i.priceOfMeasuredConsumption = returnIngredientMeasuredPrice(i);
             var commandText = "update ingredients set name=@name, measurement=@measurement, recipe_id=@recipeId, price_measured_ingredient=@price_measured_ingredient, item_id=@item_id where ing_id=@ingredientId;";
@@ -274,7 +300,7 @@ namespace RachelsRosesWebPages.Models {
             foreach (var ingredient in myConsumptionData) {
                 if (ingredient.name == i.name) {
                     temp.ouncesConsumed = ingredient.ouncesConsumed;
-                    break; 
+                    break;
                 }
             }
             foreach (var ingredient in myDensityData) {
@@ -282,7 +308,7 @@ namespace RachelsRosesWebPages.Models {
                     temp.sellingPrice = ingredient.sellingPrice;
                     temp.density = ingredient.density;
                     temp.sellingWeightInOunces = ingredient.sellingWeightInOunces;
-                    break; 
+                    break;
                 }
             }
             foreach (var ingredient in myIngredients) {
@@ -295,14 +321,15 @@ namespace RachelsRosesWebPages.Models {
                     if (temp.sellingWeightInOunces != 0)
                         measuredOuncesDividedBySellingWeight = Math.Round((ingredient.ouncesConsumed / temp.sellingWeightInOunces), 4);
                     measuredIngredientPrice = Math.Round((measuredOuncesDividedBySellingWeight * temp.sellingPrice), 2);
-                    break; 
+                    break;
                 }
             }
             return measuredIngredientPrice;
         }
         public void insertIngredientIntoAllTables(Ingredient i, Recipe r) {
             var myRecipes = queryRecipes();
-            var myIngredients = queryIngredients();
+            var myIngredientBox = queryIngredients();
+            var myIngredients = queryAllTablesForIngredient(i);
             var count = 0;
             var countIngredients = 0;
             foreach (var recipe in myRecipes) {
@@ -311,7 +338,7 @@ namespace RachelsRosesWebPages.Models {
             }
             if (count == 0)
                 InsertRecipe(r);
-            foreach (var ingredient in myIngredients) {
+            foreach (var ingredient in myIngredientBox) {
                 if (ingredient.ingredientId == i.ingredientId) {
                     countIngredients++;
                     break;
@@ -321,7 +348,7 @@ namespace RachelsRosesWebPages.Models {
                 insertIngredient(i, r);
                 insertIngredientDensityData(i);
                 insertIngredientConsumtionData(i);
-                //insertIngredientDensityData(i);
+                insertIngredientIntoDensityInfoDatabase(i);
                 insertIngredientCostDataCostTable(i);
                 UpdateIngredient(i);
             } else {
@@ -356,9 +383,8 @@ namespace RachelsRosesWebPages.Models {
             foreach (var ingredient in myRecipe.ingredients) {
                 if (!myListOfIngredientIds.Contains(ingredient.ingredientId))
                     insertIngredientIntoAllTables(ingredient, r);
-                //else updateAllTables(ingredient, r);
             }
-            var myIngredientsSecond = queryAllTablesForAllIngredients(ListOfIngredients, r);
+            var myIngredientsSecond = queryAllTablesForAllIngredients(ListOfIngredients);
         }
         public decimal returnIngredientMeasuredPrice(Ingredient i) {
             queryAllTablesForIngredient(i);
@@ -377,26 +403,12 @@ namespace RachelsRosesWebPages.Models {
             updateConsumptionTable(i);
             updateCostDataTable(i);
         }
-        //public void updateListOfIngredientsForAllTables(List<Ingredient> myIngredients, Recipe r) {
-        //    var myRecipes = queryRecipes();
-        //    var myIngredient = queryIngredients();
-        //    var myListOfIngredientIds = new List<int>();
-        //    var myListOfRecipeIds = new List<int>();
-        //    foreach (var ingredient in myIngredients)
-        //        myListOfIngredientIds.Add(ingredient.ingredientId);
-        //    foreach (var recipe in myRecipes)
-        //        myListOfRecipeIds.Add(recipe.id);
-        //    if (!myListOfRecipeIds.Contains(r.id))
-        //        InsertRecipe(r);
-        //    var myRecipe = GetFullRecipe(r);
-        //    foreach (var ingredient in myRecipe.ingredients) {
-        //        if (!myListOfIngredientIds.Contains(ingredient.ingredientId))
-        //            insertIngredientIntoAllTables(ingredient, r);
-        //        else updateAllTables(ingredient, r);
-        //    }
-        //    var myIngredientsSecond = queryAllTablesForAllIngredients(myIngredient, r);
-        //}
-
+        public void updateAllTablesForAllIngredients(List<Ingredient> myListOfIngredients, Recipe r) {
+            foreach (var ingredient in myListOfIngredients) {
+                updateAllTables(ingredient, r);
+            }
+            var myUpdatedIngredients = queryAllTablesForAllIngredients(myListOfIngredients);
+        }
         //densities table methods: 
         public List<Ingredient> queryDensityTable() {
             var ingredientInformation = queryItems("select * from densities", reader => {
@@ -415,7 +427,7 @@ namespace RachelsRosesWebPages.Models {
         public void insertIngredientDensityData(Ingredient i) {
             var convert = new ConvertWeight();
             var rest = new MakeRESTCalls();
-            i.sellingPrice = rest.GetItemResponsePrice(i);
+            i.sellingPrice = rest.GetItemResponse(i).salePrice;
             i.sellingWeightInOunces = convert.ConvertWeightToOunces(i.sellingWeight);
             i.pricePerOunce = Math.Round((i.sellingPrice / i.sellingWeightInOunces), 4);
             var commandText = @"Insert into densities (name, density, selling_weight, selling_weight_ounces, selling_price, price_per_ounce, item_id) 
@@ -543,7 +555,6 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@selling_price", i.sellingPrice);
                 cmd.Parameters.AddWithValue("@price_per_ounce", getPricePerOunce(i));
                 cmd.Parameters.AddWithValue("@item_id", i.itemId);
-                //cmd.Parameters.AddWithValue("@price_per_ounce", i.pricePerOunce);
                 return cmd;
             });
         }
@@ -570,12 +581,17 @@ namespace RachelsRosesWebPages.Models {
             return DensityInfo;
         }
         public void insertIngredientIntoDensityInfoDatabase(Ingredient myIngredient) {
-            var commandText = @"Insert into densityInfo (ingredient, density) values (@ingredient, @density);";
-            executeVoidQuery(commandText, cmd => {
-                cmd.Parameters.AddWithValue("@ingredient", myIngredient.name);
-                cmd.Parameters.AddWithValue("@density", myIngredient.density);
-                return cmd;
-            });
+            var myDensityInfoTable = queryDensityInfoTable();
+            if (myDensityInfoTable.Count() == 0)
+                insertDensityTextFileIntoDensityInfoDatabase(@"C: \Users\Rachel\Documents\Visual Studio 2015\Projects\RachelsRosesWebPages\RachelsRosesWebPages\densityTxtDatabase.txt");
+            else {
+                var commandText = @"Insert into densityInfo (ingredient, density) values (@ingredient, @density);";
+                executeVoidQuery(commandText, cmd => {
+                    cmd.Parameters.AddWithValue("@ingredient", myIngredient.name);
+                    cmd.Parameters.AddWithValue("@density", myIngredient.density);
+                    return cmd;
+                });
+            }
         }
         public List<Ingredient> assignIngredientDensityDictionaryValuesToListIngredients(Dictionary<string, decimal> myDensityIngredientDictionary) {
             var myIngredients = new List<Ingredient>();
@@ -614,19 +630,17 @@ namespace RachelsRosesWebPages.Models {
             var myDensityTableNames = new List<string>();
             foreach (var ingredient in myDensityTable)
                 myDensityTableNames.Add(ingredient.name);
-            if (MyIngredients.Count() > myDensityTable.Count()) {
-                for (int i = 0; i < MyIngredients.Count(); i++) {
-                    if (!myDensityTableNames.Contains(MyIngredients[i].name)) {
-                        var commandText = @"Insert into densityInfo (ingredient, density) values (@ingredient, @density);";
-                        executeVoidQuery(commandText, cmd => {
-                            cmd.Parameters.AddWithValue("@ingredient", MyIngredients[i].name);
-                            cmd.Parameters.AddWithValue("@density", MyIngredients[i].density);
-                            return cmd;
-                        });
-                        //i assume that it's necessary to have this command go for every turn
-                    }
+            for (int i = 0; i < MyIngredients.Count(); i++) {
+                if (!myDensityTableNames.Contains(MyIngredients[i].name)) {
+                    var commandText = @"Insert into densityInfo (ingredient, density) values (@ingredient, @density);";
+                    executeVoidQuery(commandText, cmd => {
+                        cmd.Parameters.AddWithValue("@ingredient", MyIngredients[i].name);
+                        cmd.Parameters.AddWithValue("@density", MyIngredients[i].density);
+                        return cmd;
+                    });
                 }
             }
+            var myDensityInfoTable = queryDensityInfoTable();
         }
         public void updateDensityInfoTable(Ingredient myIngredient) {
             var myDensityTableInfo = queryDensityInfoTable();
@@ -643,6 +657,19 @@ namespace RachelsRosesWebPages.Models {
                     return cmd;
                 });
             }
+        }
+        public decimal returnIngredientDensityFromDensityTable(Ingredient i) {
+            var rest = new MakeRESTCalls();
+            var myIngredients = queryIngredients();
+            var myDensityIngredients = queryDensityInfoTable();
+            var myIngredientDensity = 0m; 
+            foreach (var ingredient in myDensityIngredients) {
+                if (rest.SimilaritesInStrings(i.name, ingredient.name)) {
+                    myIngredientDensity = ingredient.density; 
+                    break;
+                }
+            }
+            return myIngredientDensity; 
         }
         public void updateListOfIngredientsInDensityInfoTable(List<Ingredient> MyIngredients) {
             var myDensityTableInfo = queryDensityInfoTable();

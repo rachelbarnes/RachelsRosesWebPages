@@ -8,10 +8,6 @@ using System.Web.Mvc;
 namespace RachelsRosesWebPages.Controllers {
     public class HomeController : Controller {
         public static Recipe currentRecipe = new Recipe();
-        //i don't think currentRecipe is keeping the list of ingredients with it, 
-            //whenever i start up the page, the currentRecipe's ingredients are missing/lost... 
-            //i have to use the GetFullRecipe from DatabaseAccess I think to get the ingredients associated with that recipe
-            //use the GetFullRecipe to get the ingredients for the currentRecipe before you use the recipe if you're having trouble with getting the ingredients to carry over between running it on the server
         public static Recipe myDatabaseRecipe = new Recipe();
         public static Ingredient currentIngredient = new Ingredient();
         public List<Recipe> getRecipes() {
@@ -29,11 +25,6 @@ namespace RachelsRosesWebPages.Controllers {
                 return Redirect("/home/recipes");
             name = name.Trim();
             myDatabaseRecipe = getRecipes().First(x => x.name == name);
-            //if (currentRecipe.ingredients == null || currentRecipe.ingredients.Count() == 0) {
-            //    currentRecipe.ingredients = myDatabaseRecipe.ingredients;
-            //} else {
-            //    myDatabaseRecipe.ingredients = currentRecipe.ingredients;
-            //}
             currentRecipe = myDatabaseRecipe; 
             ViewBag.currentingredient = currentIngredient;
             ViewBag.currentrecipe = currentRecipe;
@@ -99,10 +90,10 @@ namespace RachelsRosesWebPages.Controllers {
             db.InsertRecipe(newrecipe);
             return Redirect("/home/recipes");
         }
-        public ActionResult DeleteRecipe(string recipeTitle) {
-            recipeTitle = recipeTitle.Trim();
+        public ActionResult DeleteRecipe(Recipe r) {
+            r.name = r.name.Trim();
             var db = new DatabaseAccess();
-            db.DeleteRecipe(recipeTitle);
+            db.DeleteRecipe(r);
             return Redirect("/home/recipes");
         }
         public ActionResult EditRecipeTitle(string newRecipeTitle) {

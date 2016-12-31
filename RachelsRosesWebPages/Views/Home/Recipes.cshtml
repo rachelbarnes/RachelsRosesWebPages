@@ -16,6 +16,7 @@
     @foreach (var recipe in ViewBag.recipes) {
         <li>
             <p><b>@recipe.id: @recipe.name</b></p>
+            <p><b>@recipe.aggregatedPrice</b></p>
             <a href="/home/recipe?name=@recipe.name">View details for @recipe.name</a>
             <br />
             <a href="/home/deleterecipe?recipeTitle=@recipe.name">Delete Recipe</a>

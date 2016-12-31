@@ -7,7 +7,7 @@ using System.Net;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
-using RachelsRosesWebPages.Models; 
+using RachelsRosesWebPages.Models;
 
 namespace RachelsRosesWebPages {
     [DataContract]
@@ -42,34 +42,48 @@ namespace RachelsRosesWebPages {
                 return default(T);
             }
         }
-        public decimal GetItemResponsePrice(Ingredient i) {
-            var db = new DatabaseAccess(); 
+        public ItemResponse GetItemResponse(Ingredient i) {
+            var db = new DatabaseAccess();
             var convert = new ConvertWeight();
             var items = MakeRequest<SearchResponse>(buildSearchRequest(i)).Items;
-            //var condensedItems = AverageItemResponseSalePrices(items); 
-            //why isn't this condensed items one or two less than items? The method worked by itself... hmmm...
             var sellingWeightOunces = convert.ConvertWeightToOunces(i.sellingWeight);
-            var itemPrice = 0m; 
+            var tempItemResponse = new ItemResponse(); 
             foreach (var item in items) {
                 if (!item.name.Contains('(')) {
                     if ((!item.name.ToLower().Contains("pack of")) || (!item.name.ToLower().Contains(("pk")))) {
                         if ((parseItemResponseName(item).Count() != 0) && (CompareWeightInOuncesFromItemResponseToIngredientSellingWeight(item, i) && (CompareItemResponseNameAndIngredientName(item, i)))) {
-                            //i.itemId = item.itemId;
-                            //i.sellingPrice = item.salePrice;
-                            //db.updateCostDataTable(i); 
-                            return item.salePrice;
+                            tempItemResponse = item;
+                            break; 
                         }
                     }
                 }
             }
-            return itemPrice;
+            return tempItemResponse;
+            //i would like to be able to return all brands that fit a certain selling weight, and give all of them as an option, and give the best price? 
+            //i think a good idea would be to have the item id associated with the ingredient in the ingredient database or the cost database, that way you can get the exact same item
+        }
+        public List<ItemResponse> GetListItemResponses(Ingredient i) {
+            var db = new DatabaseAccess();
+            var convert = new ConvertWeight();
+            var items = MakeRequest<SearchResponse>(buildSearchRequest(i)).Items;
+            var sellingWeightOunces = convert.ConvertWeightToOunces(i.sellingWeight);
+            var myListOfItemResponses = new List<ItemResponse>(); 
+            foreach (var item in items) {
+                if (!item.name.Contains('(')) {
+                    if ((!item.name.ToLower().Contains("pack of")) || (!item.name.ToLower().Contains(("pk")))) {
+                        if ((parseItemResponseName(item).Count() != 0) && (CompareWeightInOuncesFromItemResponseToIngredientSellingWeight(item, i) && (CompareItemResponseNameAndIngredientName(item, i))))
+                            myListOfItemResponses.Add(item); 
+                    }
+                }
+            }
+            return myListOfItemResponses;
             //i would like to be able to return all brands that fit a certain selling weight, and give all of them as an option, and give the best price? 
             //i think a good idea would be to have the item id associated with the ingredient in the ingredient database or the cost database, that way you can get the exact same item
         }
         public decimal AverageDecimals(List<ItemResponse> ItemPrices) {
-            var ItemResponsePrices = new List<decimal>(); 
-            foreach (var response in ItemPrices) 
-                ItemResponsePrices.Add(response.salePrice); 
+            var ItemResponsePrices = new List<decimal>();
+            foreach (var response in ItemPrices)
+                ItemResponsePrices.Add(response.salePrice);
             var addedValue = 0m;
             var countOfPrices = ItemResponsePrices.Count();
             foreach (var dec in ItemResponsePrices)
@@ -80,18 +94,18 @@ namespace RachelsRosesWebPages {
             var average = AverageDecimals(ItemPrices);
             var condensedItems = new List<ItemResponse>();
             var greatestPrice = 0m;
-            var greatestPriceItem = new ItemResponse(); 
+            var greatestPriceItem = new ItemResponse();
             var secondGreatestPrice = 0m;
-            var secondGreatestPricedItem = new ItemResponse(); 
+            var secondGreatestPricedItem = new ItemResponse();
             foreach (var item in ItemPrices) {
                 if (item.salePrice > greatestPrice) {
                     secondGreatestPrice = greatestPrice;
-                    secondGreatestPricedItem = greatestPriceItem; 
+                    secondGreatestPricedItem = greatestPriceItem;
                     greatestPrice = item.salePrice;
-                    greatestPriceItem = item; 
+                    greatestPriceItem = item;
                 }
             }
-            condensedItems = ItemPrices; 
+            condensedItems = ItemPrices;
             condensedItems.Remove(greatestPriceItem);
             if (condensedItems.Count() > 4 && (secondGreatestPrice > (average + (average * 3))))
                 condensedItems.Remove(secondGreatestPricedItem);
@@ -166,13 +180,25 @@ namespace RachelsRosesWebPages {
                 if (response.name.ToLower().Contains(word))
                     countSimilarWordsFromIngredientNameWithProductName++;
             }
-            var similarities = 0m;
+            var similarities = 0;
             if (CompareWeightInOuncesFromItemResponseToIngredientSellingWeight(response, i)) {
                 similarities = countSimilarWordsFromIngredientNameWithProductName / countIngredientNameWords;
             }
             if (similarities == 1 || (countSimilarWordsFromIngredientNameWithProductName == countIngredientNameWords))
                 return true;
             else return false;
+        }
+        public bool SimilaritesInStrings(string first, string toCompareTo) {
+            //the second parameter is the string to compare it to 
+            var countSimilarites = 0;
+            var firstArray = first.ToLower().Split(' ');
+            foreach (var word in firstArray) {
+                if (toCompareTo.ToLower().Contains(word))
+                    countSimilarites++;
+            }
+            if (countSimilarites == firstArray.Count())
+                return true;
+            return false;
         }
     }
 }
