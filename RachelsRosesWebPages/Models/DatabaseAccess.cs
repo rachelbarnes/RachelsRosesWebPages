@@ -49,6 +49,15 @@ namespace RachelsRosesWebPages.Models {
             return MyRecipeBox;
         }
         public void UpdateRecipe(Recipe r) {
+            var myRecipes = queryRecipes();
+            foreach (var recipe in myRecipes) {
+                if (recipe.id == r.id) {
+                    if (recipe.yield != r.yield) {
+                        recipe.yield = r.yield;
+                        //UpdateRecipeYield(recipe);
+                    }
+                }
+            }
             var commandText = "update recipes set name=@name, yield=@yield, aggregated_price=@aggregated_price where recipe_id=@rid;";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@name", r.name);
@@ -71,6 +80,7 @@ namespace RachelsRosesWebPages.Models {
             var aggregatedPrice = 0m;
             var myRecipeBox = queryRecipes();
             var myIngredients = queryIngredients();
+            var myRecipeIngredients = new List<Ingredient>();
             var myRecipe = new Recipe();
             foreach (var recipe in myRecipeBox) {
                 if (recipe.id == r.id) {
@@ -80,6 +90,7 @@ namespace RachelsRosesWebPages.Models {
             }
             foreach (var ingredient in myIngredients) {
                 if (ingredient.recipeId == myRecipe.id) {
+                    //i'm trying to query all the ingredients, which i need to have the selling weight in order to obtain other information fro querying all the ingredients
                     var currentIngredient = queryAllTablesForIngredient(ingredient);
                     aggregatedPrice += currentIngredient.priceOfMeasuredConsumption;
                     myRecipe.ingredients.Add(ingredient);
@@ -87,14 +98,8 @@ namespace RachelsRosesWebPages.Models {
             }
             myRecipe.aggregatedPrice = aggregatedPrice;
             return myRecipe;
-            //var myIngredients = GetFullRecipe(r).ingredients;
-            //var aggregatedPrice = 0m;
-            //foreach (var ing in r.ingredients) {
-            //    aggregatedPrice += ing.priceOfMeasuredConsumption;
-            //}
-            //return aggregatedPrice;
         }
-        public List<Recipe> GetRecipeBox() {
+        public List<Recipe> MyRecipeBox() {
             var myRecipes = queryRecipes();
             var myRecipeBox = new List<Recipe>();
             foreach (var recipe in myRecipes) {
@@ -149,22 +154,40 @@ namespace RachelsRosesWebPages.Models {
         }
         public void UpdateRecipeYield(Recipe r) {
             var convert = new ConvertMeasurement();
-            var myRecipeBox = GetRecipeBox();
+            var myRecipeBox = MyRecipeBox();
             foreach (var recipe in myRecipeBox) {
                 var myIngredients = queryAllTablesForAllIngredients(recipe.ingredients);
+                var tempIngredient = new Ingredient();
                 if (recipe.id == r.id) {
                     foreach (var ingredient in recipe.ingredients) {
-                        var density = returnIngredientDensityFromDensityTable(ingredient);
-                        var newIngredientMeasurement = convert.AdjustIngredientMeasurement(ingredient.measurement, recipe.yield, r.yield);
-                        ingredient.measurement = newIngredientMeasurement;
-                        updateAllTables(ingredient, r);
+                        tempIngredient = ingredient;
+                        if (tempIngredient.density == 0)
+                            tempIngredient.density = returnIngredientDensityFromDensityTable(ingredient);
+                        tempIngredient.measurement = convert.AdjustIngredientMeasurement(ingredient.measurement, recipe.yield, r.yield);
+                        updateAllTables(tempIngredient, r);
+                        var myUpdatedIngredient = queryAllTablesForIngredient(tempIngredient);
+                        //why is this not transfering?!?!?!
                     }
                     recipe.yield = r.yield;
                     GetFullRecipePrice(recipe);
+                    var myUpdatedIngredients = queryAllTablesForAllIngredients(recipe.ingredients);
                 }
             }
         }
-
+        public void UpdateListOfRecipeYields(List<Recipe> myListOfRecipes) {
+            //var myRecipeBox = MyRecipeBox();
+            var myListOfRecipesIds = new List<int>();
+            foreach (var recipe in myListOfRecipes) {
+                if (!myListOfRecipesIds.Contains(recipe.id)) {
+                    myListOfRecipesIds.Add(recipe.id);
+                }
+            }
+            var myUpdatedRecipeBox = MyRecipeBox();
+            foreach (var recipe in myListOfRecipes) {
+                    var currentRecipe = GetFullRecipe(recipe);
+                    UpdateRecipeYield(recipe);
+            }
+        }
         //ingredient table methods: 
         public List<Ingredient> queryIngredients() {
             var count = 1;
@@ -203,6 +226,8 @@ namespace RachelsRosesWebPages.Models {
                     if (i.itemId == 0)
                         i.itemId = rest.GetItemResponse(i).itemId;
                     else i.itemId = ing.itemId;
+                    //seeing that this doesn't have an item id, i'm assuming that a rest call was unsuccessful...
+                    //something that impt can't be this untempered and unpredictable... 
                     break;
                 }
             }
@@ -226,18 +251,13 @@ namespace RachelsRosesWebPages.Models {
                 if (ing.ingredientId == i.ingredientId) {
                     if (ing.sellingPrice == 0m)
                         i.sellingPrice = rest.GetItemResponse(i).salePrice;
+                    //that's weird... that selling price is still not getting  called/checked/
                     else i.sellingPrice = ing.sellingPrice;
                     if (ing.pricePerOunce == 0m)
                         i.pricePerOunce = (i.sellingPrice / i.sellingWeightInOunces);
                     else i.pricePerOunce = ing.pricePerOunce;
                     i.sellingWeight = ing.sellingWeight;
                     i.itemId = ing.itemId;
-                    break;
-                }
-            }
-            foreach (var ing in myDensityInfoTable) {
-                if (ing.ingredientId == i.ingredientId) {
-                    i.density = ing.density;
                     break;
                 }
             }
@@ -254,6 +274,7 @@ namespace RachelsRosesWebPages.Models {
             foreach (var ingredient in ListOfIngredients)
                 queriedListOfIngredients.Add(queryAllTablesForIngredient(ingredient));
             return queriedListOfIngredients;
+            //this queried list of ingredients has 2 of the same... need to find where it's doubling
         }
         public void insertIngredient(Ingredient i, Recipe r) {
             var rest = new MakeRESTCalls();
@@ -271,11 +292,13 @@ namespace RachelsRosesWebPages.Models {
             });
         }
         public void UpdateIngredient(Ingredient i) {
+            var myIngredients = queryIngredients();
             var rest = new MakeRESTCalls();
             if (i.itemId == 0)
                 i.itemId = rest.GetItemResponse(i).itemId;
             if (i.priceOfMeasuredConsumption == 0)
                 i.priceOfMeasuredConsumption = returnIngredientMeasuredPrice(i);
+            var myIngredientId = i.ingredientId;
             var commandText = "update ingredients set name=@name, measurement=@measurement, recipe_id=@recipeId, price_measured_ingredient=@price_measured_ingredient, item_id=@item_id where ing_id=@ingredientId;";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@name", i.name);
@@ -346,11 +369,12 @@ namespace RachelsRosesWebPages.Models {
             }
             if (countIngredients == 0) {
                 insertIngredient(i, r);
+                insertIngredientIntoDensityInfoDatabase(i);
+                //i'm not getting the density from this... just because i can see it doesn't mean i'm assigning it or querying it
                 insertIngredientDensityData(i);
                 insertIngredientConsumtionData(i);
-                insertIngredientIntoDensityInfoDatabase(i);
                 insertIngredientCostDataCostTable(i);
-                UpdateIngredient(i);
+                updateAllTables(i, r);
             } else {
                 UpdateIngredient(i);
                 updateDensityInfoTable(i);
@@ -427,6 +451,7 @@ namespace RachelsRosesWebPages.Models {
         public void insertIngredientDensityData(Ingredient i) {
             var convert = new ConvertWeight();
             var rest = new MakeRESTCalls();
+            i.density = returnIngredientDensityFromDensityTable(i);
             i.sellingPrice = rest.GetItemResponse(i).salePrice;
             i.sellingWeightInOunces = convert.ConvertWeightToOunces(i.sellingWeight);
             i.pricePerOunce = Math.Round((i.sellingPrice / i.sellingWeightInOunces), 4);
@@ -580,15 +605,21 @@ namespace RachelsRosesWebPages.Models {
             });
             return DensityInfo;
         }
-        public void insertIngredientIntoDensityInfoDatabase(Ingredient myIngredient) {
+        public void insertIngredientIntoDensityInfoDatabase(Ingredient i) {
             var myDensityInfoTable = queryDensityInfoTable();
             if (myDensityInfoTable.Count() == 0)
                 insertDensityTextFileIntoDensityInfoDatabase(@"C: \Users\Rachel\Documents\Visual Studio 2015\Projects\RachelsRosesWebPages\RachelsRosesWebPages\densityTxtDatabase.txt");
-            else {
+            var myUpdatedDensityInfoTable = queryDensityInfoTable();
+            var countSimilarIngredients = 0;
+            foreach (var ingredient in myUpdatedDensityInfoTable) {
+                if (i.name.Contains(ingredient.name))
+                    countSimilarIngredients++;
+            }
+            if (countSimilarIngredients == 1 && i.density != 0) {
                 var commandText = @"Insert into densityInfo (ingredient, density) values (@ingredient, @density);";
                 executeVoidQuery(commandText, cmd => {
-                    cmd.Parameters.AddWithValue("@ingredient", myIngredient.name);
-                    cmd.Parameters.AddWithValue("@density", myIngredient.density);
+                    cmd.Parameters.AddWithValue("@ingredient", i.name);
+                    cmd.Parameters.AddWithValue("@density", i.density);
                     return cmd;
                 });
             }
@@ -662,14 +693,14 @@ namespace RachelsRosesWebPages.Models {
             var rest = new MakeRESTCalls();
             var myIngredients = queryIngredients();
             var myDensityIngredients = queryDensityInfoTable();
-            var myIngredientDensity = 0m; 
+            var myIngredientDensity = 0m;
             foreach (var ingredient in myDensityIngredients) {
                 if (rest.SimilaritesInStrings(i.name, ingredient.name)) {
-                    myIngredientDensity = ingredient.density; 
+                    myIngredientDensity = ingredient.density;
                     break;
                 }
             }
-            return myIngredientDensity; 
+            return myIngredientDensity;
         }
         public void updateListOfIngredientsInDensityInfoTable(List<Ingredient> MyIngredients) {
             var myDensityTableInfo = queryDensityInfoTable();

@@ -1104,7 +1104,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.insertIngredientIntoAllTables(i, r);
             var mydensityDataInformation = t.queryDensityInfoTable();
             var semiSweetMorsels = t.queryAllTablesForIngredient(i);
-            var myRecipes = t.GetRecipeBox();
+            var myRecipes = t.MyRecipeBox();
             Assert.AreEqual("all purpose flour", mydensityDataInformation[0].name);
             Assert.AreEqual(1, myRecipes.Count());
             Assert.AreEqual(6.98m, semiSweetMorsels.sellingPrice);
@@ -1181,7 +1181,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.initializeDatabase();
             t.insertListOfIngredientsIntoAllTables(ListOfIngredients, r);
             var myIngredients = t.queryAllTablesForAllIngredients(ListOfIngredients);
-            var myRecieBox = t.GetRecipeBox();
+            var myRecieBox = t.MyRecipeBox();
             Assert.AreEqual(1, myRecieBox.Count());
             Assert.AreEqual(1.84m, myIngredients[0].priceOfMeasuredConsumption);
             Assert.AreEqual(1.29m, myRecieBox[0].aggregatedPrice);
@@ -1259,7 +1259,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.initializeDatabase();
             var winterCookieIngredients = new List<Ingredient> { flour, bakingSoda, salt, rolledOats, brownSugar, granulatedSugar, driedCranberries, whiteChocolate, choppedPecans };
             t.insertListOfIngredientsIntoAllTables(winterCookieIngredients, winterCookies);
-            var myIngredients = t.queryAllTablesForAllIngredients(winterCookieIngredients); 
+            var myIngredients = t.queryAllTablesForAllIngredients(winterCookieIngredients);
             var myRecipes = t.GetFullRecipe(winterCookies);
             Assert.AreEqual(9, myIngredients.Count());
             Assert.AreEqual(.26m, myIngredients[0].priceOfMeasuredConsumption);
@@ -1362,7 +1362,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.GetFullRecipePrice(winterCookies);
             t.GetFullRecipePrice(chocolateChipCookies);
             var myWinterCookieIngredients = t.queryAllTablesForAllIngredients(winterCookieIngredients);
-            var myChocolateChipCookieIngredients = t.queryAllTablesForAllIngredients(chocolateChipCookieIngredients); 
+            var myChocolateChipCookieIngredients = t.queryAllTablesForAllIngredients(chocolateChipCookieIngredients);
             var myRecipes = t.queryRecipes();
             Assert.AreEqual(2, myRecipes.Count());
             Assert.AreEqual(9, myWinterCookieIngredients.Count());
@@ -1415,7 +1415,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.GetFullRecipePrice(brownies);
             t.GetFullRecipePrice(cake);
             var myIngredients = t.queryIngredients();
-            var myRecipeBox = t.GetRecipeBox();
+            var myRecipeBox = t.MyRecipeBox();
             Assert.AreEqual(2, myRecipeBox.Count());
             Assert.AreEqual(1.74m, myRecipeBox[0].ingredients[0].priceOfMeasuredConsumption);
             Assert.AreEqual(1.74m, myIngredients[0].priceOfMeasuredConsumption);
@@ -1548,7 +1548,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.insertListOfIngredientsIntoAllTables(cinnamonBreadIngredients, cinnamonSwirlBread);
             t.insertListOfIngredientsIntoAllTables(buttermilkBreadIngredients, honeyButtermilkBread);
             t.insertListOfIngredientsIntoAllTables(wholeWheatBreadIngredients, wholeWheatBread);
-            var myRecipeBox = t.GetRecipeBox();
+            var myRecipeBox = t.MyRecipeBox();
             var myIngredients = t.queryIngredients();
             Assert.AreEqual(3, myRecipeBox.Count());
             //Assert.AreEqual(15, myIngredients.Count()); //this is with the butter included
@@ -1815,7 +1815,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.GetFullRecipePrice(brownies);
             t.GetFullRecipePrice(cake);
             var myIngredients = t.queryIngredients();
-            var myRecipeBox = t.GetRecipeBox();
+            var myRecipeBox = t.MyRecipeBox();
             Assert.AreEqual(2, myRecipeBox.Count());
             Assert.AreEqual(1.74m, myRecipeBox[0].ingredients[0].priceOfMeasuredConsumption);
             Assert.AreEqual(1.74m, myIngredients[0].priceOfMeasuredConsumption);
@@ -1852,7 +1852,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.insertListOfIngredientsIntoAllTables(cakeIngredients, cake);
             var myBrownieIngredients = t.ReturnRecipeIngredients(brownies);
             var myCakeIngredients = t.ReturnRecipeIngredients(cake);
-            var myRecipeBox = t.GetRecipeBox();
+            var myRecipeBox = t.MyRecipeBox();
             Assert.AreEqual(2, myRecipeBox.Count());
             Assert.AreEqual(cocoa.name, myRecipeBox[0].ingredients[0].name);
             Assert.AreEqual(breadFlour.name, myRecipeBox[1].ingredients[0].name);
@@ -1923,11 +1923,11 @@ namespace RachelsRosesWebPagesUnitTests {
             t.initializeDatabase();
             t.insertListOfIngredientsIntoAllTables(winterCookiesIngredients, winterCranberryCookies);
             var myIngredients = t.queryAllTablesForAllIngredients(winterCookiesIngredients);
-            var myRecipeBox = t.GetRecipeBox();
+            var myRecipeBox = t.MyRecipeBox();
             winterCranberryCookies.yield = 36;
             t.updateAllTablesForAllIngredients(winterCookiesIngredients, winterCranberryCookies);
             var myUpdatedIngredients = t.queryAllTablesForAllIngredients(winterCookiesIngredients);
-            var myUpdatedRecipeBox = t.GetRecipeBox();
+            var myUpdatedRecipeBox = t.MyRecipeBox();
             Assert.AreEqual(1, myRecipeBox.Count());
             Assert.AreEqual(8, myRecipeBox[0].ingredients.Count());
             Assert.AreEqual(8, myIngredients.Count());
@@ -1988,16 +1988,16 @@ namespace RachelsRosesWebPagesUnitTests {
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(i, r);
             var myIngredients = t.queryIngredients();
-            var myRecipeBox = t.GetRecipeBox();
+            var myRecipeBox = t.MyRecipeBox();
             r.yield = 48;
             t.updateAllTables(i, r);
             var myNewIngredients = t.queryIngredients();
-            var myNewRecipeBox = t.GetRecipeBox();
+            var myNewRecipeBox = t.MyRecipeBox();
             Assert.AreEqual(24, myRecipeBox[0].yield);
             Assert.AreEqual(48, myNewRecipeBox[0].yield);
             Assert.AreEqual("6 cups", myIngredients[0].measurement);
-            Assert.AreEqual("12 cups", myNewIngredients[0].measurement); 
-            
+            Assert.AreEqual("12 cups", myNewIngredients[0].measurement);
+
         }
         [Test]
         public void TestItemId() {
@@ -2026,17 +2026,17 @@ namespace RachelsRosesWebPagesUnitTests {
         [Test]
         public void TestGetListOfItemResponses() {
             var t = new DatabaseAccess();
-            var rest = new MakeRESTCalls(); 
+            var rest = new MakeRESTCalls();
             var r = new Recipe("bread") { id = 1 };
             var i = new Ingredient("bread flour") { ingredientId = 1, recipeId = 1, measurement = "6 cups", sellingWeight = "5 lb" };
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(i, r);
             var myIngredients = t.queryIngredients();
             var listOfItemResponses = rest.GetListItemResponses(i);
-            Assert.AreEqual(4, listOfItemResponses.Count()); 
+            Assert.AreEqual(4, listOfItemResponses.Count());
             Assert.AreEqual(10308169, myIngredients[0].itemId);
             Assert.AreEqual(10308169, listOfItemResponses[0].itemId);
-            Assert.AreEqual(true, listOfItemResponses[0].name.Contains(i.sellingWeight));  
+            Assert.AreEqual(true, listOfItemResponses[0].name.Contains(i.sellingWeight));
         }
         [Test]
         public void TestUpdateRecipeYield() {
@@ -2046,19 +2046,149 @@ namespace RachelsRosesWebPagesUnitTests {
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(i, r);
             var myIngredients = t.queryIngredients();
-            var myRecipeBox = t.GetRecipeBox();
-            r.yield = 36; 
+            var myRecipeBox = t.MyRecipeBox();
+            r.yield = 36;
             t.UpdateRecipeYield(r);
             var myUpdatedIngredients = t.queryIngredients();
-            var myUpdatedRecipeBox = t.GetRecipeBox();
+            var myUpdatedRecipeBox = t.MyRecipeBox();
             Assert.AreEqual(18, myRecipeBox[0].yield);
             Assert.AreEqual(1, myIngredients.Count());
             Assert.AreEqual("6 cups", myIngredients[0].measurement);
-            Assert.AreEqual(1.70m, myIngredients[0].priceOfMeasuredConsumption);
+            Assert.AreEqual(1.06m, myIngredients[0].priceOfMeasuredConsumption);
             Assert.AreEqual(36, myUpdatedRecipeBox[0].yield);
             Assert.AreEqual(1, myUpdatedRecipeBox.Count());
-            Assert.AreEqual("12 cups", myIngredients[0].measurement); 
-            Assert.AreEqual(3.38m, myUpdatedIngredients[0].priceOfMeasuredConsumption); 
+            Assert.AreEqual("12 cups", myUpdatedIngredients[0].measurement);
+            Assert.AreEqual(2.12m, myUpdatedIngredients[0].priceOfMeasuredConsumption);
+        }
+        [Test]
+        public void TestUpatedRecipeYieldForMoreThanOneIngredientInARecipe() {
+            var t = new DatabaseAccess();
+            var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 1, yield = 24 };
+            var honey = new Ingredient("Honey") { recipeId = 1, ingredientId = 1, measurement = "1/3 cup", sellingWeight = "32 oz" };
+            var salt = new Ingredient("Salt") { recipeId = 1, ingredientId = 2, measurement = "1 teaspoon", sellingWeight = "48 oz" };
+            var granulatedSugar = new Ingredient("Granulated Sugar") { recipeId = 1, ingredientId = 3, measurement = "1 teaspoon", sellingWeight = "4 lb" }; 
+            var activeDryYeast = new Ingredient("Active Dry Yeast") { recipeId = 1, ingredientId = 4, measurement = "2 1/4 teaspoons", sellingWeight = "4 oz" };
+            var honeyButtermilkBreadIngredients = new List<Ingredient> { honey, salt, granulatedSugar, activeDryYeast };
+            t.initializeDatabase();
+            t.insertListOfIngredientsIntoAllTables(honeyButtermilkBreadIngredients, honeyButtermilkBread);
+            var myIngredients = t.queryIngredients();
+            var myRecipeBox = t.MyRecipeBox();
+            honeyButtermilkBread.yield = 120;
+            t.UpdateRecipeYield(honeyButtermilkBread);
+            var myUpdatedIngredients = t.queryIngredients();
+            var myUpdatedRecipeBox = t.MyRecipeBox();
+            Assert.AreEqual(1, myRecipeBox.Count());
+            Assert.AreEqual(4, myIngredients.Count());
+            Assert.AreEqual("1/3 cup", myRecipeBox[0].ingredients[0].measurement);
+            Assert.AreEqual(.98m, myRecipeBox[0].ingredients[0].priceOfMeasuredConsumption);
+            Assert.AreEqual("1 teaspoon", myRecipeBox[0].ingredients[1].measurement);
+            Assert.AreEqual(.01m, myRecipeBox[0].ingredients[1].priceOfMeasuredConsumption);
+            Assert.AreEqual("1 teaspoon", myRecipeBox[0].ingredients[2].measurement);
+            Assert.AreEqual(.01m, myRecipeBox[0].ingredients[2].priceOfMeasuredConsumption);
+            Assert.AreEqual("2 1/4 teaspoons", myRecipeBox[0].ingredients[3].measurement);
+            Assert.AreEqual(.31m, myRecipeBox[0].ingredients[3].priceOfMeasuredConsumption);
+            Assert.AreEqual(1.31m, myRecipeBox[0].aggregatedPrice);
+            Assert.AreEqual(1, myUpdatedRecipeBox.Count());
+            Assert.AreEqual(4, myUpdatedIngredients.Count());
+            Assert.AreEqual("1.625 cups 2 teaspoons", myUpdatedRecipeBox[0].ingredients[0].measurement);
+            Assert.AreEqual(4.92m, myUpdatedRecipeBox[0].ingredients[0].priceOfMeasuredConsumption);
+            Assert.AreEqual("1 tablespoons 2 teaspoons", myUpdatedRecipeBox[0].ingredients[1].measurement);
+            Assert.AreEqual(.06m, myUpdatedRecipeBox[0].ingredients[1].priceOfMeasuredConsumption);
+            Assert.AreEqual("1 tablespoons 2 teaspoons", myUpdatedRecipeBox[0].ingredients[2].measurement); //2.44
+            Assert.AreEqual(.03m, myUpdatedRecipeBox[0].ingredients[2].priceOfMeasuredConsumption);
+            Assert.AreEqual(".125 cups 1 tablespoons 2.25 teaspoons", myUpdatedRecipeBox[0].ingredients[3].measurement);
+            Assert.AreEqual(1.56m, myUpdatedRecipeBox[0].ingredients[3].priceOfMeasuredConsumption);
+            Assert.AreEqual(6.57m, myUpdatedRecipeBox[0].aggregatedPrice); 
+        }
+        [Test]
+        public void Test2RecipesAdjustYieldAndIngredients() {
+            var t = new DatabaseAccess();
+            var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 1, yield = 24 };
+            var cinnamonSwirlBread = new Recipe("Cinnamon Swirl Buttermilk Bread") { id = 2, yield = 18 };
+            var honey = new Ingredient("Honey") { recipeId = 1, ingredientId = 1, measurement = "1/3 cup", sellingWeight = "32 oz" };
+            var activeDryYeast = new Ingredient("Active Dry Yeast") { recipeId = 1, ingredientId = 2, measurement = "2 1/4 teaspoons",sellingWeight = "4 oz" };
+            var cinnamon = new Ingredient("Cinnamon") { recipeId = 2, ingredientId = 3, measurement = "3 tablespoons", sellingWeight = "8.75 oz" };
+            var breadFlour = new Ingredient("Bread Flour") { recipeId = 2, ingredientId = 4, measurement = "6 cups", sellingWeight = "5 lb" };
+            var honeyButtemrilkBreadIngredients = new List<Ingredient> { honey, activeDryYeast };
+            var cinnamonSwirlBreadIngredients = new List<Ingredient> { cinnamon, breadFlour };
+            t.initializeDatabase();
+            t.insertListOfIngredientsIntoAllTables(honeyButtemrilkBreadIngredients, honeyButtermilkBread);
+            t.insertListOfIngredientsIntoAllTables(cinnamonSwirlBreadIngredients, cinnamonSwirlBread);
+            var myIngredients = t.queryIngredients();
+            var myRecipeBox = t.MyRecipeBox();
+            honeyButtermilkBread.yield = 48; //*2
+            cinnamonSwirlBread.yield = 54; //*3
+            t.UpdateRecipeYield(honeyButtermilkBread);
+            t.UpdateRecipeYield(cinnamonSwirlBread);
+            var myUpdatedIngredients = t.queryIngredients();
+            var myUpdatedRecipBox = t.MyRecipeBox();
+            Assert.AreEqual(2, myRecipeBox.Count());
+            Assert.AreEqual(4, myIngredients.Count());
+            Assert.AreEqual("1/3 cup", myRecipeBox[0].ingredients[0].measurement);
+            Assert.AreEqual(.98m, myRecipeBox[0].ingredients[0].priceOfMeasuredConsumption);
+            Assert.AreEqual(.31m, myRecipeBox[0].ingredients[1].priceOfMeasuredConsumption);
+            Assert.AreEqual(1.29m, myRecipeBox[0].aggregatedPrice);
+            Assert.AreEqual(.52m, myRecipeBox[1].ingredients[0].priceOfMeasuredConsumption);
+            Assert.AreEqual(1.06m, myRecipeBox[1].ingredients[1].priceOfMeasuredConsumption);
+            Assert.AreEqual(1.58m, myRecipeBox[1].aggregatedPrice); 
+            Assert.AreEqual(2, myUpdatedRecipBox.Count());
+            Assert.AreEqual(4, myUpdatedIngredients.Count());
+            Assert.AreEqual(".66 cups", myUpdatedRecipBox[0].ingredients[0].measurement);
+            //this one is .625  cups 2 teaspoons, but it should be .66
+            Assert.AreEqual(1.95m, myUpdatedRecipBox[0].ingredients[0].priceOfMeasuredConsumption);
+            Assert.AreEqual("1 tablespoons 1.5 teaspoons", myUpdatedRecipBox[0].ingredients[1].measurement);
+            Assert.AreEqual(.62m, myUpdatedRecipBox[0].ingredients[1].priceOfMeasuredConsumption);
+            Assert.AreEqual(2.57m, myUpdatedRecipBox[0].aggregatedPrice); 
+            Assert.AreEqual(".5 cups 1 tablespoons", myUpdatedRecipBox[1].ingredients[0].measurement);
+            Assert.AreEqual(1.56m, myUpdatedRecipBox[1].ingredients[0].priceOfMeasuredConsumption);
+            Assert.AreEqual("18 cups", myUpdatedRecipBox[1].ingredients[1].measurement);
+            Assert.AreEqual(3.18m, myUpdatedRecipBox[1].ingredients[1].priceOfMeasuredConsumption);
+            Assert.AreEqual(4.74m, myUpdatedRecipBox[1].aggregatedPrice); 
+        }
+        [Test]
+        public void TestUpdateYieldForListOfRecipes() {
+            var t = new DatabaseAccess();
+            var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 1, yield = 24 };
+            var cinnamonSwirlBread = new Recipe("Cinnamon Swirl Buttermilk Bread") { id = 2, yield = 18 };
+            var honey = new Ingredient("Honey") { recipeId = 1, ingredientId = 1, measurement = "1/3 cup", sellingWeight = "32 oz" };
+            var activeDryYeast = new Ingredient("Active Dry Yeast") { recipeId = 1, ingredientId = 2, measurement = "2 1/4 teaspoons",sellingWeight = "4 oz" };
+            var cinnamon = new Ingredient("Cinnamon") { recipeId = 2, ingredientId = 3, measurement = "3 tablespoons", sellingWeight = "8.75 oz" };
+            var breadFlour = new Ingredient("Bread Flour") { recipeId = 2, ingredientId = 4, measurement = "6 cups", sellingWeight = "5 lb" };
+            var honeyButtemrilkBreadIngredients = new List<Ingredient> { honey, activeDryYeast };
+            var cinnamonSwirlBreadIngredients = new List<Ingredient> { cinnamon, breadFlour };
+            var myRecipes = new List<Recipe> { honeyButtermilkBread, cinnamonSwirlBread }; 
+            t.initializeDatabase();
+            t.insertListOfIngredientsIntoAllTables(honeyButtemrilkBreadIngredients, honeyButtermilkBread);
+            t.insertListOfIngredientsIntoAllTables(cinnamonSwirlBreadIngredients, cinnamonSwirlBread);
+            var myIngredients = t.queryIngredients();
+            var myRecipeBox = t.MyRecipeBox();
+            honeyButtermilkBread.yield = 48; //*2
+            cinnamonSwirlBread.yield = 54; //*3
+            t.UpdateListOfRecipeYields(myRecipes); 
+            var myUpdatedIngredients = t.queryIngredients();
+            var myUpdatedRecipBox = t.MyRecipeBox();
+            Assert.AreEqual(2, myRecipeBox.Count());
+            Assert.AreEqual(4, myIngredients.Count());
+            Assert.AreEqual("1/3 cup", myRecipeBox[0].ingredients[0].measurement);
+            Assert.AreEqual(.98m, myRecipeBox[0].ingredients[0].priceOfMeasuredConsumption);
+            Assert.AreEqual(.31m, myRecipeBox[0].ingredients[1].priceOfMeasuredConsumption);
+            Assert.AreEqual(1.29m, myRecipeBox[0].aggregatedPrice);
+            Assert.AreEqual(.52m, myRecipeBox[1].ingredients[0].priceOfMeasuredConsumption);
+            Assert.AreEqual(1.06m, myRecipeBox[1].ingredients[1].priceOfMeasuredConsumption);
+            Assert.AreEqual(1.58m, myRecipeBox[1].aggregatedPrice); 
+            Assert.AreEqual(2, myUpdatedRecipBox.Count());
+            Assert.AreEqual(4, myUpdatedIngredients.Count());
+            Assert.AreEqual(".66 cups", myUpdatedRecipBox[0].ingredients[0].measurement);
+            //this one is .625  cups 2 teaspoons, but it should be .66
+            Assert.AreEqual(1.95m, myUpdatedRecipBox[0].ingredients[0].priceOfMeasuredConsumption);
+            Assert.AreEqual("1 tablespoons 1.5 teaspoons", myUpdatedRecipBox[0].ingredients[1].measurement);
+            Assert.AreEqual(.62m, myUpdatedRecipBox[0].ingredients[1].priceOfMeasuredConsumption);
+            Assert.AreEqual(2.57m, myUpdatedRecipBox[0].aggregatedPrice); 
+            Assert.AreEqual(".5 cups 1 tablespoons", myUpdatedRecipBox[1].ingredients[0].measurement);
+            Assert.AreEqual(1.56m, myUpdatedRecipBox[1].ingredients[0].priceOfMeasuredConsumption);
+            Assert.AreEqual("18 cups", myUpdatedRecipBox[1].ingredients[1].measurement);
+            Assert.AreEqual(3.18m, myUpdatedRecipBox[1].ingredients[1].priceOfMeasuredConsumption);
+            Assert.AreEqual(4.74m, myUpdatedRecipBox[1].aggregatedPrice); 
         }
     }
 }

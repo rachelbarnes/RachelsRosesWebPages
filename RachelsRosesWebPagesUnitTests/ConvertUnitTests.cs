@@ -703,5 +703,12 @@ namespace RachelsRosesWebPages.Controllers {
             var actual = convert.AdjustIngredientMeasurement("8 egg whites, stiffly beaten to a meringue", 30, 60);
             Assert.AreEqual(expected, actual); 
         }
+        [Test]
+        public void TestCondenseTwoThirdsCups() {
+            var convert = new ConvertMeasurement();
+            var expected = ".66 cups";
+            var actual = convert.AdjustIngredientMeasurement("1/3 cup", 1, 2);
+            Assert.AreEqual(expected, actual); 
+        }
     }
 }

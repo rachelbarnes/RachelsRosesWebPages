@@ -239,7 +239,14 @@ namespace RachelsRosesWebPages {
                         measDict.Add("cups", 1m);
                     teaspoons -= 48m;
                 }
-                if (teaspoons < 48 && teaspoons >= 24) {
+                if (teaspoons < 48 && teaspoons >= 32) {
+                    if (measDict.Keys.Contains("cups"))
+                        measDict["cups"] = measDict["cups"] + .66m;
+                    if (!measDict.Keys.Contains("cups"))
+                        measDict.Add("cups", .66m);
+                    teaspoons -= 32;
+                }
+                if (teaspoons < 32 && teaspoons >= 24) {
                     if (measDict.Keys.Contains("cups"))
                         measDict["cups"] = measDict["cups"] + .5m;
                     if (!measDict.Keys.Contains("cups"))

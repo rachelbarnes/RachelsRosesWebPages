@@ -12,7 +12,7 @@ namespace RachelsRosesWebPages.Controllers {
         public static Ingredient currentIngredient = new Ingredient();
         public List<Recipe> getRecipes() {
             var db = new DatabaseAccess();
-            return db.GetRecipeBox();
+            return db.MyRecipeBox();
         }
         public ActionResult Recipes() {
             var myRecipes = getRecipes();
