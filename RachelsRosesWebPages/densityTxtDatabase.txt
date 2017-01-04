@@ -10,7 +10,7 @@ brown sugar: 7.75
 powdered sugar sifted: 3.6 
 powdered sugar: 4.4
 milk powder: 4.4
-cocoa powder: 4.16
+baking cocoa: 4.16
 baking soda: 8.57
 baking powder:8.4
 salt: 10.72

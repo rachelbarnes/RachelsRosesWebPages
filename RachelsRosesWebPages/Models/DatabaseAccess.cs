@@ -90,7 +90,6 @@ namespace RachelsRosesWebPages.Models {
             }
             foreach (var ingredient in myIngredients) {
                 if (ingredient.recipeId == myRecipe.id) {
-                    //i'm trying to query all the ingredients, which i need to have the selling weight in order to obtain other information fro querying all the ingredients
                     var currentIngredient = queryAllTablesForIngredient(ingredient);
                     aggregatedPrice += currentIngredient.priceOfMeasuredConsumption;
                     myRecipe.ingredients.Add(ingredient);
@@ -184,8 +183,8 @@ namespace RachelsRosesWebPages.Models {
             }
             var myUpdatedRecipeBox = MyRecipeBox();
             foreach (var recipe in myListOfRecipes) {
-                    var currentRecipe = GetFullRecipe(recipe);
-                    UpdateRecipeYield(recipe);
+                var currentRecipe = GetFullRecipe(recipe);
+                UpdateRecipeYield(recipe);
             }
         }
         //ingredient table methods: 
@@ -198,6 +197,7 @@ namespace RachelsRosesWebPages.Models {
                 //ingredient.ingredientId = (int)reader["ing_id"];
                 ingredient.priceOfMeasuredConsumption = (decimal)reader["price_measured_ingredient"];
                 ingredient.itemId = (int)reader["item_id"];
+                ingredient.typeOfIngredient = (string)reader["ingredient_type"];
                 return ingredient;
             });
             foreach (var ingredient in myIngredientBox)
@@ -223,11 +223,10 @@ namespace RachelsRosesWebPages.Models {
                 if (ing.ingredientId == i.ingredientId) {
                     i.recipeId = ing.recipeId;
                     i.measurement = ing.measurement;
+                    i.typeOfIngredient = ing.typeOfIngredient;
                     if (i.itemId == 0)
                         i.itemId = rest.GetItemResponse(i).itemId;
                     else i.itemId = ing.itemId;
-                    //seeing that this doesn't have an item id, i'm assuming that a rest call was unsuccessful...
-                    //something that impt can't be this untempered and unpredictable... 
                     break;
                 }
             }
@@ -251,7 +250,6 @@ namespace RachelsRosesWebPages.Models {
                 if (ing.ingredientId == i.ingredientId) {
                     if (ing.sellingPrice == 0m)
                         i.sellingPrice = rest.GetItemResponse(i).salePrice;
-                    //that's weird... that selling price is still not getting  called/checked/
                     else i.sellingPrice = ing.sellingPrice;
                     if (ing.pricePerOunce == 0m)
                         i.pricePerOunce = (i.sellingPrice / i.sellingWeightInOunces);
@@ -280,14 +278,14 @@ namespace RachelsRosesWebPages.Models {
             var rest = new MakeRESTCalls();
             if (i.itemId == 0)
                 i.itemId = rest.GetItemResponse(i).itemId;
-            var commandText = "Insert into ingredients(recipe_id, name, measurement, price_measured_ingredient, item_id) values (@rid, @name, @measurement, @price_measured_ingredient, @item_id);";
+            var commandText = "Insert into ingredients(recipe_id, name, measurement, price_measured_ingredient, item_id, ingredient_type) values (@rid, @name, @measurement, @price_measured_ingredient, @item_id, @ingredient_type);";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@rid", r.id);
                 cmd.Parameters.AddWithValue("@name", i.name);
                 cmd.Parameters.AddWithValue("@measurement", i.measurement);
-                //cmd.Parameters.AddWithValue("@ing_id", i.ingredientId); 
                 cmd.Parameters.AddWithValue("@price_measured_ingredient", i.priceOfMeasuredConsumption);
                 cmd.Parameters.AddWithValue("@item_id", i.itemId);
+                cmd.Parameters.AddWithValue("@ingredient_type", i.typeOfIngredient);
                 return cmd;
             });
         }
@@ -299,15 +297,15 @@ namespace RachelsRosesWebPages.Models {
             if (i.priceOfMeasuredConsumption == 0)
                 i.priceOfMeasuredConsumption = returnIngredientMeasuredPrice(i);
             var myIngredientId = i.ingredientId;
-            var commandText = "update ingredients set name=@name, measurement=@measurement, recipe_id=@recipeId, price_measured_ingredient=@price_measured_ingredient, item_id=@item_id where ing_id=@ingredientId;";
+            var commandText = "update ingredients set name=@name, measurement=@measurement, recipe_id=@recipeId, price_measured_ingredient=@price_measured_ingredient, item_id=@item_id, ingredient_type=@ingredient_type where ing_id=@ing_id;";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@name", i.name);
                 cmd.Parameters.AddWithValue("@measurement", i.measurement);
                 cmd.Parameters.AddWithValue("@recipeId", i.recipeId);
                 cmd.Parameters.AddWithValue("@ingredientId", i.ingredientId);
-                //cmd.Parameters.AddWithValue("@ing_id", i.ingredientId); 
                 cmd.Parameters.AddWithValue("@price_measured_ingredient", i.priceOfMeasuredConsumption);
                 cmd.Parameters.AddWithValue("@item_id", i.itemId);
+                cmd.Parameters.AddWithValue("@ingredient_type", i.typeOfIngredient);
                 return cmd;
             });
         }
@@ -321,7 +319,10 @@ namespace RachelsRosesWebPages.Models {
             var temp = new Ingredient();
             var measuredIngredientPrice = 0m;
             foreach (var ingredient in myConsumptionData) {
-                if (ingredient.name == i.name) {
+                if (ingredient.ingredientId== i.ingredientId) {
+                    //this right here needs to change!!!! 
+                    //i'm looking for the name in the consumption table information... 
+                    //there's 2 names for 
                     temp.ouncesConsumed = ingredient.ouncesConsumed;
                     break;
                 }
@@ -370,7 +371,6 @@ namespace RachelsRosesWebPages.Models {
             if (countIngredients == 0) {
                 insertIngredient(i, r);
                 insertIngredientIntoDensityInfoDatabase(i);
-                //i'm not getting the density from this... just because i can see it doesn't mean i'm assigning it or querying it
                 insertIngredientDensityData(i);
                 insertIngredientConsumtionData(i);
                 insertIngredientCostDataCostTable(i);
@@ -455,8 +455,8 @@ namespace RachelsRosesWebPages.Models {
             i.sellingPrice = rest.GetItemResponse(i).salePrice;
             i.sellingWeightInOunces = convert.ConvertWeightToOunces(i.sellingWeight);
             i.pricePerOunce = Math.Round((i.sellingPrice / i.sellingWeightInOunces), 4);
-            var commandText = @"Insert into densities (name, density, selling_weight, selling_weight_ounces, selling_price, price_per_ounce, item_id) 
-                            values (@name, @density, @selling_weight, @selling_weight_ounces, @selling_price, @price_per_ounce, @item_id);";
+            var commandText = @"Insert into densities (ing_id, name, density, selling_weight, selling_weight_ounces, selling_price, price_per_ounce, item_id) 
+                            values (@ing_id, @name, @density, @selling_weight, @selling_weight_ounces, @selling_price, @price_per_ounce, @item_id);";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@name", i.name);
                 cmd.Parameters.AddWithValue("@density", i.density);
@@ -499,29 +499,32 @@ namespace RachelsRosesWebPages.Models {
             var convert = new ConvertDensity();
             var myIngredients = queryIngredients();
             foreach (var ingredient in myIngredients) {
-                if (ingredient.name == i.name)
+                if (ingredient.ingredientId == i.ingredientId)
                     i.measurement = ingredient.measurement;
             }
             i.ouncesConsumed = convert.CalculateOuncesUsed(i);
-            var commandText = @"Insert into consumption (name, density, ounces_consumed, ounces_remaining) values (@name, @density, @ounces_consumed, @ounces_remaining);";
+            var commandText = @"Insert into consumption (name, density, ounces_consumed, ounces_remaining, ing_id, item_id) values (@name, @density, @ounces_consumed, @ounces_remaining, @ing_id, @item_id);";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
                 cmd.Parameters.AddWithValue("@name", i.name);
                 cmd.Parameters.AddWithValue("@density", i.density);
                 cmd.Parameters.AddWithValue("@ounces_consumed", i.ouncesConsumed);
                 cmd.Parameters.AddWithValue("@ounces_remaining", CalculateOuncesRemaining(i));
+                //cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
+                cmd.Parameters.AddWithValue("@item_id", i.itemId);
                 return cmd;
             });
         }
         public void updateConsumptionTable(Ingredient i) {
             var convert = new ConvertDensity();
-            var commandText = "update consumption set name=@name, density=@density, ounces_consumed=@ounces_consumed, ounces_remaining=@ounces_remaining where ing_id=@ing_id;";
+            var commandText = "update consumption set name=@name, density=@density, ounces_consumed=@ounces_consumed, ounces_remaining=@ounces_remaining, item_id=@item_id where ing_id=@ing_id;";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
                 cmd.Parameters.AddWithValue("@name", i.name);
                 cmd.Parameters.AddWithValue("@density", i.density);
                 cmd.Parameters.AddWithValue("@ounces_consumed", convert.CalculateOuncesUsed(i));
                 cmd.Parameters.AddWithValue("@ounces_remaining", CalculateOuncesRemaining(i));
+                cmd.Parameters.AddWithValue("@item_id", i.itemId); 
                 return cmd;
             });
         }
@@ -532,7 +535,7 @@ namespace RachelsRosesWebPages.Models {
             var myConsumedOunces = 0m;
             var temp = new Ingredient();
             foreach (var ingredient in myIngredients) {
-                if (ingredient.name == i.name) {
+                if (ingredient.ingredientId== i.ingredientId) {
                     temp.measurement = ingredient.measurement;
                     myConsumedOunces = convert.CalculateOuncesUsed(i);
                 }
@@ -601,6 +604,7 @@ namespace RachelsRosesWebPages.Models {
             var DensityInfo = queryItems("select * from densityInfo", reader => {
                 var densityIngredientInformation = new Ingredient(reader["ingredient"].ToString());
                 densityIngredientInformation.density = (decimal)reader["density"];
+                //densityIngredientInformation.ingredientId = (int)reader["ing_id"]; 
                 return densityIngredientInformation;
             });
             return DensityInfo;
@@ -612,8 +616,13 @@ namespace RachelsRosesWebPages.Models {
             var myUpdatedDensityInfoTable = queryDensityInfoTable();
             var countSimilarIngredients = 0;
             foreach (var ingredient in myUpdatedDensityInfoTable) {
-                if (i.name.Contains(ingredient.name))
+                if (i.name.ToLower().Contains(ingredient.name.ToLower())) {
+                    //i have been using breaks when i do these as a part of a design so it can stop at the point in the loop that it needs... 
+                    //but hte reality of the fact is if i get something where 2 match, then nothing will happen anyway... it's justa matter of if the first or the second will be the ones that will be hte one i'm looking for... 
+                    //i think i should do it anyway, if nothing else, for debugging. 
                     countSimilarIngredients++;
+                    break;
+                }
             }
             if (countSimilarIngredients == 1 && i.density != 0) {
                 var commandText = @"Insert into densityInfo (ingredient, density) values (@ingredient, @density);";
@@ -695,7 +704,7 @@ namespace RachelsRosesWebPages.Models {
             var myDensityIngredients = queryDensityInfoTable();
             var myIngredientDensity = 0m;
             foreach (var ingredient in myDensityIngredients) {
-                if (rest.SimilaritesInStrings(i.name, ingredient.name)) {
+                if (rest.SimilaritesInStrings(i.typeOfIngredient, ingredient.name)) {// || rest.SimilaritesInStrings(i.name, ingredient.name)) { 
                     myIngredientDensity = ingredient.density;
                     break;
                 }
@@ -742,6 +751,7 @@ namespace RachelsRosesWebPages.Models {
                         item_id int, 
                         name nvarchar(max), 
                         measurement nvarchar(max),
+                        ingredient_type nvarchar(max),
                         price_measured_ingredient decimal(6,2)
                      );", a => a);
             dropTableIfExists("densities");
@@ -759,6 +769,7 @@ namespace RachelsRosesWebPages.Models {
             executeVoidQuery(@"create table consumption (
                         ing_id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
                         name varchar(max),
+                        item_id int, 
                         density decimal (4,2),
                         ounces_consumed decimal (5,2),
                         ounces_remaining decimal(6,2),
@@ -772,17 +783,17 @@ namespace RachelsRosesWebPages.Models {
                         price_per_ounce decimal (6,4),
                         item_id int
                     );", a => a);
-            //changes need to be maid: density in consumption, density in consumption
+            //a fear of mine, which whatever, if it has to be done, it has to be done... but my sql is going to be very angry that i haven't included the typeOfIngredient in my Ingredient objects... 
+            //i have a feeling i'll have to assign a typeOfIngredient for each object i put in... so yay, haha
             dropTableIfExists("densityInfo");
             executeVoidQuery(@"create table densityInfo (
+                        ing_id int,
                         ingredient nvarchar(max),
                         density decimal(4,2)
                         );", a => a);
+                        //this ingredient name is to represent the ingredient.typeOfIngredient
             executeVoidQuery("SET IDENTITY_INSERT densities ON", cmd => cmd);
-            //this column was originally in the cost table, but i think it would be better in the ingredients table
-            //price_measured_ingredient decimal(6, 2)
         }
     }
 }
 // read up on the Normal Forms of a relational database: e.g what is the 1st normal form and how do you do it
-//i'm not a big fan of having that price_meausured_ingredient in the cost database... i think that should belong inthe ingredient database

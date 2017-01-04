@@ -19,6 +19,7 @@ namespace RachelsRosesWebPages {
         public decimal ouncesRemaining;
         public decimal priceOfMeasuredConsumption; 
         public List<string> comments;
+        public string typeOfIngredient; 
         public Ingredient(string _name, string _measurement) {
             name = _name;
             measurement = _measurement;
@@ -32,7 +33,8 @@ namespace RachelsRosesWebPages {
             itemId = 0;
             ouncesConsumed = 0m;
             ouncesRemaining = 0m;
-            priceOfMeasuredConsumption = 0m; 
+            priceOfMeasuredConsumption = 0m;
+            typeOfIngredient = ""; 
         }
         public Ingredient(string _name) {
             name = _name;
@@ -47,13 +49,16 @@ namespace RachelsRosesWebPages {
         public List<string> instructions; 
         public int yield;
         public decimal aggregatedPrice;
-        public List<string> comments; 
+        public List<string> comments;
+        public string typeOfRecipe;
         public Recipe(string _name) {
             name = _name;
             id = 0;
             ingredients = new List<Ingredient>();
             yield = 0;
-            aggregatedPrice = 0m; 
+            aggregatedPrice = 0m;
+            typeOfRecipe = "";
+                //this type of recipe is meant to be "bread" or "cake" or "frosting"
         }
         public Recipe(int _id) {
             name = "";

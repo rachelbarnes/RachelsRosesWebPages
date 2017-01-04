@@ -2190,6 +2190,52 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(3.18m, myUpdatedRecipBox[1].ingredients[1].priceOfMeasuredConsumption);
             Assert.AreEqual(4.74m, myUpdatedRecipBox[1].aggregatedPrice); 
         }
+        [Test]
+        public void TestChangeRecipeYield() {
+            //this special dark baking cocoa is so picky!! I almost have to match the direct item response name... come on... there's gotta be a better way to do this...
+                //i'm getting user errors, and i'm the creator of this.
+            var t = new DatabaseAccess();
+            var yellowCake = new Recipe("Golden Cake") { id = 1, yield = 12 };
+            var marbleCake = new Recipe("Marble Cake") { id = 2, yield = 16 };
+            var chocolateCake = new Recipe("Chocolate Cake") { id = 3, yield = 24 };
+            var softasilkCakeFlour = new Ingredient("Softasilk Cake Flour") { ingredientId = 1, recipeId = 1, measurement = "1 1/2 cups", sellingWeight = "32 oz", typeOfIngredient = "cake flour" }; //2.98 .63 .6286
+            var bakingSoda = new Ingredient("Baking Soda") { ingredientId = 2, recipeId = 1, measurement = "3/4 teaspoons", sellingWeight = "4 lb", typeOfIngredient = "baking soda" }; // 2.36 8.57  .0049
+            var chocolateChips = new Ingredient("Semi Sweet Chocolate Morsels") { ingredientId = 3, recipeId = 2, measurement = "1 3/4 cups", sellingWeight = "12 oz", typeOfIngredient = "chocolate chips"}; //3.56 5.35 2.78
+            var bakingPowder = new Ingredient("Baking Powder") { ingredientId = 4, recipeId = 2, measurement = "1 1/2 teaspoons", sellingWeight = "10 oz", typeOfIngredient = "baking powder"}; // 2.9  .0761
+            var cocoa = new Ingredient("Special Dark Cocoa") { ingredientId = 5, recipeId = 3, measurement = "1 cup", sellingWeight = "8 oz", typeOfIngredient = "baking cocoa" }; //2.99 1.7368 1.55
+            var softasilkFlour2 = new Ingredient("Softasilk Cake Flour") { ingredientId = 6, recipeId = 3, measurement = "3 cups", sellingWeight = "32 oz", typeOfIngredient = "cake flour" }; //2.98 1.25
+            var yellowCakeIngredients = new List<Ingredient> { softasilkCakeFlour, bakingSoda };
+            var marbleCakeIngredients = new List<Ingredient> { chocolateChips, bakingPowder };
+            var chocolateCakeIngredients = new List<Ingredient> { cocoa, softasilkFlour2 };
+            var myCakeRecipes = new List<Recipe> { yellowCake, marbleCake, chocolateCake };
+            t.initializeDatabase();
+            t.insertListOfIngredientsIntoAllTables(yellowCakeIngredients, yellowCake);
+            t.insertListOfIngredientsIntoAllTables(marbleCakeIngredients, marbleCake);
+            t.insertListOfIngredientsIntoAllTables(chocolateCakeIngredients, chocolateCake);
+            //after this, i'm still ok... i seems to get messed up right around line 2221
+            var myIngredients = t.queryIngredients(); 
+            var myCakeRecipeBox = t.MyRecipeBox();
+            yellowCake.yield = 150; //  12.5
+            marbleCake.yield = 128; //  8
+            chocolateCake.yield = 36; //  1.5
+            t.UpdateListOfRecipeYields(myCakeRecipes);
+            var myUpdatedIngredientBox = t.queryIngredients();
+            var mySoftasilkFlour = t.queryAllTablesForIngredient(softasilkFlour2); 
+            var myUpdatedCakeRecipeBox = t.MyRecipeBox();
+            Assert.AreEqual(3, myCakeRecipeBox.Count());
+            Assert.AreEqual(1.55m, myIngredients[4].priceOfMeasuredConsumption);
+            Assert.AreEqual(1.26m, myIngredients[5].priceOfMeasuredConsumption); 
+            Assert.AreEqual(.63m, myCakeRecipeBox[0].aggregatedPrice);
+            Assert.AreEqual(2.86m, myCakeRecipeBox[1].aggregatedPrice);
+            Assert.AreEqual(2.99m, myCakeRecipeBox[2].aggregatedPrice);
+            Assert.AreEqual(3, myUpdatedCakeRecipeBox.Count());
+            Assert.AreEqual(6, myUpdatedIngredientBox.Count());
+            Assert.AreEqual(4.5m, myUpdatedIngredientBox[0].density);
+            Assert.AreEqual(7.85m, myUpdatedCakeRecipeBox[0].aggregatedPrice);
+            Assert.AreEqual(22.83m, myUpdatedCakeRecipeBox[1].aggregatedPrice);
+            Assert.AreEqual(4.49m, myUpdatedCakeRecipeBox[2].aggregatedPrice); 
+            //ok, so this wasnt working before, and i know why... i have to add another field to the ingredient class... one that allows us to properly match it to the density rather than having to rely on it being in the name
+        }
     }
 }
 //need to return a list of the item responses, with the item id, name and price.

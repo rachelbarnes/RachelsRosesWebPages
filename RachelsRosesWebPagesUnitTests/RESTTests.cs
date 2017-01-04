@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using RachelsRosesWebPages;
 using NUnit.Framework;
+using RachelsRosesWebPages.Models; 
 namespace RachelsRosesWebPagesUnitTests {
     [TestFixture]
     public class RESTTests {
@@ -379,6 +380,29 @@ namespace RachelsRosesWebPagesUnitTests {
             var rest = new MakeRESTCalls();
             var expected = false;
             var actual = rest.SimilaritesInStrings("Granulated Sugar", "grnaulated sugar");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestSimilarities8() {
+            var rest = new MakeRESTCalls();
+            var expected = true;
+            var actual = rest.SimilaritesInStrings("Softasilk Cake Flour", "cake flour");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestIngredientTypeGetDensity() {
+            var t = new DatabaseAccess();
+            var cakeFlour = new Ingredient("Softasilk") { ingredientId = 1, typeOfIngredient = "cake flour" }; 
+            var expected = 4.5m;
+            var actual = t.returnIngredientDensityFromDensityTable(cakeFlour);
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestIngredientTypeGetDensity2() {
+            var t = new DatabaseAccess();
+            var breadFlour = new Ingredient("Pillsbury Bread Flour") { ingredientId = 1, typeOfIngredient = "bread flour" };
+            var expected = 5.4m;
+            var actual = t.returnIngredientDensityFromDensityTable(breadFlour);
             Assert.AreEqual(expected, actual); 
         }
     }

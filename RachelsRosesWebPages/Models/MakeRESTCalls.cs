@@ -188,15 +188,15 @@ namespace RachelsRosesWebPages {
                 return true;
             else return false;
         }
-        public bool SimilaritesInStrings(string first, string toCompareTo) {
+        public bool SimilaritesInStrings(string myIngredientName, string ingredientInDensityInfoDatabase) {
             //the second parameter is the string to compare it to 
             var countSimilarites = 0;
-            var firstArray = first.ToLower().Split(' ');
-            foreach (var word in firstArray) {
-                if (toCompareTo.ToLower().Contains(word))
+            var myIngredientNameArray = myIngredientName.ToLower().Split(' ');
+            foreach (var word in myIngredientNameArray) {
+                if (ingredientInDensityInfoDatabase.ToLower().Contains(word))
                     countSimilarites++;
             }
-            if (countSimilarites == firstArray.Count())
+            if (countSimilarites == myIngredientNameArray.Count())
                 return true;
             return false;
         }
