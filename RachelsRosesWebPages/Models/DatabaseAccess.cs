@@ -254,7 +254,7 @@ namespace RachelsRosesWebPages.Models {
                     if (ing.pricePerOunce == 0m)
                         i.pricePerOunce = (i.sellingPrice / i.sellingWeightInOunces);
                     else i.pricePerOunce = ing.pricePerOunce;
-                    i.sellingWeight = ing.sellingWeight;
+                    //i.sellingWeight = ing.sellingWeight;
                     i.itemId = ing.itemId;
                     break;
                 }
@@ -372,10 +372,12 @@ namespace RachelsRosesWebPages.Models {
             if (countIngredients == 0) {
                 insertIngredient(i, r);
                 insertIngredientIntoDensityInfoDatabase(i);
+                var queriedIngredients = queryAllTablesForIngredient(i); 
                 insertIngredientDensityData(i);
                 insertIngredientConsumtionData(i);
                 insertIngredientCostDataCostTable(i);
                 updateAllTables(i, r);
+                var queriedIngredients2 = queryAllTablesForIngredient(i); 
             } else {
                 UpdateIngredient(i);
                 updateDensityInfoTable(i);
@@ -613,26 +615,30 @@ namespace RachelsRosesWebPages.Models {
             return DensityInfo;
         }
         public void insertIngredientIntoDensityInfoDatabase(Ingredient i) {
+            var rest = new MakeRESTCalls(); 
             var myDensityInfoTable = queryDensityInfoTable();
             if (myDensityInfoTable.Count() == 0)
                 insertDensityTextFileIntoDensityInfoDatabase(@"C: \Users\Rachel\Documents\Visual Studio 2015\Projects\RachelsRosesWebPages\RachelsRosesWebPages\densityTxtDatabase.txt");
             var myUpdatedDensityInfoTable = queryDensityInfoTable();
             var countSimilarIngredients = 0;
             foreach (var ingredient in myUpdatedDensityInfoTable) {
-                if (i.typeOfIngredient.ToLower().Contains(ingredient.name.ToLower())) {
+                if (rest.SimilaritesInStrings(i.typeOfIngredient, ingredient.name)) { 
+                //if (i.typeOfIngredient.ToLower().Contains(ingredient.name.ToLower())) {
                     //this name is the name from my density text file, so the name isn't "Softasilk Cake Flour", it's just going to be "cake flour", it's how i set up my typeOfIngredient and why I set it up originallly
+                    //tempDensity = ingredient.density; 
                     countSimilarIngredients++;
                     break;
                 }
             }
-            if (countSimilarIngredients == 1 && i.density != 0) {
+            if (countSimilarIngredients == 0) {
                 var commandText = @"Insert into densityInfo (ingredient, density) values (@ingredient, @density);";
                 executeVoidQuery(commandText, cmd => {
-                    cmd.Parameters.AddWithValue("@ingredient", i.name);
+                    cmd.Parameters.AddWithValue("@ingredient", i.typeOfIngredient);
                     cmd.Parameters.AddWithValue("@density", i.density);
                     return cmd;
                 });
             }
+            var myDensityInfoDatabase = queryDensityInfoTable(); 
         }
         public List<Ingredient> assignIngredientDensityDictionaryValuesToListIngredients(Dictionary<string, decimal> myDensityIngredientDictionary) {
             var myIngredients = new List<Ingredient>();
@@ -689,7 +695,7 @@ namespace RachelsRosesWebPages.Models {
             var myDensityTableInfoNames = new List<string>();
             foreach (var ingredient in myDensityTableInfo)
                 myDensityTableInfoNames.Add(ingredient.name);
-            if (!myDensityTableInfoNames.Contains(myIngredient.name))
+            if (!myDensityTableInfoNames.Contains(myIngredient.typeOfIngredient))
                 insertIngredientIntoDensityInfoDatabase(myIngredient);
             else {
                 var commandText = @"Update densityInfo set density=@density where ingredient=@ingredient;";
@@ -707,6 +713,7 @@ namespace RachelsRosesWebPages.Models {
             var myIngredientDensity = 0m;
             foreach (var ingredient in myDensityIngredients) {
                 if (rest.SimilaritesInStrings(i.typeOfIngredient, ingredient.name)) {// || rest.SimilaritesInStrings(i.name, ingredient.name)) { 
+                    //this is taking the ingredient name and putting it in the density info table, rather than the type... so i'm looking for 2 different things
                     myIngredientDensity = ingredient.density;
                     break;
                 }
