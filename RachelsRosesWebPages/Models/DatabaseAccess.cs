@@ -306,6 +306,7 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@price_measured_ingredient", i.priceOfMeasuredConsumption);
                 cmd.Parameters.AddWithValue("@item_id", i.itemId);
                 cmd.Parameters.AddWithValue("@ingredient_type", i.typeOfIngredient);
+                cmd.Parameters.AddWithValue("@ing_id", i.ingredientId); 
                 return cmd;
             });
         }
@@ -455,8 +456,8 @@ namespace RachelsRosesWebPages.Models {
             i.sellingPrice = rest.GetItemResponse(i).salePrice;
             i.sellingWeightInOunces = convert.ConvertWeightToOunces(i.sellingWeight);
             i.pricePerOunce = Math.Round((i.sellingPrice / i.sellingWeightInOunces), 4);
-            var commandText = @"Insert into densities (ing_id, name, density, selling_weight, selling_weight_ounces, selling_price, price_per_ounce, item_id) 
-                            values (@ing_id, @name, @density, @selling_weight, @selling_weight_ounces, @selling_price, @price_per_ounce, @item_id);";
+            var commandText = @"Insert into densities (name, density, selling_weight, selling_weight_ounces, selling_price, price_per_ounce, item_id) 
+                            values (@name, @density, @selling_weight, @selling_weight_ounces, @selling_price, @price_per_ounce, @item_id);";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@name", i.name);
                 cmd.Parameters.AddWithValue("@density", i.density);
@@ -467,6 +468,9 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@item_id", i.itemId);
                 return cmd;
             });
+            //i was thinking i would need the ing_id in order to get the correct ing (for example, if there is more than one instance of Softasilk flour... 
+            //but if we match the name and the measurement, i should be able to avoid this sql problem i'm having with ing_id... such a weird thing. 
+            //unless i create another column for the ing_id, and avoid that as the primary key
         }
         public void updateDensityTable(Ingredient i) {
             var commandText = "update densities set name=@name, density=@density, selling_weight=@selling_weight, selling_weight_ounces=@selling_weight_ounces, selling_price=@selling_price, price_per_ounce=@price_per_ounce, item_id=@item_id where ing_id=@ing_id";
@@ -503,14 +507,13 @@ namespace RachelsRosesWebPages.Models {
                     i.measurement = ingredient.measurement;
             }
             i.ouncesConsumed = convert.CalculateOuncesUsed(i);
-            var commandText = @"Insert into consumption (name, density, ounces_consumed, ounces_remaining, ing_id, item_id) values (@name, @density, @ounces_consumed, @ounces_remaining, @ing_id, @item_id);";
+            var commandText = @"Insert into consumption (name, density, ounces_consumed, ounces_remaining, item_id) values (@name, @density, @ounces_consumed, @ounces_remaining, @item_id);";
             executeVoidQuery(commandText, cmd => {
-                cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
+                //cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
                 cmd.Parameters.AddWithValue("@name", i.name);
                 cmd.Parameters.AddWithValue("@density", i.density);
                 cmd.Parameters.AddWithValue("@ounces_consumed", i.ouncesConsumed);
                 cmd.Parameters.AddWithValue("@ounces_remaining", CalculateOuncesRemaining(i));
-                //cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
                 cmd.Parameters.AddWithValue("@item_id", i.itemId);
                 return cmd;
             });
@@ -616,10 +619,8 @@ namespace RachelsRosesWebPages.Models {
             var myUpdatedDensityInfoTable = queryDensityInfoTable();
             var countSimilarIngredients = 0;
             foreach (var ingredient in myUpdatedDensityInfoTable) {
-                if (i.name.ToLower().Contains(ingredient.name.ToLower())) {
-                    //i have been using breaks when i do these as a part of a design so it can stop at the point in the loop that it needs... 
-                    //but hte reality of the fact is if i get something where 2 match, then nothing will happen anyway... it's justa matter of if the first or the second will be the ones that will be hte one i'm looking for... 
-                    //i think i should do it anyway, if nothing else, for debugging. 
+                if (i.typeOfIngredient.ToLower().Contains(ingredient.name.ToLower())) {
+                    //this name is the name from my density text file, so the name isn't "Softasilk Cake Flour", it's just going to be "cake flour", it's how i set up my typeOfIngredient and why I set it up originallly
                     countSimilarIngredients++;
                     break;
                 }
@@ -644,7 +645,7 @@ namespace RachelsRosesWebPages.Models {
             return myIngredients;
         }
         public void insertDensityTextFileIntoDensityInfoDatabase(string filename) {
-            filename = @"C: \Users\Rachel\Documents\Visual Studio 2015\Projects\RachelsRosesWebPages\RachelsRosesWebPages\densityTxtDatabase.txt";
+            //filename = @"C: \Users\Rachel\Documents\Visual Studio 2015\Projects\RachelsRosesWebPages\RachelsRosesWebPages\densityTxtDatabase.txt";
             var read = new Reader(); //the filename below for the moment is hardcoded... 
             var DensityTextDatabaseDictionary = read.ReadDensityTextFile(@"C: \Users\Rachel\Documents\Visual Studio 2015\Projects\RachelsRosesWebPages\RachelsRosesWebPages\densityTxtDatabase.txt");
             var myDensityTable = queryDensityInfoTable();
@@ -652,6 +653,7 @@ namespace RachelsRosesWebPages.Models {
             foreach (var ingredient in myDensityTable)
                 myDensityTableNames.Add(ingredient.name);
             //this is going to need to allow for user error and grace in the name... need to have a similaries check, or make sure the name.tolower contains the ingredient's name, as opposed to == it
+            //i may have fixed this with the type of ingredient.... but i'll have to do more tests around that to see if it's intuitive
             foreach (var ingredient in DensityTextDatabaseDictionary) {
                 if (!myDensityTableNames.Contains(ingredient.Key)) {
                     var commandText = @"Insert into densityInfo (ingredient, density) values (@ingredient, @density);";
@@ -667,11 +669,11 @@ namespace RachelsRosesWebPages.Models {
         public void insertListIntoDensityInfoDatabase(List<Ingredient> MyIngredients) {
             var read = new Reader(); //the filename below for the moment is hardcoded... but i would prefer to not keep it that way... bad business
             var myDensityTable = queryDensityInfoTable();
-            var myDensityTableNames = new List<string>();
+            var myDensityInfoTableIngredients = new List<string>();
             foreach (var ingredient in myDensityTable)
-                myDensityTableNames.Add(ingredient.name);
+                myDensityInfoTableIngredients.Add(ingredient.typeOfIngredient);
             for (int i = 0; i < MyIngredients.Count(); i++) {
-                if (!myDensityTableNames.Contains(MyIngredients[i].name)) {
+                if (!myDensityInfoTableIngredients.Contains(MyIngredients[i].typeOfIngredient)) {
                     var commandText = @"Insert into densityInfo (ingredient, density) values (@ingredient, @density);";
                     executeVoidQuery(commandText, cmd => {
                         cmd.Parameters.AddWithValue("@ingredient", MyIngredients[i].name);
@@ -783,8 +785,6 @@ namespace RachelsRosesWebPages.Models {
                         price_per_ounce decimal (6,4),
                         item_id int
                     );", a => a);
-            //a fear of mine, which whatever, if it has to be done, it has to be done... but my sql is going to be very angry that i haven't included the typeOfIngredient in my Ingredient objects... 
-            //i have a feeling i'll have to assign a typeOfIngredient for each object i put in... so yay, haha
             dropTableIfExists("densityInfo");
             executeVoidQuery(@"create table densityInfo (
                         ing_id int,

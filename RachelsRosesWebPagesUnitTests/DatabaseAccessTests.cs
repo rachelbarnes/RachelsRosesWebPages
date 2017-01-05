@@ -2192,12 +2192,11 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestChangeRecipeYield() {
-            //this special dark baking cocoa is so picky!! I almost have to match the direct item response name... come on... there's gotta be a better way to do this...
-                //i'm getting user errors, and i'm the creator of this.
+            //this special dark baking cocoa is so picky!! I almost have to match the direct item response name... there's gotta be a better way to do this...
             var t = new DatabaseAccess();
             var yellowCake = new Recipe("Golden Cake") { id = 1, yield = 12 };
             var marbleCake = new Recipe("Marble Cake") { id = 2, yield = 16 };
-            var chocolateCake = new Recipe("Chocolate Cake") { id = 3, yield = 24 };
+            var chocolateCake = new Recipe("Chocolate Cake") { id = 3, yield = 24 }; 
             var softasilkCakeFlour = new Ingredient("Softasilk Cake Flour") { ingredientId = 1, recipeId = 1, measurement = "1 1/2 cups", sellingWeight = "32 oz", typeOfIngredient = "cake flour" }; //2.98 .63 .6286
             var bakingSoda = new Ingredient("Baking Soda") { ingredientId = 2, recipeId = 1, measurement = "3/4 teaspoons", sellingWeight = "4 lb", typeOfIngredient = "baking soda" }; // 2.36 8.57  .0049
             var chocolateChips = new Ingredient("Semi Sweet Chocolate Morsels") { ingredientId = 3, recipeId = 2, measurement = "1 3/4 cups", sellingWeight = "12 oz", typeOfIngredient = "chocolate chips"}; //3.56 5.35 2.78
@@ -2208,18 +2207,18 @@ namespace RachelsRosesWebPagesUnitTests {
             var marbleCakeIngredients = new List<Ingredient> { chocolateChips, bakingPowder };
             var chocolateCakeIngredients = new List<Ingredient> { cocoa, softasilkFlour2 };
             var myCakeRecipes = new List<Recipe> { yellowCake, marbleCake, chocolateCake };
+            var myCakeIngredients = new List<Ingredient> { softasilkCakeFlour, bakingSoda, chocolateChips, bakingPowder, cocoa, softasilkFlour2 }; 
             t.initializeDatabase();
             t.insertListOfIngredientsIntoAllTables(yellowCakeIngredients, yellowCake);
             t.insertListOfIngredientsIntoAllTables(marbleCakeIngredients, marbleCake);
             t.insertListOfIngredientsIntoAllTables(chocolateCakeIngredients, chocolateCake);
-            //after this, i'm still ok... i seems to get messed up right around line 2221
             var myIngredients = t.queryIngredients(); 
             var myCakeRecipeBox = t.MyRecipeBox();
             yellowCake.yield = 150; //  12.5
             marbleCake.yield = 128; //  8
             chocolateCake.yield = 36; //  1.5
             t.UpdateListOfRecipeYields(myCakeRecipes);
-            var myUpdatedIngredientBox = t.queryIngredients();
+            var myUpdatedIngredientBox = t.queryAllTablesForAllIngredients(myCakeIngredients); 
             var mySoftasilkFlour = t.queryAllTablesForIngredient(softasilkFlour2); 
             var myUpdatedCakeRecipeBox = t.MyRecipeBox();
             Assert.AreEqual(3, myCakeRecipeBox.Count());
@@ -2227,15 +2226,25 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(1.26m, myIngredients[5].priceOfMeasuredConsumption); 
             Assert.AreEqual(.63m, myCakeRecipeBox[0].aggregatedPrice);
             Assert.AreEqual(2.86m, myCakeRecipeBox[1].aggregatedPrice);
-            Assert.AreEqual(2.99m, myCakeRecipeBox[2].aggregatedPrice);
+            Assert.AreEqual(2.81m, myCakeRecipeBox[2].aggregatedPrice); //1.55 + 1.26
             Assert.AreEqual(3, myUpdatedCakeRecipeBox.Count());
             Assert.AreEqual(6, myUpdatedIngredientBox.Count());
+            Assert.AreEqual(1.89m, mySoftasilkFlour.priceOfMeasuredConsumption); //mind you, this is taking the second softasilk flour, which is why i'm using 4.5 cups to measure out the expected here
             Assert.AreEqual(4.5m, myUpdatedIngredientBox[0].density);
             Assert.AreEqual(7.85m, myUpdatedCakeRecipeBox[0].aggregatedPrice);
-            Assert.AreEqual(22.83m, myUpdatedCakeRecipeBox[1].aggregatedPrice);
-            Assert.AreEqual(4.49m, myUpdatedCakeRecipeBox[2].aggregatedPrice); 
-            //ok, so this wasnt working before, and i know why... i have to add another field to the ingredient class... one that allows us to properly match it to the density rather than having to rely on it being in the name
+            Assert.AreEqual(22.84m, myUpdatedCakeRecipeBox[1].aggregatedPrice); //2.33 + 1.89
+            Assert.AreEqual(4.22m, myUpdatedCakeRecipeBox[2].aggregatedPrice); 
+        }
+        //my next test has to involve multiples of the same ingredients to make sure getting my cost information is correct between different instances of ingredient objects with the same name but different measurements
+        [Test]
+        public void TestInsertIngredientIntoDensityInfoDatabase() {
+            //something just doesn't seem right here... 
+            var t = new DatabaseAccess();
+            var i = new Ingredient("Softasilk Flour") { ingredientId = 1, recipeId = 1, measurement = "1 1/2 cups", sellingWeight = "32 oz", density = 4.5m, typeOfIngredient = "cake flour" };
+            t.initializeDatabase();
+            t.insertIngredientIntoDensityInfoDatabase(i);
+            var myIngredient = t.queryAllTablesForIngredient(i);
+            Assert.AreEqual(4.5m, myIngredient.density); 
         }
     }
 }
-//need to return a list of the item responses, with the item id, name and price.
