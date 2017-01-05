@@ -470,9 +470,6 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@item_id", i.itemId);
                 return cmd;
             });
-            //i was thinking i would need the ing_id in order to get the correct ing (for example, if there is more than one instance of Softasilk flour... 
-            //but if we match the name and the measurement, i should be able to avoid this sql problem i'm having with ing_id... such a weird thing. 
-            //unless i create another column for the ing_id, and avoid that as the primary key
         }
         public void updateDensityTable(Ingredient i) {
             var commandText = "update densities set name=@name, density=@density, selling_weight=@selling_weight, selling_weight_ounces=@selling_weight_ounces, selling_price=@selling_price, price_per_ounce=@price_per_ounce, item_id=@item_id where ing_id=@ing_id";
@@ -623,9 +620,6 @@ namespace RachelsRosesWebPages.Models {
             var countSimilarIngredients = 0;
             foreach (var ingredient in myUpdatedDensityInfoTable) {
                 if (rest.SimilaritesInStrings(i.typeOfIngredient, ingredient.name)) { 
-                //if (i.typeOfIngredient.ToLower().Contains(ingredient.name.ToLower())) {
-                    //this name is the name from my density text file, so the name isn't "Softasilk Cake Flour", it's just going to be "cake flour", it's how i set up my typeOfIngredient and why I set it up originallly
-                    //tempDensity = ingredient.density; 
                     countSimilarIngredients++;
                     break;
                 }
@@ -712,8 +706,7 @@ namespace RachelsRosesWebPages.Models {
             var myDensityIngredients = queryDensityInfoTable();
             var myIngredientDensity = 0m;
             foreach (var ingredient in myDensityIngredients) {
-                if (rest.SimilaritesInStrings(i.typeOfIngredient, ingredient.name)) {// || rest.SimilaritesInStrings(i.name, ingredient.name)) { 
-                    //this is taking the ingredient name and putting it in the density info table, rather than the type... so i'm looking for 2 different things
+                if (rest.SimilaritesInStrings(i.typeOfIngredient, ingredient.name)) {
                     myIngredientDensity = ingredient.density;
                     break;
                 }
