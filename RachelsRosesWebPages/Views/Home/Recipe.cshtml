@@ -2,10 +2,8 @@
 @{
     ViewBag.Title = "My Recipe";
 }
-
 <a href="/home/recipes">Go back to your Recipe Box</a>
 <br />
-
 <h3>@ViewBag.currentrecipe.id : @ViewBag.currentrecipe.name</h3>
 <h4>$@ViewBag.currentrecipe.aggregatedPrice</h4>
 <form action="/home/editrecipetitle" method="post">
@@ -21,7 +19,6 @@
 <h4><b>Yield: @ViewBag.currentrecipe.yield</b></h4>
 <br />
 <h4><b>@ViewBag.userinputerror</b></h4>
-<br />
 <br />
 <h5><b>Add a new ingredient to your recipe</b></h5>
 <form action="/home/createingredient" method="post">

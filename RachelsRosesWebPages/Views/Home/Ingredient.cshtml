@@ -4,31 +4,42 @@
 }
 <a href="/home/recipe?name=@ViewBag.currentrecipe.name">Go back to @ViewBag.currentrecipe.name</a>
 <br />
-<h3><b>@ViewBag.currentingredient.measurement : @ViewBag.currentingredient.name</b></h3>
-<h4><b>$ @ViewBag.currentingredient.priceOfMeasuredConsumption</b></h4>
+<h3>@ViewBag.currentingredient.measurement : @ViewBag.currentingredient.name</h3>
+<h4>Price of Measured Consumption: $ @ViewBag.currentingredient.priceOfMeasuredConsumption</h4>
 <br />
-<h4>Update or Edit your ingredients</h4>
+<h4>Edit @ViewBag.currentingredient.name</h4>
 <form action="/home/EditIng" method="post">
     @*this method works without putting the parameters here too... looking specifically at line 32 of this commit*@
-    <h5>Edit your ingredient <b>name:</b></h5>
+    <h5>Edit Name: </h5>
     <input name="updatedName" />
-    <input type="submit" value="Update Ingredient Name" />
+    <input type="submit" value="Update Name" />
     <br />
-    <h5>Edit your ingredient <b>measurement:</b></h5>
+    <h5>Edit Measurement:</h5>
     <input name="updatedMeasurement" />
-    <input type="submit" value="Update Ingredient Measurement" />
+    <input type="submit" value="Update Measurement" />
+    <br />
+    <h5>Edit Type of ingredient 
+    <br />(affects the automated density)</h5>
+    <input name="updatedType" />
+    <input type="submit" value="Update Type" />
+    <br />
+    <h5>Edit Density 
+    <br />(this will overwrite the automated density in the database)</h5>
+    <input name="updatedDensity" />
+    <input type="submit" value="Update Density" />
+    <br />
+    <h5>Edit Selling Price</h5>
+    <input name="updatedSellingPrice" />
+    <input type="submit" value="Update SellingPrice" />
+    <br />
 </form>
-<h4>@ViewBag.DuplicateIngredientNameErrorMessage</h4>
-<h4>@ViewBag.ErrorMessage</h4>
 <br />
-@*<h4>Comments on @ViewBag.currentingname:</h4>
-<form action="ingComment?comment=@ViewBag.ingComment" method="post">
-    <input name="comment" />
-    <input type="submit" value="Create a comment" />
-</form>
-<p>@ViewBag.ingComment</p>*@
+<br />
+<h4><b>Update your ingredient Information:</b></h4>
+<p>Type: @ViewBag.currentingredient.typeOfIngredient</p>
+<p>Density: @ViewBag.currentingredient.density</p>
+<p>Price of Measured Consumption: @ViewBag.currentingredient.priceOfMeasuredConsumption</p>
+<p>Ounces Consumed: @ViewBag.currentingredient.ouncesConsumed</p>
+<p>Ounces Remaining in your Pantry: @ViewBag.currentingredient.ouncesRemaining</p>
+@*this is where we can have the density, price of it's dairy, etc.*@
 
-@*I want to add a more dynamic comments section, if nothing else for me as a baker, that's important to me. 
-    I can have extra comments about weight and measurement here to play with in the comments*@
-
-@*>?oldName=@ViewBag.currentingname&newName=@ViewBag.updatedingname&oldMeasurement=@ViewBag.currentingmeasurement&updatedMeasurement=@ViewBag.updatedingmeasurement" method="post">*@

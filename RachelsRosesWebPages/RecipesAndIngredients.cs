@@ -19,7 +19,8 @@ namespace RachelsRosesWebPages {
         public decimal ouncesRemaining;
         public decimal priceOfMeasuredConsumption; 
         public List<string> comments;
-        public string typeOfIngredient; 
+        public string typeOfIngredient;
+        public string ingredientClassification; 
         public Ingredient(string _name, string _measurement) {
             name = _name;
             measurement = _measurement;
@@ -34,7 +35,8 @@ namespace RachelsRosesWebPages {
             ouncesConsumed = 0m;
             ouncesRemaining = 0m;
             priceOfMeasuredConsumption = 0m;
-            typeOfIngredient = ""; 
+            typeOfIngredient = "";
+            ingredientClassification = ""; 
         }
         public Ingredient(string _name) {
             name = _name;

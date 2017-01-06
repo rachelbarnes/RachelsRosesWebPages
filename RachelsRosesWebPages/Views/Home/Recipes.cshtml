@@ -2,11 +2,12 @@
 @{
     ViewBag.Title = "Create Recipe";
 }
-<h2>Add a recipe to your Recipe Box</h2>
+<h4>You current have @ViewBag.recipeboxcount recipes in your Recipe Box</h4>
+<h3>Add a recipe to your Recipe Box</h3>
 <br />
 <form action="/home/createrecipe" method="post">
     <input name="recipeTitle" />
-    <input type="submit" value="create new recipe" />
+    <input type="submit" value="Add" />
 </form>
 <h4>@ViewBag.ErrorMessage</h4>
 <br />
@@ -16,10 +17,15 @@
     @foreach (var recipe in ViewBag.recipes) {
         <li>
             <p><b>@recipe.id: @recipe.name</b></p>
-            <p><b>@recipe.aggregatedPrice</b></p>
-            <a href="/home/recipe?name=@recipe.name">View details for @recipe.name</a>
+            <p>Current Recipe Yield: @recipe.yield</p>
+            <p>Total Recipe Price: $@recipe.aggregatedPrice</p>
+            <a href="/home/recipe?name=@recipe.name">View details</a>
             <br />
             <a href="/home/deleterecipe?recipeTitle=@recipe.name">Delete Recipe</a>
         </li>
     }
 </ul>
+
+@*the aggregated price ins't changing with the yield and neither are hte ingredients... something is happening with my method... 
+    it's all good. just gotta find out what, and then i'm much closer already. :)
+    *@

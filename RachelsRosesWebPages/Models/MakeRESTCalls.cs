@@ -45,6 +45,12 @@ namespace RachelsRosesWebPages {
         public ItemResponse GetItemResponse(Ingredient i) {
             var db = new DatabaseAccess();
             var convert = new ConvertWeight();
+            var newItemResponse = new ItemResponse(); 
+            if (!string.IsNullOrEmpty(i.ingredientClassification) && i.ingredientClassification.ToLower().Contains("dairy")) {
+                return newItemResponse; 
+            }
+            if ((MakeRequest<SearchResponse>(buildSearchRequest(i)).Items.Count() == 0)) 
+                return newItemResponse; 
             var items = MakeRequest<SearchResponse>(buildSearchRequest(i)).Items;
             var sellingWeightOunces = convert.ConvertWeightToOunces(i.sellingWeight);
             var tempItemResponse = new ItemResponse(); 

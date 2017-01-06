@@ -17,6 +17,7 @@ namespace RachelsRosesWebPages.Controllers {
         public ActionResult Recipes() {
             var myRecipes = getRecipes();
             ViewBag.recipes = myRecipes;
+            ViewBag.recipeboxcount = getRecipes().Count();
             return View();
         }
         public ActionResult Recipe(string name) {
@@ -25,9 +26,10 @@ namespace RachelsRosesWebPages.Controllers {
                 return Redirect("/home/recipes");
             name = name.Trim();
             myDatabaseRecipe = getRecipes().First(x => x.name == name);
-            currentRecipe = myDatabaseRecipe; 
+            currentRecipe = myDatabaseRecipe;
             ViewBag.currentingredient = currentIngredient;
             ViewBag.currentrecipe = currentRecipe;
+            ViewBag.recipeboxcount = getRecipes().Count();
             return View();
         }
         public ActionResult Ingredient(string name, string measurement) {
@@ -43,8 +45,10 @@ namespace RachelsRosesWebPages.Controllers {
             ViewBag.currentingredient = currentIngredient;
             return View();
         }
-        public ActionResult EditIng(string updatedName, string updatedMeasurement) {
+        public ActionResult EditIng(string updatedName, string updatedMeasurement, string updatedType, string updatedDensity, string updatedSellingPrice) {
             var t = new DatabaseAccess();
+            var updatedDensityDecimal = decimal.Parse(updatedDensity);
+            var updatedSellingPriceDecimal = decimal.Parse(updatedSellingPrice);
             if ((string.IsNullOrEmpty(updatedName)) && (string.IsNullOrEmpty(updatedMeasurement))) {
                 ViewBag.ErrorMessage = "Please enter an ingredient name and measurement";
                 return Redirect("/home/recipe?name=" + currentRecipe.name);
@@ -58,6 +62,16 @@ namespace RachelsRosesWebPages.Controllers {
                     if (ing.measurement != updatedMeasurement && !(string.IsNullOrEmpty(updatedMeasurement))) {
                         ing.measurement = updatedMeasurement;
                     } else { updatedMeasurement = ing.measurement; }
+                    if (ing.typeOfIngredient != updatedType && !(string.IsNullOrEmpty(updatedType))) {
+                        ing.typeOfIngredient = updatedType;
+                    } else { updatedType = ing.typeOfIngredient; }
+                    if (ing.density != updatedDensityDecimal && !(string.IsNullOrEmpty(updatedDensity))) {
+                        ing.density = updatedDensityDecimal;
+                    } else { updatedDensityDecimal = ing.density; }
+                    if (ing.sellingPrice != updatedSellingPriceDecimal && !(string.IsNullOrEmpty(updatedSellingPrice))) {
+                        ing.sellingPrice = updatedSellingPriceDecimal;
+                    } else { updatedSellingPriceDecimal = ing.sellingPrice;  }
+                        //i need to make sure to be able to change this in the back end... so putting tests to make sure the prices get overwritten in the cost table
                     currentIngredient = ing;
                     t.UpdateIngredient(currentIngredient);
                 }
@@ -112,10 +126,12 @@ namespace RachelsRosesWebPages.Controllers {
             } else {
                 var oldYield = currentRecipe.yield;
                 currentRecipe.yield = updatedYield;
-                foreach (var ing in currentRecipe.ingredients) {
-                    if (int.TryParse(ing.measurement, out n)) {
-                        ing.measurement = (int.Parse(ing.measurement) * (currentRecipe.yield / oldYield)).ToString();
-                    } else ing.measurement = convert.AdjustIngredientMeasurement(ing.measurement, oldYield, currentRecipe.yield); }
+                t.UpdateRecipeYield(currentRecipe);
+                //i do still have to do stuff with this for eggs... 
+                //foreach (var ing in currentRecipe.ingredients) {
+                //    if (int.TryParse(ing.measurement, out n)) {
+                //        ing.measurement = (int.Parse(ing.measurement) * (currentRecipe.yield / oldYield)).ToString();
+                //    } else ing.measurement = convert.AdjustIngredientMeasurement(ing.measurement, oldYield, currentRecipe.yield); }
             }
             t.UpdateRecipe(currentRecipe);
             return Redirect("/home/recipe?name=" + currentRecipe.name);

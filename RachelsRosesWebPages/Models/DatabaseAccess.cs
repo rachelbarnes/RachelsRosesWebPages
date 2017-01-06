@@ -238,6 +238,11 @@ namespace RachelsRosesWebPages.Models {
                     break;
                 }
             }
+            foreach (var ing in myDensityInfoTable) {
+                if (ing.name == i.typeOfIngredient) {
+                    i.density = ing.density;
+                }
+            }
             foreach (var ing in myIngredientDensity) {
                 if (ing.ingredientId == i.ingredientId) {
                     i.sellingWeight = ing.sellingWeight;
@@ -254,7 +259,6 @@ namespace RachelsRosesWebPages.Models {
                     if (ing.pricePerOunce == 0m)
                         i.pricePerOunce = (i.sellingPrice / i.sellingWeightInOunces);
                     else i.pricePerOunce = ing.pricePerOunce;
-                    //i.sellingWeight = ing.sellingWeight;
                     i.itemId = ing.itemId;
                     break;
                 }
@@ -306,7 +310,7 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@price_measured_ingredient", i.priceOfMeasuredConsumption);
                 cmd.Parameters.AddWithValue("@item_id", i.itemId);
                 cmd.Parameters.AddWithValue("@ingredient_type", i.typeOfIngredient);
-                cmd.Parameters.AddWithValue("@ing_id", i.ingredientId); 
+                cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
                 return cmd;
             });
         }
@@ -320,7 +324,7 @@ namespace RachelsRosesWebPages.Models {
             var temp = new Ingredient();
             var measuredIngredientPrice = 0m;
             foreach (var ingredient in myConsumptionData) {
-                if (ingredient.ingredientId== i.ingredientId) {
+                if (ingredient.ingredientId == i.ingredientId) {
                     //this right here needs to change!!!! 
                     //i'm looking for the name in the consumption table information... 
                     //there's 2 names for 
@@ -372,12 +376,12 @@ namespace RachelsRosesWebPages.Models {
             if (countIngredients == 0) {
                 insertIngredient(i, r);
                 insertIngredientIntoDensityInfoDatabase(i);
-                var queriedIngredients = queryAllTablesForIngredient(i); 
+                var queriedIngredients = queryAllTablesForIngredient(i);
                 insertIngredientDensityData(i);
                 insertIngredientConsumtionData(i);
                 insertIngredientCostDataCostTable(i);
                 updateAllTables(i, r);
-                var queriedIngredients2 = queryAllTablesForIngredient(i); 
+                var queriedIngredients2 = queryAllTablesForIngredient(i);
             } else {
                 UpdateIngredient(i);
                 updateDensityInfoTable(i);
@@ -423,12 +427,22 @@ namespace RachelsRosesWebPages.Models {
             UpdateIngredient(i);
         }
         public void updateAllTables(Ingredient i, Recipe r) {
+            //immediately, i'm already starting off with a selling price 0...
             UpdateRecipe(r);
+            var ing1 = queryAllTablesForIngredient(i);
             UpdateIngredient(i);
+            var ing2 = queryAllTablesForIngredient(i);
             updateDensityInfoTable(i);
+            var ing3 = queryAllTablesForIngredient(i);
+            //2 things are going wrong here: i'm getting the wrong density for milk, so i'm going to have to go through and see which density it's picking up to get hte 4.40, instead of the 8.2
+            //also, i'm not getting the price that i'm trying to update theingredient wiht
+            //updating the price is impt because i want the user to be able to overwrtie a price in the table.... 
             updateDensityTable(i);
+            var ing4 = queryAllTablesForIngredient(i);
             updateConsumptionTable(i);
+            var ing5 = queryAllTablesForIngredient(i);
             updateCostDataTable(i);
+            var ing6 = queryAllTablesForIngredient(i);
         }
         public void updateAllTablesForAllIngredients(List<Ingredient> myListOfIngredients, Recipe r) {
             foreach (var ingredient in myListOfIngredients) {
@@ -526,7 +540,7 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@density", i.density);
                 cmd.Parameters.AddWithValue("@ounces_consumed", convert.CalculateOuncesUsed(i));
                 cmd.Parameters.AddWithValue("@ounces_remaining", CalculateOuncesRemaining(i));
-                cmd.Parameters.AddWithValue("@item_id", i.itemId); 
+                cmd.Parameters.AddWithValue("@item_id", i.itemId);
                 return cmd;
             });
         }
@@ -537,7 +551,7 @@ namespace RachelsRosesWebPages.Models {
             var myConsumedOunces = 0m;
             var temp = new Ingredient();
             foreach (var ingredient in myIngredients) {
-                if (ingredient.ingredientId== i.ingredientId) {
+                if (ingredient.ingredientId == i.ingredientId) {
                     temp.measurement = ingredient.measurement;
                     myConsumedOunces = convert.CalculateOuncesUsed(i);
                 }
@@ -565,18 +579,23 @@ namespace RachelsRosesWebPages.Models {
             return ingredientInformation;
         }
         public void insertIngredientCostDataCostTable(Ingredient i) {
+            var myCostTable = queryCostTable();
+            var temp = new Ingredient();
+            temp.sellingPrice = i.sellingPrice;
+            //this isn't going to happen because it hsouldn't be inthe database yet... i'm trying to insert it in this table here
             var commandText = @"Insert into costs (name, selling_weight, selling_price, price_per_ounce, item_id) values (@name, @selling_weight, @selling_price, @price_per_ounce, @item_id);";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
                 cmd.Parameters.AddWithValue("@name", i.name);
                 cmd.Parameters.AddWithValue("@selling_weight", i.sellingWeight);
-                cmd.Parameters.AddWithValue("@selling_price", i.sellingPrice);
+                cmd.Parameters.AddWithValue("@selling_price", temp.sellingPrice);
                 cmd.Parameters.AddWithValue("@price_per_ounce", i.pricePerOunce);
                 cmd.Parameters.AddWithValue("@item_id", i.itemId);
                 return cmd;
             });
         }
         public void updateCostDataTable(Ingredient i) {
+            var myCostTable = queryCostTable();
             var commandText = @"Update costs set name=@name, selling_weight=@selling_weight, selling_price=@selling_price, price_per_ounce=@price_per_ounce, item_id=@item_id where ing_id=@ing_id;";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
@@ -612,16 +631,31 @@ namespace RachelsRosesWebPages.Models {
             return DensityInfo;
         }
         public void insertIngredientIntoDensityInfoDatabase(Ingredient i) {
-            var rest = new MakeRESTCalls(); 
+            var rest = new MakeRESTCalls();
             var myDensityInfoTable = queryDensityInfoTable();
             if (myDensityInfoTable.Count() == 0)
                 insertDensityTextFileIntoDensityInfoDatabase(@"C: \Users\Rachel\Documents\Visual Studio 2015\Projects\RachelsRosesWebPages\RachelsRosesWebPages\densityTxtDatabase.txt");
             var myUpdatedDensityInfoTable = queryDensityInfoTable();
+            var myMilkDensityInfoIngredients = new List<Ingredient>();
+            foreach (var ingredient in myUpdatedDensityInfoTable) {
+                if (ingredient.name.Contains("milk"))
+                    myMilkDensityInfoIngredients.Add(ingredient);
+            }
             var countSimilarIngredients = 0;
             foreach (var ingredient in myUpdatedDensityInfoTable) {
-                if (rest.SimilaritesInStrings(i.typeOfIngredient, ingredient.name)) { 
-                    countSimilarIngredients++;
+                if (i.typeOfIngredient.Contains("milk")) {
+                    foreach (var milkIngredient in myMilkDensityInfoIngredients) {
+                        if (i.typeOfIngredient == milkIngredient.name) {
+                            countSimilarIngredients++;
+                            break;
+                        }
+                    }
                     break;
+                } else {
+                    if (rest.SimilaritesInStrings(i.typeOfIngredient, ingredient.name)) {
+                        countSimilarIngredients++;
+                        break;
+                    }
                 }
             }
             if (countSimilarIngredients == 0) {
@@ -632,7 +666,8 @@ namespace RachelsRosesWebPages.Models {
                     return cmd;
                 });
             }
-            var myDensityInfoDatabase = queryDensityInfoTable(); 
+            //this is inserting the ingredient if there's no match to the name... it's not getting the density
+            var myDensityInfoDatabase = queryDensityInfoTable();
         }
         public List<Ingredient> assignIngredientDensityDictionaryValuesToListIngredients(Dictionary<string, decimal> myDensityIngredientDictionary) {
             var myIngredients = new List<Ingredient>();
@@ -694,7 +729,7 @@ namespace RachelsRosesWebPages.Models {
             else {
                 var commandText = @"Update densityInfo set density=@density where ingredient=@ingredient;";
                 executeVoidQuery(commandText, cmd => {
-                    cmd.Parameters.AddWithValue("@ingredient", myIngredient.name);
+                    cmd.Parameters.AddWithValue("@ingredient", myIngredient.typeOfIngredient);
                     cmd.Parameters.AddWithValue("@density", myIngredient.density);
                     return cmd;
                 });
@@ -791,7 +826,7 @@ namespace RachelsRosesWebPages.Models {
                         ingredient nvarchar(max),
                         density decimal(4,2)
                         );", a => a);
-                        //this ingredient name is to represent the ingredient.typeOfIngredient
+            //this ingredient name is to represent the ingredient.typeOfIngredient
             executeVoidQuery("SET IDENTITY_INSERT densities ON", cmd => cmd);
         }
     }
