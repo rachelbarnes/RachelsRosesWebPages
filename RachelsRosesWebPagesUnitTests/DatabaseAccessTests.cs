@@ -2266,23 +2266,64 @@ namespace RachelsRosesWebPagesUnitTests {
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(milk, yellowCake);
             var myIngredient = t.queryAllTablesForIngredient(milk);
-            var updatedMilk = milk;
-            updatedMilk.sellingPrice = 2.98m; 
-            //assigning this to a new object is how i got this to pass... i have no idea why... but it's what i got
-            //talk to Steve, why do i have an easier time transfering this to a new object and assigning the sellingPrice to that new object as opposed to just assigning it to milk
-            t.updateCostDataTable(updatedMilk); 
-            t.updateAllTables(updatedMilk, yellowCake);
+            milk.sellingPrice = 2.98m; 
+            t.updateCostDataTable(milk);
+            var myCostIngredient = t.queryCostTable(); 
+            t.updateAllTables(milk, yellowCake);
             var myUpdatedIngredient = t.queryAllTablesForIngredient(milk);
             var myRecipeBox = t.MyRecipeBox();
             Assert.AreEqual(1, myRecipeBox[0].ingredients.Count()); 
-            Assert.AreEqual(2.89m, myUpdatedIngredient.sellingPrice);
+            Assert.AreEqual(2.98m, myUpdatedIngredient.sellingPrice);
             Assert.AreEqual(8.2m, myIngredient.density);
             Assert.AreEqual(.19m, myUpdatedIngredient.priceOfMeasuredConsumption);
             Assert.AreEqual(.0233m, myUpdatedIngredient.pricePerOunce);     
         }
-        //[Test]
-        //public void TestOverwritingTheCostTable2() {
-
-        //}
+        [Test]
+        public void TestOverwritingTheCostTable2() {
+            var t = new DatabaseAccess();
+            var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 24 };
+            var yellowCake = new Recipe("Yellow Cake") { id = 2, yield = 24 };
+            var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 3, yield = 24 };
+            var sourCream = new Ingredient("Sour Cream") { ingredientId = 1, recipeId = 1, measurement = "1 cup", sellingWeight = "16 oz", typeOfIngredient = "sour cream", ingredientClassification = "dairy" };
+            var milk = new Ingredient("Whole Milk") { ingredientId = 2, recipeId = 2, measurement = "1 1/2 cups", sellingWeight = "1 gallon", typeOfIngredient = "milk", ingredientClassification = "dairy" };
+            var butter = new Ingredient("Unsalted Butter") { ingredientId = 3, recipeId = 3, measurement = "1/4 cup", sellingWeight = "1 lb", typeOfIngredient = "butter", ingredientClassification = "dairy" };
+            var buttermilk = new Ingredient("Buttermilk") { ingredientId = 4, recipeId = 3, measurement = "2 cups", sellingWeight = "1/4 gallon", typeOfIngredient = "buttermilk", ingredientClassification = "dairy" };
+            var honeyButtermilkBreadIngredients = new List<Ingredient> { butter, buttermilk };
+            var allIngredients = new List<Ingredient> { sourCream, milk, butter, buttermilk };
+            t.initializeDatabase();
+            t.insertIngredientIntoAllTables(sourCream, chocolateCake);
+            t.insertIngredientIntoAllTables(milk, yellowCake);
+            t.insertListOfIngredientsIntoAllTables(honeyButtermilkBreadIngredients, honeyButtermilkBread);
+            var myIngredients = t.queryAllTablesForAllIngredients(allIngredients);
+            sourCream.sellingPrice = 1.69m;
+            milk.sellingPrice = 2.98m;
+            butter.sellingPrice = 3.99m;
+            buttermilk.sellingPrice = 1.69m;
+            var costTable = t.queryCostTable(); 
+            t.updateAllTables(sourCream, chocolateCake);
+            t.updateAllTables(milk, yellowCake);
+            t.updateAllTablesForAllIngredients(honeyButtermilkBreadIngredients, honeyButtermilkBread);
+            var myUpdatedIngredients = t.queryAllTablesForAllIngredients(allIngredients);
+            var myRecipeBox = t.MyRecipeBox();
+            Assert.AreEqual(1.69m, myUpdatedIngredients[0].sellingPrice);
+            Assert.AreEqual(2.98m, myUpdatedIngredients[1].sellingPrice);
+            Assert.AreEqual(3.99m, myUpdatedIngredients[2].sellingPrice);
+            Assert.AreEqual(1.69m, myUpdatedIngredients[3].sellingPrice);
+            Assert.AreEqual(8.6m, myUpdatedIngredients[0].density);
+            Assert.AreEqual(8.2m, myUpdatedIngredients[1].density);
+            Assert.AreEqual(8m, myUpdatedIngredients[2].density);
+            Assert.AreEqual(8.2m, myUpdatedIngredients[3].density);
+            Assert.AreEqual(.91m, myUpdatedIngredients[0].priceOfMeasuredConsumption);
+            Assert.AreEqual(.91m, myRecipeBox[0].ingredients[0].priceOfMeasuredConsumption);
+            Assert.AreEqual(.29m, myUpdatedIngredients[1].priceOfMeasuredConsumption);
+            Assert.AreEqual(.29m, myRecipeBox[1].ingredients[0].priceOfMeasuredConsumption);
+            Assert.AreEqual(.5m, myUpdatedIngredients[2].priceOfMeasuredConsumption);
+            Assert.AreEqual(.5m, myRecipeBox[2].ingredients[0].priceOfMeasuredConsumption);
+            Assert.AreEqual(.87m, myUpdatedIngredients[3].priceOfMeasuredConsumption);
+            Assert.AreEqual(.87m, myRecipeBox[2].ingredients[1].priceOfMeasuredConsumption);
+            Assert.AreEqual(.91m, myRecipeBox[0].aggregatedPrice);
+            Assert.AreEqual(.29m, myRecipeBox[1].aggregatedPrice);
+            Assert.AreEqual(1.37m, myRecipeBox[2].aggregatedPrice); 
+        }
     }
 }

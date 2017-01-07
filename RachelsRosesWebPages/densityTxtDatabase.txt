@@ -22,7 +22,7 @@ egg(1 egg): 1.7
 butter: 8
 shortening: 7.25
 vanilla extract: 6.86
-buttermilk: 8.5
+buttermilk: 8.2
 cream cheese: 8.2
 sour cream: 8.6
 honey: 12

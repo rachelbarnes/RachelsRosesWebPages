@@ -127,6 +127,8 @@ namespace RachelsRosesWebPages.Models {
         }
         public List<Ingredient> ReturnRecipeIngredients(Recipe r) {
             var myIngredients = queryIngredients();
+            //this is where i'm tripping up... i'm querying a table that doesn't have all the necessary information, and yet this has passed for a while... 
+            //although i seem to have been organically avoiding it... 
             foreach (var ing in myIngredients) {
                 if (ing.recipeId == r.id) {
                     queryAllTablesForIngredient(ing);
@@ -194,19 +196,87 @@ namespace RachelsRosesWebPages.Models {
                 var ingredient = new Ingredient(reader["name"].ToString());
                 ingredient.measurement = (string)reader["measurement"];
                 ingredient.recipeId = (int)reader["recipe_id"];
-                //ingredient.ingredientId = (int)reader["ing_id"];
                 ingredient.priceOfMeasuredConsumption = (decimal)reader["price_measured_ingredient"];
                 ingredient.itemId = (int)reader["item_id"];
                 ingredient.typeOfIngredient = (string)reader["ingredient_type"];
+                ingredient.ingredientClassification = (string)reader["ingredient_classification"]; 
                 return ingredient;
             });
             foreach (var ingredient in myIngredientBox)
                 ingredient.ingredientId = count++;
             return myIngredientBox;
         }
+        //public List<Ingredient> queryAllTablesForIngredientNoParam() {
+        //    var rest = new MakeRESTCalls();
+        //    var myRecipes = queryRecipes();
+        //    var myIngredients = queryIngredients();
+        //    var myIngredientConsumption = queryConsumptionTable();
+        //    var myIngredientDensity = queryDensityTable();
+        //    var myIngredientCost = queryCostTable();
+        //    var myDensityInfoTable = queryDensityInfoTable();
+        //    var tempListOfIngredients = new List<Ingredient>(); 
+        //    foreach (var ing in myIngredients) {
+        //        tempListOfIngredients.Add(ing); 
+        //    }
+
+        //    var temp = new Recipe();
+        //    foreach (var ing in myIngredients) {
+        //        if (ing.ingredientId == i.ingredientId) {
+        //            i.recipeId = ing.recipeId;
+        //            i.measurement = ing.measurement;
+        //            i.typeOfIngredient = ing.typeOfIngredient;
+        //            if (i.itemId == 0)
+        //                i.itemId = rest.GetItemResponse(i).itemId;
+        //            else i.itemId = ing.itemId;
+        //            break;
+        //        }
+        //    }
+        //    foreach (var ing in myIngredientConsumption) {
+        //        if (ing.ingredientId == i.ingredientId) {
+        //            i.density = ing.density;
+        //            i.ouncesConsumed = ing.ouncesConsumed;
+        //            i.ouncesRemaining = ing.ouncesRemaining;
+        //            break;
+        //        }
+        //    }
+        //    foreach (var ing in myDensityInfoTable) {
+        //        if (ing.name == i.typeOfIngredient) {
+        //            i.density = ing.density;
+        //            break;
+        //        }
+        //    }
+        //    foreach (var ing in myIngredientDensity) {
+        //        if (ing.ingredientId == i.ingredientId) {
+        //            i.sellingWeight = ing.sellingWeight;
+        //            i.sellingWeightInOunces = ing.sellingWeightInOunces;
+        //            i.itemId = ing.itemId;
+        //            break;
+        //        }
+        //    }
+        //    foreach (var ing in myIngredientCost) {
+        //        if (ing.ingredientId == i.ingredientId) {
+        //            if (ing.sellingPrice == 0m)
+        //                i.sellingPrice = rest.GetItemResponse(i).salePrice;
+        //            else i.sellingPrice = ing.sellingPrice;
+        //            if (ing.pricePerOunce == 0m)
+        //                i.pricePerOunce = (i.sellingPrice / i.sellingWeightInOunces);
+        //            else i.pricePerOunce = ing.pricePerOunce;
+        //            i.itemId = ing.itemId;
+        //            break;
+        //        }
+        //    }
+        //    foreach (var ing in myIngredients) {
+        //        if (ing.ingredientId == i.ingredientId) {
+        //            i.priceOfMeasuredConsumption = MeasuredIngredientPrice(i);
+        //            break;
+        //        }
+        //    }
+        //    return i;
+        //}
         public Ingredient queryAllTablesForIngredient(Ingredient i) {
             var rest = new MakeRESTCalls();
             var myRecipes = queryRecipes();
+            //this could easily be replaced with a query all tables for ing, and you could lose a few lines of code
             var myIngredients = queryIngredients();
             var myIngredientConsumption = queryConsumptionTable();
             var myIngredientDensity = queryDensityTable();
@@ -226,6 +296,7 @@ namespace RachelsRosesWebPages.Models {
                     i.typeOfIngredient = ing.typeOfIngredient;
                     if (i.itemId == 0)
                         i.itemId = rest.GetItemResponse(i).itemId;
+                    //it's this, right here. this is where i'm getting the null reference exception!!
                     else i.itemId = ing.itemId;
                     break;
                 }
@@ -241,6 +312,7 @@ namespace RachelsRosesWebPages.Models {
             foreach (var ing in myDensityInfoTable) {
                 if (ing.name == i.typeOfIngredient) {
                     i.density = ing.density;
+                    break;
                 }
             }
             foreach (var ing in myIngredientDensity) {
@@ -282,7 +354,7 @@ namespace RachelsRosesWebPages.Models {
             var rest = new MakeRESTCalls();
             if (i.itemId == 0)
                 i.itemId = rest.GetItemResponse(i).itemId;
-            var commandText = "Insert into ingredients(recipe_id, name, measurement, price_measured_ingredient, item_id, ingredient_type) values (@rid, @name, @measurement, @price_measured_ingredient, @item_id, @ingredient_type);";
+            var commandText = "Insert into ingredients(recipe_id, name, measurement, price_measured_ingredient, item_id, ingredient_type, ingredient_classification) values (@rid, @name, @measurement, @price_measured_ingredient, @item_id, @ingredient_type, @ingredient_classification);";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@rid", r.id);
                 cmd.Parameters.AddWithValue("@name", i.name);
@@ -290,6 +362,7 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@price_measured_ingredient", i.priceOfMeasuredConsumption);
                 cmd.Parameters.AddWithValue("@item_id", i.itemId);
                 cmd.Parameters.AddWithValue("@ingredient_type", i.typeOfIngredient);
+                cmd.Parameters.AddWithValue("@ingredient_classification", i.ingredientClassification); 
                 return cmd;
             });
         }
@@ -301,7 +374,7 @@ namespace RachelsRosesWebPages.Models {
             if (i.priceOfMeasuredConsumption == 0)
                 i.priceOfMeasuredConsumption = returnIngredientMeasuredPrice(i);
             var myIngredientId = i.ingredientId;
-            var commandText = "update ingredients set name=@name, measurement=@measurement, recipe_id=@recipeId, price_measured_ingredient=@price_measured_ingredient, item_id=@item_id, ingredient_type=@ingredient_type where ing_id=@ing_id;";
+            var commandText = "update ingredients set name=@name, measurement=@measurement, recipe_id=@recipeId, price_measured_ingredient=@price_measured_ingredient, item_id=@item_id, ingredient_type=@ingredient_type, ingredient_classification=@ingredient_classification where ing_id=@ing_id;";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@name", i.name);
                 cmd.Parameters.AddWithValue("@measurement", i.measurement);
@@ -311,6 +384,7 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@item_id", i.itemId);
                 cmd.Parameters.AddWithValue("@ingredient_type", i.typeOfIngredient);
                 cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
+                cmd.Parameters.AddWithValue("@ingredient_classification", i.ingredientClassification); 
                 return cmd;
             });
         }
@@ -325,24 +399,26 @@ namespace RachelsRosesWebPages.Models {
             var measuredIngredientPrice = 0m;
             foreach (var ingredient in myConsumptionData) {
                 if (ingredient.ingredientId == i.ingredientId) {
-                    //this right here needs to change!!!! 
-                    //i'm looking for the name in the consumption table information... 
-                    //there's 2 names for 
                     temp.ouncesConsumed = ingredient.ouncesConsumed;
                     break;
                 }
             }
             foreach (var ingredient in myDensityData) {
                 if (ingredient.name == i.name) {
-                    temp.sellingPrice = ingredient.sellingPrice;
                     temp.density = ingredient.density;
                     temp.sellingWeightInOunces = ingredient.sellingWeightInOunces;
                     break;
                 }
             }
+            foreach (var ingredient in myCostData) {
+                if (ingredient.ingredientId == i.ingredientId) {
+                    temp.sellingPrice = ingredient.sellingPrice;
+                    temp.pricePerOunce = ingredient.pricePerOunce;
+                    break; 
+                }
+            }
             foreach (var ingredient in myIngredients) {
                 if (ingredient.name == i.name) {
-                    ingredient.pricePerOunce = temp.pricePerOunce;
                     ingredient.ouncesConsumed = temp.ouncesConsumed;
                     ingredient.sellingPrice = temp.sellingPrice;
                     var accumulatedTeaspoons = convert.AccumulatedTeaspoonMeasurement(ingredient.measurement);
@@ -427,22 +503,22 @@ namespace RachelsRosesWebPages.Models {
             UpdateIngredient(i);
         }
         public void updateAllTables(Ingredient i, Recipe r) {
-            //immediately, i'm already starting off with a selling price 0...
+            var myCostTable = queryCostTable(); 
+            foreach (var ingredient in myCostTable) {
+                if (ingredient.ingredientId == i.ingredientId) {
+                    if (ingredient.sellingPrice == 0m && i.sellingPrice != 0m) {
+                        updateCostDataTable(i);
+                        break;
+                    }
+                }
+            }
             UpdateRecipe(r);
-            var ing1 = queryAllTablesForIngredient(i);
             UpdateIngredient(i);
-            var ing2 = queryAllTablesForIngredient(i);
             updateDensityInfoTable(i);
-            var ing3 = queryAllTablesForIngredient(i);
-            //2 things are going wrong here: i'm getting the wrong density for milk, so i'm going to have to go through and see which density it's picking up to get hte 4.40, instead of the 8.2
-            //also, i'm not getting the price that i'm trying to update theingredient wiht
-            //updating the price is impt because i want the user to be able to overwrtie a price in the table.... 
             updateDensityTable(i);
-            var ing4 = queryAllTablesForIngredient(i);
             updateConsumptionTable(i);
-            var ing5 = queryAllTablesForIngredient(i);
             updateCostDataTable(i);
-            var ing6 = queryAllTablesForIngredient(i);
+            var updatedDatabase = queryAllTablesForIngredient(i);
         }
         public void updateAllTablesForAllIngredients(List<Ingredient> myListOfIngredients, Recipe r) {
             foreach (var ingredient in myListOfIngredients) {
@@ -606,6 +682,7 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@item_id", i.itemId);
                 return cmd;
             });
+            var myUpdatedCostTable = queryCostTable(); 
         }
         public decimal getPricePerOunce(Ingredient i) {
             var convert = new ConvertWeight();
@@ -788,6 +865,7 @@ namespace RachelsRosesWebPages.Models {
                         item_id int, 
                         name nvarchar(max), 
                         measurement nvarchar(max),
+                        ingredient_classification nvarchar(max),
                         ingredient_type nvarchar(max),
                         price_measured_ingredient decimal(6,2)
                      );", a => a);

@@ -46,8 +46,9 @@ namespace RachelsRosesWebPages {
             var db = new DatabaseAccess();
             var convert = new ConvertWeight();
             var newItemResponse = new ItemResponse(); 
-            if (!string.IsNullOrEmpty(i.ingredientClassification) && i.ingredientClassification.ToLower().Contains("dairy")) {
+            if (!string.IsNullOrEmpty(i.ingredientClassification) && (i.ingredientClassification.ToLower().Contains("dairy")) || i.ingredientClassification.ToLower().Contains("eggs")) {
                 return newItemResponse; 
+                //this ingredientClassification is null, which is why i'm getting 0...
             }
             if ((MakeRequest<SearchResponse>(buildSearchRequest(i)).Items.Count() == 0)) 
                 return newItemResponse; 
