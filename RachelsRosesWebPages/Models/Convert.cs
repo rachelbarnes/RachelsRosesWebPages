@@ -155,6 +155,36 @@ namespace RachelsRosesWebPages {
             //a question for the future: what to do with the liquid eggs, like the egg beaters... that will obviously have eggs in the name, but will need to be dealt with differently
             //the easiest solution I can see if the name has cups, tablespoons or teaspoons to return the valule of splitMultiLevelMeasurement(egg measurement)
         }
+        public string[] SplitMeasurement(string measurement) {
+            var measurementLength = measurement.Length;
+            var firstPartOfTheMeasurement = "";
+            var secondPartOfTheMeasurement = "";
+            var splitMeasurement = new string[] { };
+            for (int i = 0; i < measurement.Length; i++) {
+                if (i > 0 && i < measurement.Length - 1) {
+                    var prev = i - 1;
+                    var next = i + 1;
+                    var curr = i;
+                    var prevChar = measurement[prev];
+                    var nextChar = measurement[next];
+                    var currChar = measurement[curr];
+                    int n;
+                    if ((int.TryParse(measurement[prev].ToString(), out n)) && (measurement[curr] == ' ') && !(int.TryParse(measurement[next].ToString(), out n))) {
+                        splitMeasurement = measurement.Trim().Split(measurement[curr]);
+                        firstPartOfTheMeasurement = splitMeasurement[0];
+                        secondPartOfTheMeasurement = splitMeasurement[1];
+                        if (splitMeasurement.Count() == 3) {
+                            firstPartOfTheMeasurement = firstPartOfTheMeasurement + " " + secondPartOfTheMeasurement;
+                            secondPartOfTheMeasurement = splitMeasurement[2];
+                            splitMeasurement = new string[] { firstPartOfTheMeasurement, secondPartOfTheMeasurement };
+                            break;
+                        }
+                        break;
+                    }
+                }
+            }
+            return splitMeasurement;
+        }
         public decimal AdjustToTeaspoons(string measurement) {
             var parseFraction = new ParseFraction();
             var splitMeasurement = new string[] { };
@@ -201,6 +231,7 @@ namespace RachelsRosesWebPages {
         //the majority of the filled lines here come from adding to the dictionary... 
         //this one should be pretty easy, actually, just having a method to add to the dictionary cups, tablespoons or pinches based whether the teaspoon amount >= 48, etc. 
         public string CondenseTeaspoonMeasurement(decimal teaspoons) {
+            var parse = new ParseFraction();
             var measDict = new Dictionary<string, decimal>();
             var condensedMeasurement = "";
             do {
@@ -267,13 +298,6 @@ namespace RachelsRosesWebPages {
                         measDict.Add("cups", .25m);
                     teaspoons -= 12m;
                 }
-                if (teaspoons < 12m && teaspoons >= 6m) {
-                    if (measDict.Keys.Contains("cups"))
-                        measDict["cups"] = measDict["cups"] + .125m;
-                    if (!measDict.Keys.Contains("cups"))
-                        measDict.Add("cups", .125m);
-                    teaspoons -= 6m;
-                }
                 if (teaspoons < 12m && teaspoons >= 3m) {
                     if (measDict.Keys.Contains("tablespoons"))
                         measDict["tablespoons"] = measDict["tablespoons"] + 1m;
@@ -314,9 +338,14 @@ namespace RachelsRosesWebPages {
                 var value = Math.Round(measurement.Value, 3).ToString().TrimStart('0');
                 if (value.Contains(".00") || value.Contains(".0")) {
                     valArr = value.Split('.');
-                    condensedMeasurement += valArr[0].TrimEnd('0') + " " + measurement.Key + " ";
-                } else { condensedMeasurement += value.TrimEnd('0') + " " + measurement.Key + " "; }
+                    var singleCondensedMeasurement = parse.ParseDecimalToFraction(valArr[0].TrimEnd('0') + " " + measurement.Key) + " ";
+                    condensedMeasurement += singleCondensedMeasurement;
+                } else {
+                    var singleCondensedMeasurement = parse.ParseDecimalToFraction(value.TrimEnd('0') + " " + measurement.Key) + " ";
+                    condensedMeasurement += singleCondensedMeasurement;
+                }
             }
+            var sampleTest = condensedMeasurement.Trim();
             return condensedMeasurement.TrimEnd();
         }
         public string AdjustIngredientMeasurement(string measurement, int originalYield, int desiredYield) {
@@ -462,12 +491,12 @@ namespace RachelsRosesWebPages {
             return splitWeight;
         }
         public decimal ConvertWeightToOunces(string weight) {
-            var measurements = new string[] { "gall", "cup", "pint", "quart", "pound", "lb", "oz", "ounce", "gram"};
+            var measurements = new string[] { "gall", "cup", "pint", "quart", "pound", "lb", "oz", "ounce", "gram" };
             var count = 0m;
             foreach (var measurement in measurements) {
                 if (weight.ToLower().Contains(measurement)) {
                     count++;
-                    break; 
+                    break;
                 }
             }
             if (count == 1) {
@@ -528,6 +557,37 @@ namespace RachelsRosesWebPages {
                 finaldecimal = decimal.Parse(splitComplexFraction[0]) / decimal.Parse(splitComplexFraction[1]);
             }
             return Math.Round(finaldecimal, 4);
+        }
+        public string ParseDecimalToFraction(string measurement) {
+            var convert = new ConvertMeasurement();
+            var splitMeasurement = convert.SplitMeasurement(measurement);
+            var decimalPortion = decimal.Parse(splitMeasurement[0]);
+            var retFraction = "";
+            var fractionSplitAtDecimalPoint = new string[] { };
+            if (splitMeasurement[0].Contains('.')) {
+                fractionSplitAtDecimalPoint = splitMeasurement[0].Split('.');
+                var dec = decimal.Parse(fractionSplitAtDecimalPoint[1]);
+                if (dec == 75m)
+                    retFraction = "3/4";
+                if (dec == 66m)
+                    retFraction = "2/3";
+                if (dec == 5m)
+                    retFraction = "1/2";
+                if (dec == 33m)
+                    retFraction = "1/3";
+                if (dec == 25m)
+                    retFraction = "1/4";
+                if (dec == 125m)
+                    retFraction = "1/8";
+            }
+            var returnedMeasurement = "";
+            if (string.IsNullOrEmpty(retFraction))
+                return decimalPortion + " " + splitMeasurement[1];
+            if (string.IsNullOrEmpty(fractionSplitAtDecimalPoint[0]))
+                return retFraction + " " + splitMeasurement[1]; 
+            if (fractionSplitAtDecimalPoint.Count() != 0)
+                returnedMeasurement = fractionSplitAtDecimalPoint[0] + " " + retFraction + " " + splitMeasurement[1];
+            return returnedMeasurement;
         }
     }
 }

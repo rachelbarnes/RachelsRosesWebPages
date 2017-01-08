@@ -2325,5 +2325,34 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(.29m, myRecipeBox[1].aggregatedPrice);
             Assert.AreEqual(1.37m, myRecipeBox[2].aggregatedPrice); 
         }
+        [Test]
+        public void TestOverwritingTheCostTable3() {
+            var t = new DatabaseAccess();
+            var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 16 };
+            var softasilk = new Ingredient("Softasilk Flour") { recipeId = 1, ingredientId = 1, sellingWeight = "32 oz", measurement = "3 cups", typeOfIngredient = "cake flour", ingredientClassification = "flour" };
+            t.initializeDatabase();
+            t.insertIngredientIntoAllTables(softasilk, chocolateCake);
+            var myIngredient = t.queryAllTablesForIngredient(softasilk);
+            softasilk.sellingPrice = 5m;
+            var costTable = t.queryCostTable();
+            t.updateAllTables(softasilk, chocolateCake);
+            var myUpdatedIngredient = t.queryAllTablesForIngredient(softasilk);
+            var myRecipeBox = t.MyRecipeBox();
+            Assert.AreEqual(1.26m, myIngredient.priceOfMeasuredConsumption);
+            Assert.AreEqual(2.11m, myUpdatedIngredient.priceOfMeasuredConsumption);
+            Assert.AreEqual(2.11m, myRecipeBox[0].aggregatedPrice); 
+        }
+        [Test]
+        public void TestDeleteIngredientFromAllDatabases() {
+            var t = new DatabaseAccess();
+            var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 16 };
+            var softasilk = new Ingredient("Softasilk Flour") { recipeId = 1, ingredientId = 1, sellingWeight = "32 oz", measurement = "3 cups", typeOfIngredient = "cake flour", ingredientClassification = "flour" };
+            var bakingPowder = new Ingredient("Baking Powder") { recipeId = 1, ingredientId = 2, sellingWeight = "10 0z", measurement = "1 1/2 teaspoons", typeOfIngredient = "baking powder", ingredientClassification = "leavening" };
+            var chocolateCakeIngredients = new List<Ingredient> { softasilk, bakingPowder }; 
+            t.initializeDatabase();
+            t.insertListOfIngredientsIntoAllTables(chocolateCakeIngredients, chocolateCake);
+
+            var myIngredients = t.queryAllTablesForAllIngredients(chocolateCakeIngredients);
+            var myRecipeBox = t.MyRecipeBox(); 
     }
 }

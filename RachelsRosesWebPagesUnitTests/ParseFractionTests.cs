@@ -100,10 +100,108 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(expected, actual); 
         }
         [Test]
-        public void TesIncorrectCharParsing2() {
+        public void TestIncorrectCharParsing2() {
             var parse = new ParseFraction();
             var expected = 0m;
             var actual = parse.Parse("5-6");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestParseFraction() {
+            var parse = new ParseFraction();
+            var expected = "1 cup";
+            var actual = parse.ParseDecimalToFraction("1 cup");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestParseFraction2() {
+            var parse = new ParseFraction();
+            var expected = "1/4 cup";
+            var actual = parse.ParseDecimalToFraction("1/4 cup");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestParseFraction3() {
+            var parse = new ParseFraction();
+            var expected = "1/3 cup";
+            var actual = parse.ParseDecimalToFraction("1/3 cup");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestParseFraction4() {
+            var parse = new ParseFraction();
+            var expected = "1/2 cup";
+            var actual = parse.ParseDecimalToFraction("1/2 cup");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestParseFraction5() {
+            var parse = new ParseFraction();
+            var expected = "2/3 cup";
+            var actual = parse.ParseDecimalToFraction("2/3 cup");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestParseFraction6() {
+            var parse = new ParseFraction();
+            var expected = "3/4 cup";
+            var actual = parse.ParseDecimalToFraction("3/4 cup");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestParseDecimalsToFraction() {
+            var parse = new ParseFraction();
+            var expected = "1 3/4 cups";
+            var actual = parse.ParseDecimalToFraction("1.75 cups");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestParseDecimalsToFraction2() {
+            var parse = new ParseFraction();
+            var expected = "1 1/4 cups";
+            var actual = parse.ParseDecimalToFraction("1.25 cups");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestParseDecimalsToFraction3() {
+            var parse = new ParseFraction();
+            var expected = "1 1/3 cups";
+            var actual = parse.ParseDecimalToFraction("1.33 cups");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestParseDecimalsToFraction4() {
+            var parse = new ParseFraction();
+            var expected = "1 2/3 cups";
+            var actual = parse.ParseDecimalToFraction("1.66 cups");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestParseDecimalsToFraction5() {
+            var parse = new ParseFraction();
+            var expected = "1/4 cups";
+            var actual = parse.ParseDecimalToFraction(".25 cups");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestParseDecimalsToFractions6() {
+            var parse = new ParseFraction();
+            var expected = "2/3 tablespoon";
+            var actual = parse.ParseDecimalToFraction(".66 tablespoon");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestParseDecimalsToFractions7() {
+            var parse = new ParseFraction();
+            var expected = "2 teaspoons";
+            var actual = parse.ParseDecimalToFraction("2 teaspoons");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestParseDecimalsToFractions8() {
+            var parse = new ParseFraction();
+            var expected = "1 2/3 cups";
+            var actual = parse.ParseDecimalToFraction("1.66 cups");
             Assert.AreEqual(expected, actual); 
         }
     }

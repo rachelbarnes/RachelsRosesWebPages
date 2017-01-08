@@ -4,42 +4,52 @@
 }
 <a href="/home/recipe?name=@ViewBag.currentrecipe.name">Go back to @ViewBag.currentrecipe.name</a>
 <br />
-<h3>@ViewBag.currentingredient.measurement : @ViewBag.currentingredient.name</h3>
-<h4>Price of Measured Consumption: $ @ViewBag.currentingredient.priceOfMeasuredConsumption</h4>
+<h4>@ViewBag.currentingredient.measurement : @ViewBag.currentingredient.name</h4>
+<h5>Price of Measured Consumption: $ @ViewBag.currentingredient.priceOfMeasuredConsumption</h5>
 <br />
 <h4>Edit @ViewBag.currentingredient.name</h4>
 <form action="/home/EditIng" method="post">
     @*this method works without putting the parameters here too... looking specifically at line 32 of this commit*@
-    <h5>Edit Name: </h5>
+    <h5><b>Edit Name: </b></h5>
     <input name="updatedName" />
     <input type="submit" value="Update Name" />
     <br />
-    <h5>Edit Measurement:</h5>
+    <h5><b>Edit Measurement: </b></h5>
     <input name="updatedMeasurement" />
     <input type="submit" value="Update Measurement" />
     <br />
-    <h5>Edit Type of ingredient 
-    <br />(affects the automated density)</h5>
+    <h5><b>Edit Type of Ingredient: </b>
+    <br />(this may affect the automated density)</h5>
     <input name="updatedType" />
     <input type="submit" value="Update Type" />
     <br />
-    <h5>Edit Density 
-    <br />(this will overwrite the automated density in the database)</h5>
+    <h5><b>Edit Density: </b> 
+    <br />(this may will overwrite the automated density)</h5>
     <input name="updatedDensity" />
     <input type="submit" value="Update Density" />
     <br />
-    <h5>Edit Selling Price</h5>
-    <input name="updatedSellingPrice" />
-    <input type="submit" value="Update SellingPrice" />
+    <h5><b>Edit Selling Weight:</b>
+    <br />(this will change the price gotten from the walmart database)</h5>
+    <input name="updateSellingWeight" />
+    <input type="submit" value="Update Selling Weight" />
     <br />
+    <h5><b>Edit Selling Price: </b></h5>
+    <input name="updatedSellingPrice" />
+    <input type="submit" value="Update Selling Price" />
+    <br />
+</form>
+<form action="/home/ResetSellingPrice" method="post">
+    @*<h5><b>Reset Selling Price: </b></h5>*@
+    <input type="submit" value="Reset Selling Price" />
 </form>
 <br />
 <br />
-<h4><b>Update your ingredient Information:</b></h4>
-<p>Type: @ViewBag.currentingredient.typeOfIngredient</p>
-<p>Density: @ViewBag.currentingredient.density</p>
+<h5><b>Update your ingredient Information:</b></h5>
+<p>Selling Price: @ViewBag.currentingredient.sellingPrice</p>
 <p>Price of Measured Consumption: @ViewBag.currentingredient.priceOfMeasuredConsumption</p>
 <p>Ounces Consumed: @ViewBag.currentingredient.ouncesConsumed</p>
 <p>Ounces Remaining in your Pantry: @ViewBag.currentingredient.ouncesRemaining</p>
+<p>Ingredient Type: @ViewBag.currentingredient.typeOfIngredient</p>
+<p>Density: @ViewBag.currentingredient.density</p>
 @*this is where we can have the density, price of it's dairy, etc.*@
 

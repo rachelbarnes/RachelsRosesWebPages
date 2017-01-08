@@ -45,14 +45,14 @@ namespace RachelsRosesWebPages.Controllers {
             ViewBag.currentingredient = currentIngredient;
             return View();
         }
-        public ActionResult EditIng(string updatedName, string updatedMeasurement, string updatedType, string updatedDensity, string updatedSellingPrice) {
+        public ActionResult EditIng(string updatedName, string updatedMeasurement, string updatedType, string updatedDensity, string updatedSellingWeight, string updatedSellingPrice) {
             var t = new DatabaseAccess();
-            var updatedDensityDecimal = decimal.Parse(updatedDensity);
-            var updatedSellingPriceDecimal = decimal.Parse(updatedSellingPrice);
-            if ((string.IsNullOrEmpty(updatedName)) && (string.IsNullOrEmpty(updatedMeasurement))) {
-                ViewBag.ErrorMessage = "Please enter an ingredient name and measurement";
-                return Redirect("/home/recipe?name=" + currentRecipe.name);
-            }
+            var updatedDensityDecimal = 0m;
+            var updatedSellingPriceDecimal = 0m;
+            if (!string.IsNullOrEmpty(updatedDensity))
+                updatedDensityDecimal = decimal.Parse(updatedDensity);
+            if (!string.IsNullOrEmpty(updatedSellingPrice))
+                updatedSellingPriceDecimal = decimal.Parse(updatedSellingPrice);
             var updatedIngredient = new Ingredient(updatedName, updatedMeasurement);
             foreach (var ing in currentRecipe.ingredients) {
                 if (ing.name == currentIngredient.name) {
@@ -68,28 +68,49 @@ namespace RachelsRosesWebPages.Controllers {
                     if (ing.density != updatedDensityDecimal && !(string.IsNullOrEmpty(updatedDensity))) {
                         ing.density = updatedDensityDecimal;
                     } else { updatedDensityDecimal = ing.density; }
+                    if (ing.sellingWeight != updatedSellingWeight && !(string.IsNullOrEmpty(updatedSellingWeight))) {
+                        ing.sellingWeight = updatedSellingWeight;
+                    } else { updatedSellingWeight = ing.sellingWeight; }
                     if (ing.sellingPrice != updatedSellingPriceDecimal && !(string.IsNullOrEmpty(updatedSellingPrice))) {
                         ing.sellingPrice = updatedSellingPriceDecimal;
-                    } else { updatedSellingPriceDecimal = ing.sellingPrice;  }
-                        //i need to make sure to be able to change this in the back end... so putting tests to make sure the prices get overwritten in the cost table
-                    currentIngredient = ing;
-                    t.UpdateIngredient(currentIngredient);
+                    } else { updatedSellingPriceDecimal = ing.sellingPrice; }
+                    t.updateAllTables(currentIngredient, currentRecipe);
+                    currentIngredient = t.queryAllTablesForIngredient(currentIngredient);
                 }
             }
             return Redirect("/home/ingredient?name=" + currentIngredient.name + "&measurement=" + currentIngredient.measurement);
         }
-        public ActionResult DeleteIngredient(string ingredient) {
-            currentRecipe.ingredients = currentRecipe.ingredients.Where(x => x.name != ingredient).ToList();
-            return Redirect("/home/recipe?name=" + currentRecipe.name);
+        public ActionResult ResetSellingPrice() {
+            var t = new DatabaseAccess();
+            var rest = new MakeRESTCalls();
+            currentIngredient.sellingPrice = rest.GetItemResponse(currentIngredient).salePrice;
+            t.updateAllTables(currentIngredient, currentRecipe);
+            return Redirect("/home/ingredient?name=" + currentIngredient.name + "&measurement=" + currentIngredient.measurement);
         }
-        public ActionResult CreateIngredient(string ingredient, string measurement) {
+        //public ActionResult DeleteIngredient(string ingredient) {
+        //    var db = new DatabaseAccess();
+        //    db.GetFullRecipe(currentRecipe); 
+        //    foreach (var ing in currentRecipe.ingredients) {
+        //        if (ing.name == ingredient) {
+        //        }
+        //    }
+
+        //    var myIngredients = db.queryAllTablesForIngredient()
+        //    currentRecipe.ingredients = currentRecipe.ingredients.Where(x => x.name != ingredient).ToList();
+        //    return Redirect("/home/recipe?name=" + currentRecipe.name);
+        //}
+        public ActionResult CreateIngredient(string ingredient, string measurement, string classification, string type) {
             var db = new DatabaseAccess();
             ingredient = ingredient.Trim();
             measurement = measurement.Trim();
+            classification = classification.Trim();
+            type = type.Trim();
             var newIngredient = new Ingredient();
-            if (!(string.IsNullOrEmpty(ingredient)) || !(string.IsNullOrEmpty(measurement))) {
+            if ((!(string.IsNullOrEmpty(ingredient)) || !(string.IsNullOrEmpty(measurement))) && (!(string.IsNullOrEmpty(classification)) && !(string.IsNullOrEmpty(type)))) {
                 newIngredient.name = ingredient;
                 newIngredient.measurement = measurement;
+                newIngredient.ingredientClassification = classification;
+                newIngredient.typeOfIngredient = type;
                 newIngredient.recipeId = currentRecipe.id;
                 currentRecipe.ingredients.Add(newIngredient);
                 currentIngredient = newIngredient;
@@ -104,10 +125,15 @@ namespace RachelsRosesWebPages.Controllers {
             db.InsertRecipe(newrecipe);
             return Redirect("/home/recipes");
         }
-        public ActionResult DeleteRecipe(Recipe r) {
-            r.name = r.name.Trim();
+        public ActionResult DeleteRecipe(string recipeTitle) {
+            recipeTitle = recipeTitle.Trim();
             var db = new DatabaseAccess();
-            db.DeleteRecipe(r);
+            var recipes = db.queryRecipes(); 
+            foreach (var recipe in recipes) {
+                if (recipe.name == recipeTitle)
+                    currentRecipe = recipe; 
+                    db.DeleteRecipe(currentRecipe); 
+            }
             return Redirect("/home/recipes");
         }
         public ActionResult EditRecipeTitle(string newRecipeTitle) {

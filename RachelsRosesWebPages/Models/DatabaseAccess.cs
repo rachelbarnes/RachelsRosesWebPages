@@ -22,6 +22,13 @@ namespace RachelsRosesWebPages.Models {
                 throw e;
             }
         }
+        /*
+        to do tomorrow/next:
+        need to allow eggs for the selling weight, need to make sure the conversion works for eggs,
+        convert for getting into fractions, instead of just having the decimals... 
+
+        eggs are always the black sheep... i gotta be able to do stuff with this. :)
+        */
         public List<T> queryItems<T>(string command, Func<SqlDataReader, T> convert) {
             var sqlConnection1 = new SqlConnection(connString);
             var cmd = new SqlCommand(command, sqlConnection1);
@@ -525,6 +532,14 @@ namespace RachelsRosesWebPages.Models {
                 updateAllTables(ingredient, r);
             }
             var myUpdatedIngredients = queryAllTablesForAllIngredients(myListOfIngredients);
+        }
+        public void deleteIngredientFromIngredients(Ingredient i) {
+            var myIngredients = queryIngredients(); 
+            foreach (var ingredient in myIngredients) {
+                if (ingredient.ingredientId == i.ingredientId) {
+                    //var commandText = "Delete from ingredients"
+                }
+            }
         }
         //densities table methods: 
         public List<Ingredient> queryDensityTable() {

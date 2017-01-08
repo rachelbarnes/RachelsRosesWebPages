@@ -495,14 +495,18 @@ namespace RachelsRosesWebPages.Controllers {
         [Test]
         public void CondenseTeaspoonMeasurement4() {
             var convert = new ConvertMeasurement();
-            var expected = "4.125 cups 1.5 teaspoons";
+            var expected = "4 cups 2 tablespoons 1 1/2 teaspoons"; 
+            //var expected = "4 cups 2 tablespoons 1.5 teaspoons"; 
+            //var expected = "4.125 cups 1.5 teaspoons";
             var actual = convert.CondenseTeaspoonMeasurement(199.5m);
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void CondenseTeaspoonMeasurement5() {
             var convert = new ConvertMeasurement();
-            var expected = "7.125 cups 2.125 teaspoons";
+            var expected = "7 cups 2 tablespoons 2 1/8 teaspoons"; 
+            //var expected = "7 cups 2 tablespoons 2.125 teaspoons"; 
+            //var expected = "7.125 cups 2.125 teaspoons";
             var actual = convert.CondenseTeaspoonMeasurement(344.125m);
             Assert.AreEqual(expected, actual);
         }
@@ -516,7 +520,8 @@ namespace RachelsRosesWebPages.Controllers {
         [Test]
         public void CondenseTeaspoonsMeasurement7() {
             var convert = new ConvertMeasurement();
-            var expected = ".5 teaspoons";
+            var expected = "1/2 teaspoons"; 
+            //var expected = ".5 teaspoons";
             var actual = convert.CondenseTeaspoonMeasurement(.5m);
             Assert.AreEqual(expected, actual);
         }
@@ -544,7 +549,8 @@ namespace RachelsRosesWebPages.Controllers {
         [Test]
         public void CondenseTeaspoonsMeasurements11() {
             var convert = new ConvertMeasurement();
-            var expected = "3.5 cups";
+            var expected = "3 1/2 cups"; 
+            //var expected = "3.5 cups";
             var actual = convert.CondenseTeaspoonMeasurement(168m);
             Assert.AreEqual(expected, actual); 
         }
@@ -555,7 +561,8 @@ namespace RachelsRosesWebPages.Controllers {
             //i guess it depends on whether or not it's easier to do 1/8th of a cup or 2 tablespoons... 
             //but 13.83 cups, which is 3/4 cup + 1/8 cup, so 7/8 cup, is not helpful to very many people, myself included, 
             var convert = new ConvertMeasurement();
-            var expected = "13.75 cups 2 tablespoons 1.5 teaspoons"; 
+            var expected = "13 2/3 cups 3 tablespoons 2 1/2 teaspoons"; 
+            //var expected = "13.75 cups 2 tablespoons 1.5 teaspoons"; 
             var actual = convert.CondenseTeaspoonMeasurement(667.5m);
             Assert.AreEqual(expected, actual); 
         }
@@ -576,7 +583,8 @@ namespace RachelsRosesWebPages.Controllers {
         [Test]
         public void CondenseTeaspoonsMeasurements15() {
             var convert = new ConvertMeasurement();
-            var expected = ".125 teaspoons 1 pinches";
+            var expected = "1/8 teaspoons 1 pinches"; 
+            //var expected = ".125 teaspoons 1 pinches";
             var actual = convert.CondenseTeaspoonMeasurement(.19m);
             Assert.AreEqual(expected, actual); 
         }
@@ -591,8 +599,8 @@ namespace RachelsRosesWebPages.Controllers {
         [Test]
         public void AdjustTotalMeasurement2() {
             var convert = new ConvertMeasurement();
-            //var expected = "2 tablespoons";
-            var expected = ".125 cups"; 
+            var expected = "2 tablespoons";
+            //var expected = ".125 cups"; 
             var actual = convert.AdjustIngredientMeasurement("1/2 cup", 8, 2);
             Assert.AreEqual(expected, actual);
         }
@@ -606,65 +614,74 @@ namespace RachelsRosesWebPages.Controllers {
         [Test]
         public void AdjustTotalMeasurement4() {
             var convert = new ConvertMeasurement();
+            var expected = "1 cups 2 tablespoons 1 1/2 teaspoons"; 
             //var expected = "1 cups 2 tablespoons 1.5 teaspoons";
-            var expected = "1.125 cups 1.5 teaspoons";
+            //var expected = "1.125 cups 1.5 teaspoons";
             var actual = convert.AdjustIngredientMeasurement("9 1/4 tablespoons", 24, 48);
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void AdjustTotalMeasurement5() {
             var convert = new ConvertMeasurement();
-            var expected = "2.125 cups";
+            var expected = "2 cups 2 tablespoons"; 
+            //var expected = "2.125 cups";
             var actual = convert.AdjustIngredientMeasurement("1/2 cup 1 1/2 teaspoon", 4, 16);
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void AdjustTotalMeasurement8() {
             var convert = new ConvertMeasurement();
-            var expected = ".5 cups";
+            var expected = "1/2 cups"; 
+            //var expected = ".5 cups";
             var actual = convert.AdjustIngredientMeasurement("1/2 cup", 5, 5);
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void AdjustTotalMeasurement9() {
             var convert = new ConvertMeasurement();
-            var expected = "1 tablespoons 1.5 teaspoons";
+            var expected = "1 tablespoons 1 1/2 teaspoons"; 
+            //var expected = "1 tablespoons 1.5 teaspoons";
             var actual = convert.AdjustIngredientMeasurement("3 tablespoons", 2, 1);
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void AdjustTotalMeasurement11() {
             var convert = new ConvertMeasurement();
-            var expected = ".25 teaspoons";
+            var expected = "1/4 teaspoons"; 
+            //var expected = ".25 teaspoons";
             var actual = convert.AdjustIngredientMeasurement("1/8 teaspoon", 2, 4);
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void AdjustTotalMeasurement12() {
             var convert = new ConvertMeasurement();
-            var expected = ".125 teaspoons";
+            var expected = "1/8 teaspoons"; 
+            //var expected = ".125 teaspoons";
             var actual = convert.AdjustIngredientMeasurement("1/4 teaspoon", 4, 2);
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void AdjustTotalMeasurement13() {
             var convert = new ConvertMeasurement();
-            //var expected = "2 cups 3 tablespoons 0.25 teaspoons";
-            var expected = "2.125 cups 1 tablespoons .25 teaspoons"; 
+            var expected = "2 cups 3 tablespoons 1/4 teaspoons"; 
+            //var expected = "2 cups 3 tablespoons .25 teaspoons";
+            //var expected = "2.125 cups 1 tablespoons .25 teaspoons"; 
             var actual = convert.AdjustIngredientMeasurement("1 cup 1 1/2 tablespoons 1/8 teaspoon", 15, 30);
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void AdjustTotalMeasurement14() {
             var convert = new ConvertMeasurement();
-            var expected = ".25 cups 1 tablespoons";
+            var expected = "1/4 cups 1 tablespoons"; 
+            //var expected = ".25 cups 1 tablespoons";
             var actual = convert.AdjustIngredientMeasurement("1/4 cup 2 tablespoons 2 teaspoon", 8, 6);
             Assert.AreEqual(expected, actual); 
         }
         [Test]
         public void AdjustTotalMeasurements15() {
             var convert = new ConvertMeasurement();
-            var expected = ".125 cups 2 pinches";
+            var expected = "2 tablespoons 2 pinches"; 
+            //var expected = ".125 cups 2 pinches";
             var actual = convert.AdjustIngredientMeasurement("1 tablespoon 1 pinch", 8, 16);
             Assert.AreEqual(expected, actual); 
         }
@@ -706,9 +723,44 @@ namespace RachelsRosesWebPages.Controllers {
         [Test]
         public void TestCondenseTwoThirdsCups() {
             var convert = new ConvertMeasurement();
-            var expected = ".66 cups";
+            var expected = "2/3 cups";
             var actual = convert.AdjustIngredientMeasurement("1/3 cup", 1, 2);
             Assert.AreEqual(expected, actual); 
         }
+        [Test]
+        public void TestSplitSingleMeasurement() {
+            var convert = new ConvertMeasurement();
+            var expected = new string[] { "1", "cup" };
+            var actual = convert.SplitMeasurement("1 cup");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestSplitSingleMeasurement2() {
+            var convert = new ConvertMeasurement();
+            var expected = new string[] { "1", "tablespoon" };
+            var actual = convert.SplitMeasurement("1 tablespoon");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestSplitSingleMeasurement3() {
+            var convert = new ConvertMeasurement();
+            var expected = new string[] { "12 1/3", "cups" };
+            var actual = convert.SplitMeasurement("12 1/3 cups");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestSplitSingleMeasurement4() {
+            var convert = new ConvertMeasurement();
+            var expected = new string[] { ".33", "cups" };
+            var actual = convert.SplitMeasurement(".33 cups");
+            Assert.AreEqual(expected, actual); 
+        }
+        //[Test]
+        //public void TestCondensedMeasurementFractions() {
+        //    var convert = new ConvertMeasurement();
+        //    var expected = "1/2 cups";
+        //    var actual = convert.parseAdjustedIngredientMeasurement(".5 cups");
+        //    Assert.AreEqual(expected, actual); 
+        //}
     }
 }

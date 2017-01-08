@@ -26,6 +26,10 @@
     <input name="ingredient" />
     <p>Enter the ingredient's measurement:</p>
     <input name="measurement" />
+    <p>Enter the ingredient's classification (for example, flour, dairy, eggs, leavening, etc.)</p>
+    <input name="classification" />
+    <p>Enter the ingredient's type (for example, bread flour, milk, buttermilk, sour cream, etc.)</p>
+    <input name="type" />
     <input type="submit" value="Add" />
 </form>
 <h4>@ViewBag.ErrorMessage</h4>
@@ -38,6 +42,7 @@
             <a href="/home/ingredient?name=@ingredient.name&measurement=@ingredient.measurement">View details of @ingredient.name</a>
             <br /> 
             <a href="/home/deleteingredient?ingredient=@ingredient.name">Delete Ingredient</a>
+            <br />
         </li>
     }
 </ul>
