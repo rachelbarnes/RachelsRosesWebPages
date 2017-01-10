@@ -45,25 +45,27 @@ namespace RachelsRosesWebPages {
         public ItemResponse GetItemResponse(Ingredient i) {
             var db = new DatabaseAccess();
             var convert = new ConvertWeight();
-            var newItemResponse = new ItemResponse(); 
-            if (!string.IsNullOrEmpty(i.ingredientClassification) && (i.ingredientClassification.ToLower().Contains("dairy")) || i.ingredientClassification.ToLower().Contains("eggs")) {
-                return newItemResponse; 
-                //this ingredientClassification is null, which is why i'm getting 0...
-            }
-            if ((MakeRequest<SearchResponse>(buildSearchRequest(i)).Items.Count() == 0)) 
-                return newItemResponse; 
-            var items = MakeRequest<SearchResponse>(buildSearchRequest(i)).Items;
-            var sellingWeightOunces = convert.ConvertWeightToOunces(i.sellingWeight);
-            var tempItemResponse = new ItemResponse(); 
-            foreach (var item in items) {
-                if (!item.name.Contains('(')) {
-                    if ((!item.name.ToLower().Contains("pack of")) || (!item.name.ToLower().Contains(("pk")))) {
-                        if ((parseItemResponseName(item).Count() != 0) && (CompareWeightInOuncesFromItemResponseToIngredientSellingWeight(item, i) && (CompareItemResponseNameAndIngredientName(item, i)))) {
-                            tempItemResponse = item;
-                            break; 
+            var newItemResponse = new ItemResponse();
+            var tempItemResponse = new ItemResponse();
+            if (string.IsNullOrEmpty(i.classification) || (i.classification == " ") || !(i.classification.ToLower().Contains("dairy")) || !(i.classification.ToLower().Contains("egg"))) { 
+                if ((MakeRequest<SearchResponse>(buildSearchRequest(i)).Items.Count() == 0))
+                    return newItemResponse;
+                var items = MakeRequest<SearchResponse>(buildSearchRequest(i)).Items;
+                var sellingWeightOunces = convert.ConvertWeightToOunces(i.sellingWeight);
+                foreach (var item in items) {
+                    if (!item.name.Contains('(')) {
+                        if ((!item.name.ToLower().Contains("pack of")) || (!item.name.ToLower().Contains(("pk")))) {
+                            if ((parseItemResponseName(item).Count() != 0) && (CompareWeightInOuncesFromItemResponseToIngredientSellingWeight(item, i) && (CompareItemResponseNameAndIngredientName(item, i)))) {
+                                tempItemResponse = item;
+                                break;
+                            }
                         }
                     }
                 }
+            } else {
+                if ((i.classification.ToLower().Contains("dairy")) || i.classification.ToLower().Contains("eggs"))
+                    return newItemResponse;
+                //this ingredientClassification is null, which is why i'm getting 0...
             }
             return tempItemResponse;
             //i would like to be able to return all brands that fit a certain selling weight, and give all of them as an option, and give the best price? 

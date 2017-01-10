@@ -99,6 +99,9 @@ namespace RachelsRosesWebPages.Controllers {
         //    currentRecipe.ingredients = currentRecipe.ingredients.Where(x => x.name != ingredient).ToList();
         //    return Redirect("/home/recipe?name=" + currentRecipe.name);
         //}
+
+
+        //add selling weight to the recipes page
         public ActionResult CreateIngredient(string ingredient, string measurement, string classification, string type) {
             var db = new DatabaseAccess();
             ingredient = ingredient.Trim();
@@ -109,7 +112,7 @@ namespace RachelsRosesWebPages.Controllers {
             if ((!(string.IsNullOrEmpty(ingredient)) || !(string.IsNullOrEmpty(measurement))) && (!(string.IsNullOrEmpty(classification)) && !(string.IsNullOrEmpty(type)))) {
                 newIngredient.name = ingredient;
                 newIngredient.measurement = measurement;
-                newIngredient.ingredientClassification = classification;
+                newIngredient.classification = classification;
                 newIngredient.typeOfIngredient = type;
                 newIngredient.recipeId = currentRecipe.id;
                 currentRecipe.ingredients.Add(newIngredient);
@@ -132,7 +135,7 @@ namespace RachelsRosesWebPages.Controllers {
             foreach (var recipe in recipes) {
                 if (recipe.name == recipeTitle)
                     currentRecipe = recipe; 
-                    db.DeleteRecipe(currentRecipe); 
+                    db.DeleteRecipeAndRecipeIngredients(currentRecipe); 
             }
             return Redirect("/home/recipes");
         }
