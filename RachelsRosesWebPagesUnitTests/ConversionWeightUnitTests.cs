@@ -201,14 +201,14 @@ namespace RachelsRosesWebPages {
             var convert = new ConvertWeight();
             var expected = 0.07m;
             var actual = convert.GramsToOunces(2);
-            Assert.AreEqual(expected, actual); 
+            Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestGramsToOunces4() {
             var convert = new ConvertWeight();
             var expected = 3.95m;
             var actual = convert.GramsToOunces(112m);
-            Assert.AreEqual(expected, actual); 
+            Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestOuncesToGrams() {
@@ -229,14 +229,14 @@ namespace RachelsRosesWebPages {
             var convert = new ConvertWeight();
             var expected = 326.02m;
             var actual = convert.OuncesToGrams(11.5m);
-            Assert.AreEqual(expected, actual); 
+            Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestOuncesToGrams4() {
             var convert = new ConvertWeight();
             var expected = 56.7m;
             var actual = convert.OuncesToGrams(2m);
-            Assert.AreEqual(expected, actual); 
+            Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestPoundsToGrams() {
@@ -292,7 +292,7 @@ namespace RachelsRosesWebPages {
             var convert = new ConvertWeight();
             var expected = new string[] { "11", "oz" };
             var actual = convert.SplitWeightMeasurement("11oz");
-            Assert.AreEqual(expected, actual); 
+            Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestSplitWeightMeasurement5() {
@@ -404,35 +404,124 @@ namespace RachelsRosesWebPages {
             var convert = new ConvertWeight();
             var expected = 1.67m;
             var actual = convert.ConvertWeightToOunces("1 2/3 ounces");
-            Assert.AreEqual(expected, actual); 
+            Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestConvertWeightToOunces16() {
             var convert = new ConvertWeight();
             var expected = 13.12m;
             var actual = convert.ConvertWeightToOunces("13 1/8 ounces");
-            Assert.AreEqual(expected, actual); 
+            Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestConvertWeightToOunces17() {
             var convert = new ConvertWeight();
             var expected = .33m;
             var actual = convert.ConvertWeightToOunces("1/3 ounces");
-            Assert.AreEqual(expected, actual); 
+            Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestCOovertImproperWeight() {
             var convert = new ConvertWeight();
             var expected = 0m;
             var actual = convert.ConvertWeightToOunces("6)");
-            Assert.AreEqual(expected, actual); 
+            Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestConvertImproperWeight() {
             var convert = new ConvertWeight();
             var expected = 0m;
             var actual = convert.ConvertWeightToOunces("5-6");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void SplitEggMeasurement() {
+            var convert = new ConvertWeight();
+            var expected = new string[] { "1", "egg" };
+            var actual = convert.SplitWeightMeasurement("1 egg");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void getNumberOfEggsSoldFromSellingQuantity() {
+            var convert = new ConvertWeight();
+            var expected = 12m;
+            var actual = convert.NumberOfEggsFromSellingQuantity("dozen");
+            Assert.AreEqual(expected, actual);  
+        }
+        [Test]
+        public void getNumberOfEggsSoldFromSellingQuantity2() {
+            var convert = new ConvertWeight();
+            var expected = 12m;
+            var actual = convert.NumberOfEggsFromSellingQuantity("1 dozen");
+            Assert.AreEqual(expected, actual);  
+        }
+        [Test]
+        public void getNumberOfEggsSoldFromSellingQuantity3() {
+            var convert = new ConvertWeight();
+            var expected = 24m;
+            var actual = convert.NumberOfEggsFromSellingQuantity("2 dozen");
+            Assert.AreEqual(expected, actual);  
+        }
+        [Test]
+        public void getNumberOfEggsSoldFromSellingQuantity4() {
+            var convert = new ConvertWeight();
+            var expected = 36m;
+            var actual = convert.NumberOfEggsFromSellingQuantity("36");
+            Assert.AreEqual(expected, actual);  
+        }
+        [Test]
+        public void getEggsOuncesConsumed() {
+            var convert = new ConvertWeight();
+            var expected = 1m;
+            var actual = convert.EggsConsumedFromIngredientMeasurement("1 egg");
             Assert.AreEqual(expected, actual); 
         }
+        [Test]
+        public void getEggsOuncesConsumed2() {
+            var convert = new ConvertWeight();
+            var expected = 1.5m;
+            var actual = convert.EggsConsumedFromIngredientMeasurement("1 1/2 eggs");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void getEggsOuncesConsumed3() {
+            var convert = new ConvertWeight();
+            var expected = 2m;
+            var actual = convert.EggsConsumedFromIngredientMeasurement("2 eggs");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void getEggsOuncesConsumed4() {
+            var convert = new ConvertWeight();
+            var expected = 12.75m;
+            var actual = convert.EggsConsumedFromIngredientMeasurement("12 3/4 eggs");
+            Assert.AreEqual(expected, actual); 
+        }
+        /*
+       i need to think about what I want the eggs to look like in all of this:  
+       for ingredients, eggs should have: 
+        name: "eggs"
+        meas = "2 eggs"
+        class = "eggs"
+        type = "egg"
+        price = 2/12 * eggPrice
+       for densities, eggs should have: 
+        density = 1.70m
+        sellingweight = "dozen" || "12" (this will obviously have to be different from the rest of the ingredients... 
+        sellingweightounces = 12||24||36
+        priceperounce = eggPrice /  sellingweightounces
+       for consumption, eggs should have: 
+        density = 1.70 for each egg
+        ouncesCon = 1||2
+        ouncesremaining = sellingweightounces - ounces con
+       for costs, eggs should have: 
+        sellingweight = "dozen" || "12"
+        sellingPrice= 2.99m
+        pricePerOunce = 2.99 / 12
+
+        make sure to do the update table methods as well
+
+
+        */
     }
 }

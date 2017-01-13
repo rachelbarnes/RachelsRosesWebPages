@@ -6,11 +6,13 @@ whole wheat flour: 5
 coarse cornmeal: 4.85
 fine cornmeal: 6.3
 white sugar: 7.1 
+granulated sugar: 7.1
 brown sugar: 7.75
 powdered sugar sifted: 3.6 
 powdered sugar: 4.4
 milk powder: 4.4
 baking cocoa: 4.16
+cocoa powder: 4.16
 baking soda: 8.57
 baking powder:8.4
 salt: 10.72
@@ -18,7 +20,7 @@ ground cinnamon: 4.4
 active dry yeast: 5.49 
 vegetable oil: 7.7
 milk: 8.2
-egg(1 egg): 1.7
+egg: 1.7
 butter: 8
 shortening: 7.25
 vanilla extract: 6.86
@@ -33,6 +35,7 @@ raisins: 5
 coconut, dry, shredded: 2.5
 oats: 3
 chocolate chips: 5.35
+chocolate morsels: 5.35
 walnuts, chopped: 4.3
 walnuts, halved: 3.5
 pecans, chopped: 3.84

@@ -55,6 +55,7 @@ namespace RachelsRosesWebPages {
         public decimal aggregatedPrice;
         public List<string> comments;
         public string typeOfRecipe;
+        public decimal pricePerServing; 
         public Recipe(string _name) {
             name = _name;
             id = 0;

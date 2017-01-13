@@ -492,7 +492,7 @@ namespace RachelsRosesWebPages {
         }
         public decimal ConvertWeightToOunces(string weight) {
             var measurements = new string[] { "gall", "cup", "pint", "quart", "pound", "lb", "oz", "ounce", "gram" };
-            var count = 0m;
+            var count = 0;
             foreach (var measurement in measurements) {
                 if (weight.ToLower().Contains(measurement)) {
                     count++;
@@ -504,31 +504,54 @@ namespace RachelsRosesWebPages {
                 weight = weight.ToLower();
                 var splitWeight = SplitWeightMeasurement(weight);
                 var weightToBeConverted = parse.Parse(splitWeight[0]);
-                if (weight.Contains("gall"))
+                if (weight.ToLower().Contains("gall"))
                     return GallonsToOunces(weightToBeConverted);
-                if (weight.Contains("pint"))
+                if (weight.ToLower().Contains("pint"))
                     return PintsToOunces(weightToBeConverted);
-                if (weight.Contains("quart"))
-                    return CupsToOunces(weightToBeConverted);
-                if (weight.Contains("pound") || weight.Contains("lb"))
+                if (weight.ToLower().Contains("quart"))
+                    return QuartsToOunces(weightToBeConverted);
+                if (weight.ToLower().Contains("pound") || weight.Contains("lb"))
                     return PoundsToOunces(weightToBeConverted);
-                if (weight.Contains("cup"))
+                if (weight.ToLower().Contains("cup"))
                     return CupsToOunces(weightToBeConverted);
-                if (weight.Contains("gram"))
+                if (weight.ToLower().Contains("gram"))
                     return GramsToOunces(weightToBeConverted);
                 else return Math.Round((weightToBeConverted), 2);
             } else return 0m;
+        }
+        public decimal NumberOfEggsFromSellingQuantity(string quantity) {
+            int n;
+            var quantityArray = quantity.Split(' ');
+            if (quantityArray.Count() == 1 && quantity.ToLower() == "dozen")
+                return 12m;
+            if (quantityArray.Count() == 2 && int.TryParse(quantityArray[0], out n) && quantityArray[1].ToLower() == "dozen")
+                return ((int.Parse(quantityArray[0])) * 12);
+            if (quantityArray.Count() == 1 && int.TryParse(quantityArray[0], out n))
+                return (int.Parse(quantityArray[0]));
+            else return 0m;
+        }
+        public decimal EggsConsumedFromIngredientMeasurement(string measurement) {
+            var parse = new ParseFraction();
+            var measurementArray = SplitWeightMeasurement(measurement);
+            return parse.Parse(measurementArray[0]); 
         }
     }
 
     public class ConvertDensity {
         public decimal PercentageUsedMeasurementToStandardMeasurement(Ingredient i) {
+            var convertWeight = new ConvertWeight();
             var convert = new ConvertMeasurement();
-            var measurementInOunces = convert.AccumulatedTeaspoonMeasurement(i.measurement);
-            return Math.Round((decimal)(measurementInOunces / convert.AccumulatedTeaspoonMeasurement("1 cup")), 4);
+            var measurementInOunces = 0m;
+            if (i.classification.ToLower().Contains("egg")) {
+                var splitEggMeasurement = convertWeight.SplitWeightMeasurement(i.sellingWeight);
+                measurementInOunces = decimal.Parse(splitEggMeasurement[0]);
+                return Math.Round((decimal)(measurementInOunces), 4);
+            } else return Math.Round((convert.AccumulatedTeaspoonMeasurement(i.measurement) / convert.AccumulatedTeaspoonMeasurement("1 cup")), 4); 
+            //return Math.Round((decimal)(measurementInOunces / convert.AccumulatedTeaspoonMeasurement("1 cup")), 4);
         }
 
         public decimal CalculateOuncesUsed(Ingredient i) {
+            var percentage = PercentageUsedMeasurementToStandardMeasurement(i); 
             return Math.Round((PercentageUsedMeasurementToStandardMeasurement(i) * i.density), 2);
         }
     }
@@ -584,7 +607,7 @@ namespace RachelsRosesWebPages {
             if (string.IsNullOrEmpty(retFraction))
                 return decimalPortion + " " + splitMeasurement[1];
             if (string.IsNullOrEmpty(fractionSplitAtDecimalPoint[0]))
-                return retFraction + " " + splitMeasurement[1]; 
+                return retFraction + " " + splitMeasurement[1];
             if (fractionSplitAtDecimalPoint.Count() != 0)
                 returnedMeasurement = fractionSplitAtDecimalPoint[0] + " " + retFraction + " " + splitMeasurement[1];
             return returnedMeasurement;

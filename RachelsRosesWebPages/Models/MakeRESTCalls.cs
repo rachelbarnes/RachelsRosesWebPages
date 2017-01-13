@@ -65,11 +65,9 @@ namespace RachelsRosesWebPages {
             } else {
                 if ((i.classification.ToLower().Contains("dairy")) || i.classification.ToLower().Contains("eggs"))
                     return newItemResponse;
-                //this ingredientClassification is null, which is why i'm getting 0...
             }
             return tempItemResponse;
             //i would like to be able to return all brands that fit a certain selling weight, and give all of them as an option, and give the best price? 
-            //i think a good idea would be to have the item id associated with the ingredient in the ingredient database or the cost database, that way you can get the exact same item
         }
         public List<ItemResponse> GetListItemResponses(Ingredient i) {
             var db = new DatabaseAccess();
