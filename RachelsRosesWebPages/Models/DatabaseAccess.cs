@@ -422,10 +422,12 @@ namespace RachelsRosesWebPages.Models {
                     break;
                 }
             }
-            foreach (var ing in myIngredients) {
-                if (ing.ingredientId == i.ingredientId) {
-                    i.priceOfMeasuredConsumption = MeasuredIngredientPrice(i);
-                    break;
+            if (i.ouncesConsumed != 0m && i.ouncesRemaining != 0m && i.priceOfMeasuredConsumption == 0m) {
+                foreach (var ing in myIngredients) {
+                    if (ing.ingredientId == i.ingredientId) {
+                        i.priceOfMeasuredConsumption = MeasuredIngredientPrice(i);
+                        break;
+                    }
                 }
             }
             return i;
@@ -443,7 +445,7 @@ namespace RachelsRosesWebPages.Models {
                 i.itemId = myItemResponse.itemId;
             if (string.IsNullOrEmpty(i.itemResponseName))
                 i.itemResponseName = myItemResponse.name;
-            if (string.IsNullOrEmpty(i.itemResponseName))
+            if (string.IsNullOrEmpty(i.itemResponseName)) // || (i.classification.ToLower().Contains("dairy") || i.classification.ToLower().Contains("egg"))
                 i.itemResponseName = " ";
             if (string.IsNullOrEmpty(i.classification))
                 i.classification = " ";
@@ -462,8 +464,7 @@ namespace RachelsRosesWebPages.Models {
         }
         public void UpdateIngredient(Ingredient i) {
             var myIngredients = queryIngredients();
-            if (myItemResponse == null)
-                myItemResponse = returnItemResponse(i);
+            myItemResponse = returnItemResponse(i);
             if (i.itemId == 0)
                 i.itemId = myItemResponse.itemId;
             if (string.IsNullOrEmpty(i.itemResponseName))
@@ -489,6 +490,10 @@ namespace RachelsRosesWebPages.Models {
             });
         }
         public decimal MeasuredIngredientPrice(Ingredient i) {
+
+            //there's something wrong with this method... it's not getting the measured price... that's the first to fail in TestEggs2
+
+
             var convertWeight = new ConvertWeight();
             var convert = new ConvertMeasurement();
             var myCostData = queryCostTable();
@@ -498,7 +503,8 @@ namespace RachelsRosesWebPages.Models {
             var temp = new Ingredient();
             var measuredIngredientPrice = 0m;
             foreach (var ingredient in myConsumptionData) {
-                if (ingredient.ingredientId == i.ingredientId) {
+                if (ingredient.name.ToLower() == i.name.ToLower() || (ingredient.name.ToLower().Contains(i.classification.ToLower()) && i.classification != " ")) {
+                    //this second condition should be ok for eggs... 
                     temp.ouncesConsumed = ingredient.ouncesConsumed;
                     break;
                 }
@@ -521,7 +527,7 @@ namespace RachelsRosesWebPages.Models {
                 if (ingredient.name == i.name) {
                     ingredient.ouncesConsumed = temp.ouncesConsumed;
                     ingredient.sellingPrice = temp.sellingPrice;
-                    var accumulatedTeaspoons = convert.AccumulatedTeaspoonMeasurement(ingredient.measurement);
+                    //var accumulatedTeaspoons = convert.AccumulatedTeaspoonMeasurement(ingredient.measurement);
                     var measuredOuncesDividedBySellingWeight = 0m;
                     if (temp.sellingWeightInOunces != 0)
                         measuredOuncesDividedBySellingWeight = Math.Round((ingredient.ouncesConsumed / temp.sellingWeightInOunces), 4);
@@ -551,28 +557,28 @@ namespace RachelsRosesWebPages.Models {
             }
             if (countIngredients == 0) {
                 insertIngredient(i, r);
-                //var myIng = queryAllTablesForIngredient(i);
+                var myIng = queryAllTablesForIngredient(i);
                 insertIngredientIntoDensityInfoDatabase(i);
-                //var myIng2 = queryAllTablesForIngredient(i);
+                var myIng2 = queryAllTablesForIngredient(i);
                 insertIngredientDensityData(i);
-                //var myIng3 = queryAllTablesForIngredient(i);
+                var myIng3 = queryAllTablesForIngredient(i);
                 insertIngredientConsumtionData(i);
-                //var myIng4 = queryAllTablesForIngredient(i);
+                var myIng4 = queryAllTablesForIngredient(i);
                 insertIngredientCostDataCostTable(i);
-                //var myIng5 = queryAllTablesForIngredient(i);
+                var myIng5 = queryAllTablesForIngredient(i);
                 updateAllTables(i, r);
-                //var queriedIngredients = queryAllTablesForIngredient(i);
+                var queriedIngredients = queryAllTablesForIngredient(i);
             } else {
                 UpdateIngredient(i);
-                //var updatedIngredient = queryAllTablesForIngredient(i);
+                var updatedIngredient = queryAllTablesForIngredient(i);
                 updateDensityInfoTable(i);
-                //var updatedIngredient2 = queryAllTablesForIngredient(i);
+                var updatedIngredient2 = queryAllTablesForIngredient(i);
                 updateDensityTable(i);
-                //var updatedIngredient3 = queryAllTablesForIngredient(i);
+                var updatedIngredient3 = queryAllTablesForIngredient(i);
                 updateCostDataTable(i);
-                //var updatedIngredient4 = queryAllTablesForIngredient(i);
+                var updatedIngredient4 = queryAllTablesForIngredient(i);
                 UpdateIngredient(i);
-                //var updatedIngredient5 = queryAllTablesForIngredient(i);
+                var updatedIngredient5 = queryAllTablesForIngredient(i);
             }
         }
         public void insertListOfIngredientsIntoAllTables(List<Ingredient> ListOfIngredients, Recipe r) {
@@ -629,7 +635,6 @@ namespace RachelsRosesWebPages.Models {
             var updatedIngredient3 = queryAllTablesForIngredient(i);
             updateCostDataTable(i);
             var updatedIngredient4 = queryAllTablesForIngredient(i);
-            var updatedDatabase = queryAllTablesForIngredient(i);
         }
         public void updateAllTablesForAllIngredients(List<Ingredient> myListOfIngredients, Recipe r) {
             foreach (var ingredient in myListOfIngredients) {
@@ -653,8 +658,7 @@ namespace RachelsRosesWebPages.Models {
         }
         public void insertIngredientDensityData(Ingredient i) {
             var convert = new ConvertWeight();
-            if (myItemResponse == null)
-                myItemResponse = returnItemResponse(i);
+            myItemResponse = returnItemResponse(i);
             i.density = returnIngredientDensityFromDensityTable(i);
             if (i.sellingPrice == 0m)
                 i.sellingPrice = myItemResponse.salePrice;
@@ -708,26 +712,38 @@ namespace RachelsRosesWebPages.Models {
             });
             return ingredientInformation;
         }
+
+
+
+
+
+
+
         public void insertIngredientConsumtionData(Ingredient i) {
             var convertWeight = new ConvertWeight();
             var convert = new ConvertDensity();
             var myIngredient = queryAllTablesForIngredient(i);
             var myConsumptionTable = queryConsumptionTable();
+            var temp = new Ingredient();
             bool alreadyContainsIngredient = new bool();
             if (myIngredient.classification.ToLower().Contains("egg")) {
-                i.name = "egg"; 
+                temp.name = "eggs";
                 i.ouncesConsumed = convertWeight.EggsConsumedFromIngredientMeasurement(myIngredient.measurement);
             } else i.ouncesConsumed = CalculateOuncesConsumedFromMeasurement(i);
             foreach (var ingredient in myConsumptionTable) {
-                if (ingredient.name.ToLower() == i.name.ToLower()) {
+                if (ingredient.name.ToLower() == i.name.ToLower() || (ingredient.name.ToLower().Contains(i.classification.ToLower()) && i.classification != " ")) {
+                    //i have to be careful here with the eggs... if the name is "eggs", then this may fail as a condition becasue both can be true and I have the || instead of hte &&...
+                    //write some tests around this
                     alreadyContainsIngredient = true;
                     break;
                 }
             }
+            if (string.IsNullOrEmpty(temp.name))
+                temp.name = i.name;
             if (alreadyContainsIngredient == false) {
                 var commandText = @"Insert into consumption (name, density, ounces_consumed, ounces_remaining) values (@name, @density, @ounces_consumed, @ounces_remaining);";
                 executeVoidQuery(commandText, cmd => {
-                    cmd.Parameters.AddWithValue("@name", i.name);
+                    cmd.Parameters.AddWithValue("@name", temp.name);
                     cmd.Parameters.AddWithValue("@density", i.density);
                     cmd.Parameters.AddWithValue("@ounces_consumed", i.ouncesConsumed);
                     cmd.Parameters.AddWithValue("@ounces_remaining", i.ouncesRemaining);
@@ -738,25 +754,35 @@ namespace RachelsRosesWebPages.Models {
             var myUpdatedIngredient = queryConsumptionTable();
         }
         public void updateConsumptionTable(Ingredient i) {
+            var convert = new ConvertWeight();
             var myIngredient = queryAllTablesForIngredient(i);
             var myConsumptionTable = queryConsumptionTable();
+            var temp = new Ingredient();
             foreach (var ingredient in myConsumptionTable) {
-                if ((!string.IsNullOrEmpty(i.classification) && i.classification.ToLower().Contains("egg")) || i.name.ToLower() == "egg")
+                //problems: my ouncesConsumed should be 2 instead of 3, and my priceofmeasuredconsumption is 0 for the moment... 
+                if (i.classification.ToLower().Contains("egg") && ingredient.name.ToLower().Contains("egg")) {
+                    temp.name = ingredient.name;
+                    var currentOuncesConsumed = convert.EggsConsumedFromIngredientMeasurement(i.measurement);
+                    if (ingredient.ouncesConsumed != currentOuncesConsumed)
+                        i.ouncesConsumed = convert.EggsConsumedFromIngredientMeasurement(i.measurement);
                     if (ingredient.ouncesRemaining == 0m)
                         i.ouncesRemaining = i.sellingWeightInOunces - i.ouncesConsumed;
-                    else i.ouncesRemaining = ingredient.ouncesRemaining - i.ouncesConsumed; 
-                //this above is a catch all for eggs... i don't want cake flour and bread flour to come from the same source for ounces remaining, but i want all eggs to be coming from the same place, the egg carton :)
-                if (ingredient.name.ToLower() == i.name.ToLower()) {
-                        if (ingredient.ouncesRemaining == 0m) {
+                    else i.ouncesRemaining = ingredient.ouncesRemaining - i.ouncesConsumed;
+                } else {
+                    //this above is a catch all for eggs... i don't want cake flour and bread flour to come from the same source for ounces remaining, but i want all eggs to be coming from the same place, the egg carton :)
+                    if (ingredient.name.ToLower() == i.name.ToLower()) {
+                        if (ingredient.ouncesRemaining == 0m)
                             i.ouncesRemaining = i.sellingWeightInOunces - i.ouncesConsumed;
-                        } else {
+                        else
                             i.ouncesRemaining = ingredient.ouncesRemaining - i.ouncesConsumed;
-                        }
                     }
+                }
             }
+            if (string.IsNullOrEmpty(temp.name))
+                temp.name = i.name;
             var commandText = "update consumption set ounces_consumed=@ounces_consumed, ounces_remaining=@ounces_remaining where name=@name;";
             executeVoidQuery(commandText, cmd => {
-                cmd.Parameters.AddWithValue("@name", i.name);
+                cmd.Parameters.AddWithValue("@name", temp.name);
                 cmd.Parameters.AddWithValue("@ounces_consumed", i.ouncesConsumed);
                 cmd.Parameters.AddWithValue("@ounces_remaining", i.ouncesRemaining);
                 return cmd;
