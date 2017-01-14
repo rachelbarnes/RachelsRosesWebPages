@@ -20,7 +20,7 @@ ground cinnamon: 4.4
 active dry yeast: 5.49 
 vegetable oil: 7.7
 milk: 8.2
-egg: 1.7
+egg: 1.67
 butter: 8
 shortening: 7.25
 vanilla extract: 6.86
@@ -43,3 +43,5 @@ pecans, halved: 3.5
 bananas, mashed: 12
 zucchini, shredded: 8
 cranberries, dried: 4.2
+egg white: 1
+egg yolk: .67

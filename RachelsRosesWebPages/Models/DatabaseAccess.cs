@@ -581,6 +581,21 @@ namespace RachelsRosesWebPages.Models {
                 var updatedIngredient5 = queryAllTablesForIngredient(i);
             }
         }
+        public List<Ingredient> getListOfDistintIngredients() {
+            var myIngredientsTable = queryIngredients();
+            var myUniqueIngredientNames = new List<string>();
+            var myUniqueIngredients = new List<Ingredient>(); 
+            foreach (var ingredient in myIngredientsTable) {
+                if (!myUniqueIngredientNames.Contains(ingredient.name)) {
+                    myUniqueIngredientNames.Add(ingredient.name); 
+                    myUniqueIngredients.Add(queryAllTablesForIngredient(ingredient));
+                }
+            }
+            return myUniqueIngredients; 
+            //return myIngredientsTable.Select(x => x).Distinct();
+            //need to put a cast on this or something? this should be easily refactorable with a .Distinct(), it's just giving me a type problem for the moment and save a few lines of code
+            //public Func<List<Ingredient>, List<Ingredient>> GetDistinctListOfIngredientsFromQueryIngredients = queriedIngredientsFromIngredientsTable => queriedIngredientsFromIngredientsTable.Select(x => x).Distinct();
+        }
         public void insertListOfIngredientsIntoAllTables(List<Ingredient> ListOfIngredients, Recipe r) {
             var myListOfIngredientIds = new List<int>();
             var myListOfRecipeIds = new List<int>();
@@ -712,13 +727,6 @@ namespace RachelsRosesWebPages.Models {
             });
             return ingredientInformation;
         }
-
-
-
-
-
-
-
         public void insertIngredientConsumtionData(Ingredient i) {
             var convertWeight = new ConvertWeight();
             var convert = new ConvertDensity();
@@ -771,6 +779,7 @@ namespace RachelsRosesWebPages.Models {
                 } else {
                     //this above is a catch all for eggs... i don't want cake flour and bread flour to come from the same source for ounces remaining, but i want all eggs to be coming from the same place, the egg carton :)
                     if (ingredient.name.ToLower() == i.name.ToLower()) {
+                        i.ouncesConsumed = CalculateOuncesConsumedFromMeasurement(i); 
                         if (ingredient.ouncesRemaining == 0m)
                             i.ouncesRemaining = i.sellingWeightInOunces - i.ouncesConsumed;
                         else
@@ -825,7 +834,6 @@ namespace RachelsRosesWebPages.Models {
             }
             return myConsumedOunces;
         }
-
         //cost table 
         public List<Ingredient> queryCostTable() {
             var ingredientInformation = queryItems("select * from costs", reader => {

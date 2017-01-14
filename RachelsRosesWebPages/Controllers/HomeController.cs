@@ -4,12 +4,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Routing;
 
 namespace RachelsRosesWebPages.Controllers {
     public class HomeController : Controller {
         public static Recipe currentRecipe = new Recipe();
         public static Recipe myDatabaseRecipe = new Recipe();
         public static Ingredient currentIngredient = new Ingredient();
+        public static void RegisterRoutes(RouteCollection routes) {
+            routes.MapRoute(
+                "Default",
+                "home/recipes?name=" + currentRecipe.name); 
+        }
         public List<Recipe> getRecipes() {
             var db = new DatabaseAccess();
             return db.MyRecipeBox();
@@ -28,11 +34,13 @@ namespace RachelsRosesWebPages.Controllers {
             myDatabaseRecipe = getRecipes().First(x => x.name == name);
             currentRecipe = myDatabaseRecipe;
             ViewBag.currentingredient = currentIngredient;
+            ViewBag.currentingredienttable = t.getListOfDistintIngredients();  
             ViewBag.currentrecipe = currentRecipe;
             ViewBag.recipeboxcount = getRecipes().Count();
             return View();
         }
         public ActionResult Ingredient(string name, string measurement) {
+            var rest = new MakeRESTCalls();
             if (string.IsNullOrEmpty(name))
                 return Redirect("/home/recipes");
             if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(measurement))
@@ -43,9 +51,10 @@ namespace RachelsRosesWebPages.Controllers {
             }
             ViewBag.currentrecipe = currentRecipe;
             ViewBag.currentingredient = currentIngredient;
+            ViewBag.currentitemresponselist = rest.GetListItemResponses(currentIngredient);
             return View();
         }
-        public ActionResult EditIng(string updatedName, string updatedMeasurement, string updatedType, string updatedDensity, string updatedSellingWeight, string updatedSellingPrice) {
+        public ActionResult EditIng(string updatedName, string updatedMeasurement, string updatedType, string updatedDensity, string updatedSellingWeight, string updatedSellingPrice, string updatedClassification) {
             var t = new DatabaseAccess();
             var updatedDensityDecimal = 0m;
             var updatedSellingPriceDecimal = 0m;
@@ -74,6 +83,9 @@ namespace RachelsRosesWebPages.Controllers {
                     if (ing.sellingPrice != updatedSellingPriceDecimal && !(string.IsNullOrEmpty(updatedSellingPrice))) {
                         ing.sellingPrice = updatedSellingPriceDecimal;
                     } else { updatedSellingPriceDecimal = ing.sellingPrice; }
+                    if (ing.classification != updatedClassification && !(string.IsNullOrEmpty(updatedClassification))) {
+                        ing.classification = updatedClassification;
+                    } else { updatedClassification = ing.classification; }
                     t.updateAllTables(currentIngredient, currentRecipe);
                     currentIngredient = t.queryAllTablesForIngredient(currentIngredient);
                 }
@@ -87,27 +99,19 @@ namespace RachelsRosesWebPages.Controllers {
             t.updateAllTables(currentIngredient, currentRecipe);
             return Redirect("/home/ingredient?name=" + currentIngredient.name + "&measurement=" + currentIngredient.measurement);
         }
-        //public ActionResult DeleteIngredient(string ingredient) {
-        //    var db = new DatabaseAccess();
-        //    db.GetFullRecipe(currentRecipe); 
-        //    foreach (var ing in currentRecipe.ingredients) {
-        //        if (ing.name == ingredient) {
-        //        }
-        //    }
-
-        //    var myIngredients = db.queryAllTablesForIngredient()
-        //    currentRecipe.ingredients = currentRecipe.ingredients.Where(x => x.name != ingredient).ToList();
-        //    return Redirect("/home/recipe?name=" + currentRecipe.name);
-        //}
-
-
         //add selling weight to the recipes page
-        public ActionResult CreateIngredient(string ingredient, string measurement, string classification, string type) {
+        public ActionResult CreateIngredient(string ingredient, string measurement, string classification, string type, string sellingweight, string sellingprice) {
             var db = new DatabaseAccess();
             ingredient = ingredient.Trim();
             measurement = measurement.Trim();
-            classification = classification.Trim();
-            type = type.Trim();
+            if (string.IsNullOrEmpty(classification))
+                classification = " ";
+            else classification = classification.Trim(); 
+            if (string.IsNullOrEmpty(type))
+                type = " "; 
+            else type = type.Trim();
+            sellingweight = sellingweight.Trim();
+            sellingprice = sellingprice.Trim();
             var newIngredient = new Ingredient();
             if ((!(string.IsNullOrEmpty(ingredient)) || !(string.IsNullOrEmpty(measurement))) && (!(string.IsNullOrEmpty(classification)) && !(string.IsNullOrEmpty(type)))) {
                 newIngredient.name = ingredient;
@@ -115,6 +119,9 @@ namespace RachelsRosesWebPages.Controllers {
                 newIngredient.classification = classification;
                 newIngredient.typeOfIngredient = type;
                 newIngredient.recipeId = currentRecipe.id;
+                newIngredient.sellingWeight = sellingweight;
+                if (!string.IsNullOrEmpty(sellingprice))
+                    newIngredient.sellingPrice = decimal.Parse(sellingprice);
                 currentRecipe.ingredients.Add(newIngredient);
                 currentIngredient = newIngredient;
                 db.insertIngredient(currentIngredient, currentRecipe);
@@ -131,11 +138,11 @@ namespace RachelsRosesWebPages.Controllers {
         public ActionResult DeleteRecipe(string recipeTitle) {
             recipeTitle = recipeTitle.Trim();
             var db = new DatabaseAccess();
-            var recipes = db.queryRecipes(); 
+            var recipes = db.queryRecipes();
             foreach (var recipe in recipes) {
                 if (recipe.name == recipeTitle)
-                    currentRecipe = recipe; 
-                    db.DeleteRecipeAndRecipeIngredients(currentRecipe); 
+                    currentRecipe = recipe;
+                db.DeleteRecipeAndRecipeIngredients(currentRecipe);
             }
             return Redirect("/home/recipes");
         }
@@ -156,13 +163,19 @@ namespace RachelsRosesWebPages.Controllers {
                 var oldYield = currentRecipe.yield;
                 currentRecipe.yield = updatedYield;
                 t.UpdateRecipeYield(currentRecipe);
-                //i do still have to do stuff with this for eggs... 
-                //foreach (var ing in currentRecipe.ingredients) {
-                //    if (int.TryParse(ing.measurement, out n)) {
-                //        ing.measurement = (int.Parse(ing.measurement) * (currentRecipe.yield / oldYield)).ToString();
-                //    } else ing.measurement = convert.AdjustIngredientMeasurement(ing.measurement, oldYield, currentRecipe.yield); }
             }
             t.UpdateRecipe(currentRecipe);
+            return Redirect("/home/recipe?name=" + currentRecipe.name);
+        }
+        public ActionResult DeleteIngredient(string name) {
+            name = name.Trim();
+            var db = new DatabaseAccess();
+            var myIngredientsTable = db.queryIngredients();
+            foreach (var ingredient in myIngredientsTable) {
+                if (ingredient.name == name) {
+                    db.DeleteIngredientFromAllRelevantTables(ingredient);
+                }
+            }
             return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
     }

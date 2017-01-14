@@ -37,6 +37,10 @@
     <input name="updatedSellingPrice" />
     <input type="submit" value="Update Selling Price" />
     <br />
+    <h5><b>Edit Ingredient Classification</b></h5>
+    <input name="updatedClassification" />
+    <input type="submit" value="Update Ingredient Classification" />
+    <br />
 </form>
 <form action="/home/ResetSellingPrice" method="post">
     @*<h5><b>Reset Selling Price: </b></h5>*@
@@ -45,11 +49,39 @@
 <br />
 <br />
 <h5><b>Update your ingredient Information:</b></h5>
-<p>Selling Price: @ViewBag.currentingredient.sellingPrice</p>
-<p>Price of Measured Consumption: @ViewBag.currentingredient.priceOfMeasuredConsumption</p>
+<p>Selling Price: $@ViewBag.currentingredient.sellingPrice</p>
+<p>Price of Measured Consumption: $@ViewBag.currentingredient.priceOfMeasuredConsumption</p>
 <p>Ounces Consumed: @ViewBag.currentingredient.ouncesConsumed</p>
 <p>Ounces Remaining in your Pantry: @ViewBag.currentingredient.ouncesRemaining</p>
 <p>Ingredient Type: @ViewBag.currentingredient.typeOfIngredient</p>
+<p>Classification: @ViewBag.currentingredient.classification</p>
 <p>Density: @ViewBag.currentingredient.density</p>
-@*this is where we can have the density, price of it's dairy, etc.*@
 
+<h5><b>Autopopulate selling weight, selling price, price of measured consumption</b></h5>
+<ul>
+    @foreach (var itemresponse in @ViewBag.currentitemresponselist) {
+        <li>
+            <p>@itemresponse.name : @itemresponse.salePrice</p>
+             
+        </li>
+    }
+</ul>
+
+@*Need to: 
+    when i click to view the details of an ingredient, i'm met with an error where it ry to convert the weight to ounces...
+        i need to debug and see what's happening. 
+
+
+    give a list of items from online that match our ingredient description
+    be able to autopopulate those fields based on which item is chosen, or be able to manually fill them in
+    have a check list of recipes that have been made, and a record of how many times they've been made...
+        when they have been made, ajust the consumption table, otherwise, don't do anything with the consumption table until then, or make ounces consumed 0 instead of the measurement... 
+    do some more with the looks of the View... it looks pretty painfully plain
+
+    i have a drop down option for the ingredients from queryIngredients... i'll have to test if the distinct is working... 
+     have a drop down of ingredient densities from queryDensities so we can choose one or konw if we have to input one
+
+    have a detailed description of what's happening with the classification and type for what a user would need/like to know and why it's so impt... 
+        put as a readme or as footnotes in the bottom... but they need to be filled in, esp for density and more esp for eggs 
+    
+    *@

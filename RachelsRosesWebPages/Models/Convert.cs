@@ -491,6 +491,8 @@ namespace RachelsRosesWebPages {
             return splitWeight;
         }
         public decimal ConvertWeightToOunces(string weight) {
+            if (string.IsNullOrEmpty(weight))
+                throw new Exception("Weight is null when trying to convert weight to ounces");
             var measurements = new string[] { "gall", "cup", "pint", "quart", "pound", "lb", "oz", "ounce", "gram" };
             var count = 0;
             foreach (var measurement in measurements) {
@@ -533,7 +535,7 @@ namespace RachelsRosesWebPages {
         public decimal EggsConsumedFromIngredientMeasurement(string measurement) {
             var parse = new ParseFraction();
             var measurementArray = SplitWeightMeasurement(measurement);
-            return parse.Parse(measurementArray[0]); 
+            return parse.Parse(measurementArray[0]);
         }
     }
 
@@ -546,12 +548,12 @@ namespace RachelsRosesWebPages {
                 var splitEggMeasurement = convertWeight.SplitWeightMeasurement(i.sellingWeight);
                 measurementInOunces = decimal.Parse(splitEggMeasurement[0]);
                 return Math.Round((decimal)(measurementInOunces), 4);
-            } else return Math.Round((convert.AccumulatedTeaspoonMeasurement(i.measurement) / convert.AccumulatedTeaspoonMeasurement("1 cup")), 4); 
+            } else return Math.Round((convert.AccumulatedTeaspoonMeasurement(i.measurement) / convert.AccumulatedTeaspoonMeasurement("1 cup")), 4);
             //return Math.Round((decimal)(measurementInOunces / convert.AccumulatedTeaspoonMeasurement("1 cup")), 4);
         }
 
         public decimal CalculateOuncesUsed(Ingredient i) {
-            var percentage = PercentageUsedMeasurementToStandardMeasurement(i); 
+            var percentage = PercentageUsedMeasurementToStandardMeasurement(i);
             return Math.Round((PercentageUsedMeasurementToStandardMeasurement(i) * i.density), 2);
         }
     }
