@@ -2761,6 +2761,36 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(.63m, softasilk3.priceOfMeasuredConsumption);
             Assert.AreEqual(.10m, bakingPowder.priceOfMeasuredConsumption); 
         }
+        [Test]
+        public void TestgetDoubleAverageOuncesConsumedForIngredient() {
+            var t = new DatabaseAccess();
+            var bananaNutMuffins = new Recipe("Banana Nut Muffins") { id = 1, yield = 18 };
+            var APFlour = new Ingredient("All Purpose Flour") { ingredientId = 1, recipeId = 1, measurement = "1 1/2 cups", sellingWeight = "5 lb", typeOfIngredient = "all purpose flour" };
+            t.initializeDatabase();
+            t.insertIngredientIntoAllTables(APFlour, bananaNutMuffins);
+            var doubleAverage = t.getDoubleAverageOuncesConsumedForIngredient(APFlour); 
+            Assert.AreEqual(15m, doubleAverage); 
+        }
+        [Test]
+        public void TestgetDoubleAverageOuncesConsumedForIngredient2() {
+            var t = new DatabaseAccess();
+            var chocolateChipCheesecake = new Recipe("Chocolate Chip Cheesecake") { id = 1, yield = 18 };
+            var chocolateChipCookies = new Recipe("Chocolate Chip Cookies") { id = 2, yield = 24 };
+            var bananaChocolateChipMuffins = new Recipe("Banana Chocolate Chip Cookies") { id = 3, yield = 12 }; 
+            var chocolateChips = new Ingredient("Semi Sweet Chocolate Chips") { ingredientId = 1, recipeId = 1, measurement = "1 3/4 cups", sellingWeight = "12 oz", typeOfIngredient = "chocolate chips" };
+            var chocolateChips2 = new Ingredient("Semi Sweet Chocolate Chips") { ingredientId = 2, recipeId = 2, measurement = "1/2 cup", sellingWeight = "12 oz", typeOfIngredient = "chocolate chips" };
+            var chocolateChips3 = new Ingredient("Semi Sweet Chocolate Chips") { ingredientId = 3, recipeId = 3, measurement = "1 1/2 cups", sellingWeight = "12 oz", typeOfIngredient = "chocolate chips" };
+            var bakingPowder = new Ingredient("Baking Powder") { ingredientId = 4, recipeId = 3, measurement = "2 teapsoons", sellingWeight = "10 oz", typeOfIngredient = "baking powder" };
+            var bananaChocolateChipMuffinsIngredients = new List<Ingredient> { chocolateChips3, bakingPowder }; 
+            t.initializeDatabase();
+            t.insertIngredientIntoAllTables(chocolateChips, chocolateChipCheesecake);
+            t.insertIngredientIntoAllTables(chocolateChips2, chocolateChipCookies);
+            t.insertListOfIngredientsIntoAllTables(bananaChocolateChipMuffinsIngredients, bananaChocolateChipMuffins);
+            var doubleAverage = t.getDoubleAverageOuncesConsumedForIngredient(chocolateChips);
+            Assert.AreEqual(13.38m, doubleAverage); 
+            //something is off with getting the ounces consumed... i may have to match more than the name and measurement? 
+            //the name and measurement should be the only thigns i need... debug and see where it's picking up only the first one again
+        }
         //[Test]
         //public void TestingConsumptionTableWithMoreIngredientsMoreExtensiveTest() {
         //    var t = new DatabaseAccess();
@@ -2836,7 +2866,8 @@ namespace RachelsRosesWebPagesUnitTests {
         //    Assert.AreEqual(.26m, myFluffyWhiteCakeIngredientDataInfo[4].ouncesConsumed); //baking powder
         //    Assert.AreEqual(.43m, myFluffyWhiteCakeIngredientDataInfo[5].ouncesConsumed); //vanilla extract
 
-        //I would like something like this to be the final test... 
+        //I would like something like this to be the final test... well, something that looks like this, or that I can make sure all of my stuff is working exactly as I see it needs to
+
         //}
     }
 }

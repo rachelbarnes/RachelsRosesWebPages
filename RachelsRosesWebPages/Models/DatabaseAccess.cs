@@ -657,6 +657,22 @@ namespace RachelsRosesWebPages.Models {
             }
             var myUpdatedIngredients = queryAllTablesForAllIngredients(myListOfIngredients);
         }
+        public decimal getDoubleAverageOuncesConsumedForIngredient(Ingredient i) {
+            var convert = new ConvertMeasurement(); 
+            var listOfIngredientOuncesConsumed= new List<decimal>(); 
+            var myIngredientsTable = queryIngredients();
+            foreach (var ingredient in myIngredientsTable) {
+                if (ingredient.name == i.name && ingredient.measurement == i.measurement) {
+                    var currentIngredient = queryAllTablesForIngredient(ingredient);
+                    listOfIngredientOuncesConsumed.Add(currentIngredient.ouncesConsumed); 
+                }
+            }
+            var count = listOfIngredientOuncesConsumed.Count();
+            var aggregatedOuncesConsumed = 0m;
+            foreach (var measurement in listOfIngredientOuncesConsumed) 
+                aggregatedOuncesConsumed += measurement;
+            return Math.Round((aggregatedOuncesConsumed / count) * 2, 2); 
+        }
         //densities table methods: 
         public List<Ingredient> queryDensitiesTable() {
             var ingredientInformation = queryItems("select * from densities", reader => {

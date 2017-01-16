@@ -1,4 +1,5 @@
-﻿
+﻿@*it doesn't seem like i'm having mushc luck going through and getting the css internal to work, i either have to try inline or do an external styling sheet and try to assign that*@
+
 @{
     ViewBag.Title = "My Recipe";
 }
@@ -17,14 +18,16 @@
     <input type="submit" value="Change Yield" />
 </form>
 <h5>@ViewBag.currentRecipe.name ingredients:</h5>
-    <br />
+<br />
 <ul>
     @foreach (var ingredient in ViewBag.currentrecipe.ingredients) {
         <li>
             <p>@ingredient.measurement @ingredient.name<p>
-            <p><a href="/home/ingredient?name=@ingredient.name&measurement=@ingredient.measurement">View details of @ingredient.name</a>
-            <br />
-            <a href="/home/deleteingredient?ingredient=@ingredient.name">Delete Ingredient</a></p>
+            <p>
+                <a href="/home/ingredient?name=@ingredient.name&measurement=@ingredient.measurement">View details of @ingredient.name</a>
+                <br />
+                <a href="/home/deleteingredient?ingredient=@ingredient.name">Delete Ingredient</a>
+            </p>
         </li>
     }
 </ul>
@@ -39,9 +42,9 @@
             <option value="@ingredient.name">@ingredient.name</option>
         }
     </select>
-    <input name="ingredient" placeholder="Enter an ingredient"/>
+    <input name="ingredient" placeholder="Enter an ingredient" />
     <p>Enter the ingredient's measurement:</p>
-    <input name="measurement" placeholder="Enter your measurement"/>
+    <input name="measurement" placeholder="Enter your measurement" />
     <p>Enter or choose an ingredient classification:</p>
     <select name="chooseclassification">
         @foreach (var ingredient in ViewBag.currentingredienttable) {
@@ -51,14 +54,19 @@
     @*when an ingredient is selected from the dropdown, put that value in the ingredient to be filled in the ingredient name entry box, that way it's more intuitive and clearer*@
     @*ok, so that's easy, just assign the specific ingredient name that's currently chosen as the placeholder for each, or enter ingredient type or something like thta*@
     <br /><br />
-    <input name="classification" placeholder="Ex. flour, dairy, eggs, yeast, etc."  />
-    <p>Enter the ingredient's type (for example, bread flour, milk, buttermilk, sour cream, etc.)</p>
+    <input name="classification" placeholder="Ex. flour, dairy, eggs, yeast, etc." />
+    <p>Enter or choose an ingredient type:</p>
+    <select name="chooseType">
+        @foreach (var ingredient in ViewBag.currentingredienttable) {
+            <option value="@ingredient.typeOfIngredient">@ingredient.typeOfIngredient</option>
+        }
+    </select>
     <input name="type" placeholder="Ex. baking powder, cake flour, bread flour, etc." />
     <p>Enter the ingredient's selling weight (**For the selling weight for eggs, put "1 dozen" or "24")</p>
-    @*<input name="sellingWeight" />
-    <p>Enter the ingredient's selling price</p>
-    <input name="sellingPrice" />
-    <p>**For the moment, unless it can be ordered from walmart.com, you're going to have to enter your selling price manually. I want to get Costco, Target, BJs and some other places to get rest calls from</p>
-    <input type="submit" value="Add Ingredient to @ViewBag.currentrecipe.name" />
-    <p>**The ingredient classiication is especially important for the database deals with egg consumption and prices, as well as with dairy ingredient selling prices</p>*@
+    <input name="sellingWeight" />
+        <p>Enter the ingredient's selling price</p>
+        <input name="sellingPrice" />
+        <p>**For the moment, unless it can be ordered from walmart.com, you're going to have to enter your selling price manually. I want to get Costco, Target, BJs and some other places to get rest calls from</p>
+        <input type="submit" value="Add Ingredient to @ViewBag.currentrecipe.name" />
+        <p>**The ingredient classiication is especially important for the database deals with egg consumption and prices, as well as with dairy ingredient selling prices</p>
 </form>
