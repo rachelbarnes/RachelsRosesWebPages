@@ -2735,15 +2735,15 @@ namespace RachelsRosesWebPagesUnitTests {
         [Test]
         public void TestGettingUniqueEntriesINIngredientTable() {
             var t = new DatabaseAccess();
-            var fluffyWhiteCake = new Recipe("Fluffy White Cake") { id = 1, yield = 12};
-            var chocolateCake = new Recipe("My Favorite Chocolat Cake") { id = 2,yield= 18 };
+            var fluffyWhiteCake = new Recipe("Fluffy White Cake") { id = 1, yield = 12 };
+            var chocolateCake = new Recipe("My Favorite Chocolat Cake") { id = 2, yield = 18 };
             var yellowCake = new Recipe("Yellow Cake") { id = 3, yield = 16 };
             var softasilk = new Ingredient("Softasilk Cake Flour") { ingredientId = 1, recipeId = 1, measurement = "2 cups 2 tablespoons", typeOfIngredient = "cake flour", sellingWeight = "32 oz" };
             var softasilk2 = new Ingredient("Softasilk Cake Flour") { ingredientId = 2, recipeId = 2, measurement = "3 cups", typeOfIngredient = "cake flour", sellingWeight = "32 oz" };
             var softasilk3 = new Ingredient("Softasilk Cake Flour") { ingredientId = 3, recipeId = 3, measurement = "1 1/2 cups", typeOfIngredient = "cake flour", sellingWeight = "32 oz" };
             var bakingPowder = new Ingredient("Baking Powder") { ingredientId = 4, recipeId = 3, measurement = "2 teaspoons", typeOfIngredient = "baking powder", sellingWeight = "10 oz" };
             var yellowCakeIngredients = new List<Ingredient> { softasilk3, bakingPowder };
-            var myIngredientBox = new List<Ingredient> { softasilk, softasilk2, softasilk3, bakingPowder }; 
+            var myIngredientBox = new List<Ingredient> { softasilk, softasilk2, softasilk3, bakingPowder };
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(softasilk, fluffyWhiteCake);
             t.insertIngredientIntoAllTables(softasilk2, chocolateCake);
@@ -2751,7 +2751,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var myIngredientsTable = t.queryIngredients();
             var myRecipeBox = t.MyRecipeBox();
             var myDistictIngredientTable = t.getListOfDistintIngredients();
-            var myIngredientBoxFilled = t.queryAllTablesForAllIngredients(myIngredientBox); 
+            var myIngredientBoxFilled = t.queryAllTablesForAllIngredients(myIngredientBox);
             Assert.AreEqual(4, myIngredientsTable.Count());
             Assert.AreEqual(2, myDistictIngredientTable.Count());
             Assert.AreEqual("Softasilk Cake Flour", myDistictIngredientTable[0].name);
@@ -2759,7 +2759,7 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(.89m, softasilk.priceOfMeasuredConsumption);
             Assert.AreEqual(1.26m, softasilk2.priceOfMeasuredConsumption);
             Assert.AreEqual(.63m, softasilk3.priceOfMeasuredConsumption);
-            Assert.AreEqual(.10m, bakingPowder.priceOfMeasuredConsumption); 
+            Assert.AreEqual(.10m, bakingPowder.priceOfMeasuredConsumption);
         }
         [Test]
         public void TestgetDoubleAverageOuncesConsumedForIngredient() {
@@ -2768,28 +2768,150 @@ namespace RachelsRosesWebPagesUnitTests {
             var APFlour = new Ingredient("All Purpose Flour") { ingredientId = 1, recipeId = 1, measurement = "1 1/2 cups", sellingWeight = "5 lb", typeOfIngredient = "all purpose flour" };
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(APFlour, bananaNutMuffins);
-            var doubleAverage = t.getDoubleAverageOuncesConsumedForIngredient(APFlour); 
-            Assert.AreEqual(15m, doubleAverage); 
+            var doubleAverage = t.getDoubleAverageOuncesConsumedForIngredient(APFlour);
+            Assert.AreEqual(15m, doubleAverage);
         }
         [Test]
         public void TestgetDoubleAverageOuncesConsumedForIngredient2() {
             var t = new DatabaseAccess();
             var chocolateChipCheesecake = new Recipe("Chocolate Chip Cheesecake") { id = 1, yield = 18 };
             var chocolateChipCookies = new Recipe("Chocolate Chip Cookies") { id = 2, yield = 24 };
-            var bananaChocolateChipMuffins = new Recipe("Banana Chocolate Chip Cookies") { id = 3, yield = 12 }; 
+            var bananaChocolateChipMuffins = new Recipe("Banana Chocolate Chip Cookies") { id = 3, yield = 12 };
             var chocolateChips = new Ingredient("Semi Sweet Chocolate Chips") { ingredientId = 1, recipeId = 1, measurement = "1 3/4 cups", sellingWeight = "12 oz", typeOfIngredient = "chocolate chips" };
             var chocolateChips2 = new Ingredient("Semi Sweet Chocolate Chips") { ingredientId = 2, recipeId = 2, measurement = "1/2 cup", sellingWeight = "12 oz", typeOfIngredient = "chocolate chips" };
             var chocolateChips3 = new Ingredient("Semi Sweet Chocolate Chips") { ingredientId = 3, recipeId = 3, measurement = "1 1/2 cups", sellingWeight = "12 oz", typeOfIngredient = "chocolate chips" };
             var bakingPowder = new Ingredient("Baking Powder") { ingredientId = 4, recipeId = 3, measurement = "2 teapsoons", sellingWeight = "10 oz", typeOfIngredient = "baking powder" };
-            var bananaChocolateChipMuffinsIngredients = new List<Ingredient> { chocolateChips3, bakingPowder }; 
+            var bananaChocolateChipMuffinsIngredients = new List<Ingredient> { chocolateChips3, bakingPowder };
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(chocolateChips, chocolateChipCheesecake);
             t.insertIngredientIntoAllTables(chocolateChips2, chocolateChipCookies);
             t.insertListOfIngredientsIntoAllTables(bananaChocolateChipMuffinsIngredients, bananaChocolateChipMuffins);
+            var myIngredientConsumptionInformation = t.queryConsumptionOuncesConsumed();
             var doubleAverage = t.getDoubleAverageOuncesConsumedForIngredient(chocolateChips);
-            Assert.AreEqual(13.38m, doubleAverage); 
+            Assert.AreEqual(9.36m, myIngredientConsumptionInformation[0].ouncesConsumed);
+            Assert.AreEqual(2.68m, myIngredientConsumptionInformation[1].ouncesConsumed);
+            Assert.AreEqual(8.02m, myIngredientConsumptionInformation[2].ouncesConsumed);
+            Assert.AreEqual(13.37m, doubleAverage);
             //something is off with getting the ounces consumed... i may have to match more than the name and measurement? 
             //the name and measurement should be the only thigns i need... debug and see where it's picking up only the first one again
+        }
+        [Test]
+        public void TestgetDoubleAverageOuncesConsumedForIngredient3() {
+            var t = new DatabaseAccess();
+            var cakeFlour = new Ingredient("Cake Flour") { ingredientId = 1, ouncesConsumed = 10m };
+            var cakeFlour2 = new Ingredient("Cake Flour") { ingredientId = 2, ouncesConsumed = 20m };
+            var cakeFlour3 = new Ingredient("Cake Flour") { ingredientId = 3, ouncesConsumed = 30m };
+            var cakeFlour4 = new Ingredient("Cake Flour") { ingredientId = 4, ouncesConsumed = 40m };
+            var cakeFlour5 = new Ingredient("Cake Flour") { ingredientId = 5, ouncesConsumed = 50m };
+            var myIngredientBox = new List<Ingredient> { cakeFlour, cakeFlour2, cakeFlour3, cakeFlour4, cakeFlour5 };
+            t.initializeDatabase();
+            t.insertListOfIngredientsIntoConsumptionOuncesConsumed(myIngredientBox);
+            var myIngredients = t.queryConsumptionOuncesConsumed();
+            var doubleAverage = t.getDoubleAverageOuncesConsumedForIngredient(cakeFlour);
+            Assert.AreEqual(10m, myIngredientBox[0].ouncesConsumed);
+            Assert.AreEqual(20m, myIngredientBox[1].ouncesConsumed);
+            Assert.AreEqual(30m, myIngredientBox[2].ouncesConsumed);
+            Assert.AreEqual(40m, myIngredientBox[3].ouncesConsumed);
+            Assert.AreEqual(50m, myIngredientBox[4].ouncesConsumed);
+            Assert.AreEqual(60m, doubleAverage);
+        }
+        [Test]
+        public void TestgetDoubleAverageOuncesConsumedForIngredient4() {
+            var t = new DatabaseAccess();
+            var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 18 };
+            var yellowCake = new Recipe("Yellow Cake") { id = 2, yield = 12 };
+            var whiteCake = new Recipe("White Cake") { id = 3, yield = 12 };
+            var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 4, yield = 24 };
+            var eggs = new Ingredient("Eggs") { ingredientId = 1, recipeId = 1, measurement = "2 eggs", sellingWeight = "1 dozen", typeOfIngredient = "eggs", classification = "eggs" };
+            var wholeMilk = new Ingredient("Whole Milk") { ingredientId = 2, recipeId = 1, measurement = "1 1/2 cups", sellingWeight = "1 quart", typeOfIngredient = "milk", classification = "dairy", sellingPrice = 1.99m };
+            var softasilkFlour = new Ingredient("Softasilk") { ingredientId = 3, recipeId = 1, measurement = "3 cups", sellingWeight = "32 oz", typeOfIngredient = "cake flour" };
+            var eggs2 = new Ingredient("Eggs") { ingredientId = 4, recipeId = 2, measurement = "4 eggs", sellingWeight = "1 dozen", typeOfIngredient = "eggs", classification = "eggs" };
+            var softasilkFlour2 = new Ingredient("Softasilk") { ingredientId = 5, recipeId = 2, measurement = "2 1/4 cups", sellingWeight = "32 oz", typeOfIngredient = "cake flour" };
+            var bakingPowder = new Ingredient("Baking Powder") { ingredientId = 6, recipeId = 2, measurement = "2 teaspoons", sellingWeight = "10 oz", typeOfIngredient = "baking powder" };
+            var softasilkFlour3 = new Ingredient("Softasilk") { ingredientId = 7, recipeId = 3, measurement = "2 1/2 cups", sellingWeight = "32 oz", typeOfIngredient = "cake flour" };
+            var bakingPowder2 = new Ingredient("Baking Powder") { ingredientId = 8, recipeId = 3, measurement = "1 tablespoon 1 teaspoon", sellingWeight = "10 oz", typeOfIngredient = "baking powder" };
+            var eggs3 = new Ingredient("Egg whites, merginued") { ingredientId = 9, recipeId = 3, measurement = "3 eggs", sellingWeight = "1 dozen", typeOfIngredient = "eggs", classification = "eggs" };
+            var breadFlour = new Ingredient("Bread Flour") { ingredientId = 10, recipeId = 4, measurement = "6 cups 2 tablespoons", sellingWeight = "5 lb", typeOfIngredient = "bread flour" };
+            var chocolateCakeIngredients = new List<Ingredient> { eggs, wholeMilk, softasilkFlour };
+            var yellowCakeIngredients = new List<Ingredient> { eggs2, softasilkFlour2, bakingPowder };
+            var whiteCakeIngredients = new List<Ingredient> { softasilkFlour3, bakingPowder2, eggs3 };
+            var honeyButtermilkBreadIngredients = new List<Ingredient> { breadFlour };
+            t.initializeDatabase();
+            t.insertListOfIngredientsIntoAllTables(chocolateCakeIngredients, chocolateCake);
+            t.insertListOfIngredientsIntoAllTables(yellowCakeIngredients, yellowCake);
+            t.insertListOfIngredientsIntoAllTables(whiteCakeIngredients, whiteCake);
+            t.insertListOfIngredientsIntoAllTables(honeyButtermilkBreadIngredients, honeyButtermilkBread);
+            var myConsumptionTable = t.queryConsumptionTable();
+            var myIngredients = t.queryConsumptionOuncesConsumed();
+            Assert.AreEqual(2m, myIngredients[0].ouncesConsumed);
+            Assert.AreEqual(12.3m, myIngredients[1].ouncesConsumed);
+            Assert.AreEqual(13.5m, myIngredients[2].ouncesConsumed);
+            Assert.AreEqual(4m, myIngredients[3].ouncesConsumed);
+            Assert.AreEqual(10.12m, myIngredients[4].ouncesConsumed);
+            Assert.AreEqual(.35m, myIngredients[5].ouncesConsumed);
+            Assert.AreEqual(11.25m, myIngredients[6].ouncesConsumed);
+            Assert.AreEqual(.7m, myIngredients[7].ouncesConsumed);
+            Assert.AreEqual(3m, myIngredients[8].ouncesConsumed);
+            Assert.AreEqual(33.08m, myIngredients[9].ouncesConsumed);
+            Assert.AreEqual(5, myConsumptionTable.Count()); 
+        }
+        [Test]
+        public void TestConsumptionOuncesConsumedTable() {
+            var t = new DatabaseAccess();
+            var cakeFlour = new Ingredient("Cake Flour") { ingredientId = 1, ouncesConsumed = 20m };
+            t.initializeDatabase();
+            t.insertIngredientIntoConsumptionOuncesConsumed(cakeFlour);
+            var myIngredients = t.queryConsumptionOuncesConsumed();
+            Assert.AreEqual(20m, myIngredients[0].ouncesConsumed);
+        }
+        [Test]
+        public void TestConsumptionOuncesConsumedTable2() {
+            var t = new DatabaseAccess();
+            var cakeFlour = new Ingredient("Cake Flour") { ingredientId = 1, ouncesConsumed = 30m };
+            var allPurposeFlour = new Ingredient("All Purpose Flour") { ingredientId = 2, ouncesConsumed = .4m };
+            var breadFlour = new Ingredient("Bread Flour") { ingredientId = 3, ouncesConsumed = 35m };
+            var myIngredientBox = new List<Ingredient> { cakeFlour, allPurposeFlour, breadFlour };
+            t.initializeDatabase();
+            t.insertListOfIngredientsIntoConsumptionOuncesConsumed(myIngredientBox);
+            //t.insertIngredientIntoConsumptionOuncesConsumed(cakeFlour);
+            var myIngredients = t.queryConsumptionOuncesConsumed();
+            Assert.AreEqual(30m, myIngredients[0].ouncesConsumed);
+            Assert.AreEqual(.4m, myIngredients[1].ouncesConsumed);
+            Assert.AreEqual(35m, myIngredients[2].ouncesConsumed);
+        }
+        [Test]
+        public void TestUpdateOuncesConsumedTable() {
+            var t = new DatabaseAccess();
+            var cakeFlour = new Ingredient("Cake Flour") { ingredientId = 1, ouncesConsumed = 5m };
+            var breadFlour = new Ingredient("Bread Flour") { ingredientId = 2, ouncesConsumed = 10m };
+            var myIngredientBox = new List<Ingredient> { cakeFlour, breadFlour };
+            t.initializeDatabase();
+            t.insertListOfIngredientsIntoConsumptionOuncesConsumed(myIngredientBox);
+            cakeFlour.ouncesConsumed = 20m;
+            breadFlour.ouncesConsumed = 40m;
+            t.updateIngredientInConsumptionouncesConsumed(cakeFlour);
+            t.updateIngredientInConsumptionouncesConsumed(breadFlour);
+            var myIngredients = t.queryConsumptionOuncesConsumed();
+            Assert.AreEqual(20m, myIngredientBox[0].ouncesConsumed);
+            Assert.AreEqual(40m, myIngredientBox[1].ouncesConsumed);
+        }
+        [Test]
+        public void TestMultipleIngredientsWithSameNameOuncesConsumedTable() {
+            var t = new DatabaseAccess();
+            var cakeFlour = new Ingredient("Cake Flour") { ingredientId = 1, ouncesConsumed = 10m };
+            var cakeFlour2 = new Ingredient("Cake Flour") { ingredientId = 2, ouncesConsumed = 20m };
+            var cakeFlour3 = new Ingredient("Cake Flour") { ingredientId = 3, ouncesConsumed = 30m };
+            var cakeFlour4 = new Ingredient("Cake Flour") { ingredientId = 4, ouncesConsumed = 40m };
+            var cakeFlour5 = new Ingredient("Cake Flour") { ingredientId = 5, ouncesConsumed = 50m };
+            var myIngredientBox = new List<Ingredient> { cakeFlour, cakeFlour2, cakeFlour3, cakeFlour4, cakeFlour5 };
+            t.initializeDatabase();
+            t.insertListOfIngredientsIntoConsumptionOuncesConsumed(myIngredientBox);
+            var myIngredients = t.queryConsumptionOuncesConsumed();
+            Assert.AreEqual(10m, myIngredientBox[0].ouncesConsumed);
+            Assert.AreEqual(20m, myIngredientBox[1].ouncesConsumed);
+            Assert.AreEqual(30m, myIngredientBox[2].ouncesConsumed);
+            Assert.AreEqual(40m, myIngredientBox[3].ouncesConsumed);
+            Assert.AreEqual(50m, myIngredientBox[4].ouncesConsumed);
         }
         //[Test]
         //public void TestingConsumptionTableWithMoreIngredientsMoreExtensiveTest() {

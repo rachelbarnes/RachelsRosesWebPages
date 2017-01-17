@@ -490,10 +490,6 @@ namespace RachelsRosesWebPages.Models {
             });
         }
         public decimal MeasuredIngredientPrice(Ingredient i) {
-
-            //there's something wrong with this method... it's not getting the measured price... that's the first to fail in TestEggs2
-
-
             var convertWeight = new ConvertWeight();
             var convert = new ConvertMeasurement();
             var myCostData = queryCostTable();
@@ -504,7 +500,6 @@ namespace RachelsRosesWebPages.Models {
             var measuredIngredientPrice = 0m;
             foreach (var ingredient in myConsumptionData) {
                 if (ingredient.name.ToLower() == i.name.ToLower() || (ingredient.name.ToLower().Contains(i.classification.ToLower()) && i.classification != " ")) {
-                    //this second condition should be ok for eggs... 
                     temp.ouncesConsumed = ingredient.ouncesConsumed;
                     break;
                 }
@@ -584,18 +579,18 @@ namespace RachelsRosesWebPages.Models {
         public List<Ingredient> getListOfDistintIngredients() {
             var myIngredientsTable = queryIngredients();
             var myUniqueIngredientNames = new List<string>();
-            var myUniqueIngredients = new List<Ingredient>(); 
+            var myUniqueIngredients = new List<Ingredient>();
             foreach (var ingredient in myIngredientsTable) {
                 if (!myUniqueIngredientNames.Contains(ingredient.name)) {
-                    myUniqueIngredientNames.Add(ingredient.name); 
+                    myUniqueIngredientNames.Add(ingredient.name);
                     myUniqueIngredients.Add(queryAllTablesForIngredient(ingredient));
                 }
             }
-            return myUniqueIngredients; 
-            //return myIngredientsTable.Select(x => x).Distinct();
-            //need to put a cast on this or something? this should be easily refactorable with a .Distinct(), it's just giving me a type problem for the moment and save a few lines of code
-            //public Func<List<Ingredient>, List<Ingredient>> GetDistinctListOfIngredientsFromQueryIngredients = queriedIngredientsFromIngredientsTable => queriedIngredientsFromIngredientsTable.Select(x => x).Distinct();
+            return myUniqueIngredients;
         }
+        //return myIngredientsTable.Select(x => x).Distinct();
+        //need to put a cast on this or something? this should be easily refactorable with a .Distinct(), it's just giving me a type problem for the moment and save a few lines of code
+        //public Func<List<Ingredient>, List<Ingredient>> GetDistinctListOfIngredientsFromQueryIngredients = queriedIngredientsFromIngredientsTable => queriedIngredientsFromIngredientsTable.Select(x => x).Distinct();
         public void insertListOfIngredientsIntoAllTables(List<Ingredient> ListOfIngredients, Recipe r) {
             var myListOfIngredientIds = new List<int>();
             var myListOfRecipeIds = new List<int>();
@@ -658,20 +653,18 @@ namespace RachelsRosesWebPages.Models {
             var myUpdatedIngredients = queryAllTablesForAllIngredients(myListOfIngredients);
         }
         public decimal getDoubleAverageOuncesConsumedForIngredient(Ingredient i) {
-            var convert = new ConvertMeasurement(); 
-            var listOfIngredientOuncesConsumed= new List<decimal>(); 
-            var myIngredientsTable = queryIngredients();
-            foreach (var ingredient in myIngredientsTable) {
-                if (ingredient.name == i.name && ingredient.measurement == i.measurement) {
-                    var currentIngredient = queryAllTablesForIngredient(ingredient);
-                    listOfIngredientOuncesConsumed.Add(currentIngredient.ouncesConsumed); 
-                }
+            var convert = new ConvertMeasurement();
+            var listOfIngredientOuncesConsumed = new List<decimal>();
+            var myIngredientOuncesConsumedTable = queryConsumptionOuncesConsumed();
+            foreach (var ingredient in myIngredientOuncesConsumedTable) {
+                if (ingredient.name == i.name)
+                    listOfIngredientOuncesConsumed.Add(ingredient.ouncesConsumed);
             }
             var count = listOfIngredientOuncesConsumed.Count();
             var aggregatedOuncesConsumed = 0m;
-            foreach (var measurement in listOfIngredientOuncesConsumed) 
+            foreach (var measurement in listOfIngredientOuncesConsumed)
                 aggregatedOuncesConsumed += measurement;
-            return Math.Round((aggregatedOuncesConsumed / count) * 2, 2); 
+            return Math.Round((aggregatedOuncesConsumed / count) * 2, 2);
         }
         //densities table methods: 
         public List<Ingredient> queryDensitiesTable() {
@@ -795,7 +788,7 @@ namespace RachelsRosesWebPages.Models {
                 } else {
                     //this above is a catch all for eggs... i don't want cake flour and bread flour to come from the same source for ounces remaining, but i want all eggs to be coming from the same place, the egg carton :)
                     if (ingredient.name.ToLower() == i.name.ToLower()) {
-                        i.ouncesConsumed = CalculateOuncesConsumedFromMeasurement(i); 
+                        i.ouncesConsumed = CalculateOuncesConsumedFromMeasurement(i);
                         if (ingredient.ouncesRemaining == 0m)
                             i.ouncesRemaining = i.sellingWeightInOunces - i.ouncesConsumed;
                         else
@@ -803,6 +796,7 @@ namespace RachelsRosesWebPages.Models {
                     }
                 }
             }
+            insertIngredientIntoConsumptionOuncesConsumed(i);
             if (string.IsNullOrEmpty(temp.name))
                 temp.name = i.name;
             var commandText = "update consumption set ounces_consumed=@ounces_consumed, ounces_remaining=@ounces_remaining where name=@name;";
@@ -810,6 +804,34 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@name", temp.name);
                 cmd.Parameters.AddWithValue("@ounces_consumed", i.ouncesConsumed);
                 cmd.Parameters.AddWithValue("@ounces_remaining", i.ouncesRemaining);
+                return cmd;
+            });
+        }
+        public List<Ingredient> queryConsumptionOuncesConsumed() {
+            var ingredientConsumptionInformation = queryItems("select * from consumption_ounces_consumed", reader => {
+                var ingredient = new Ingredient(reader["name"].ToString());
+                ingredient.ouncesConsumed = (decimal)reader["ounces_consumed"];
+                return ingredient;
+            });
+            return ingredientConsumptionInformation;
+        }
+        public void insertIngredientIntoConsumptionOuncesConsumed(Ingredient i) {
+            var commandText = @"Insert into consumption_ounces_consumed (name, ounces_consumed) values (@name, @ounces_consumed);";
+            executeVoidQuery(commandText, cmd => {
+                cmd.Parameters.AddWithValue("@name", i.name);
+                cmd.Parameters.AddWithValue("@ounces_consumed", i.ouncesConsumed);
+                return cmd;
+            });
+        }
+        public void insertListOfIngredientsIntoConsumptionOuncesConsumed(List<Ingredient> myIngredients) {
+            foreach (var ingredient in myIngredients)
+                insertIngredientIntoConsumptionOuncesConsumed(ingredient);
+        }
+        public void updateIngredientInConsumptionouncesConsumed(Ingredient i) {
+            var commandText = @"Update consumption_ounces_consumed set ounces_consumed=@ounces_consumed where name=@name;";
+            executeVoidQuery(commandText, cmd => {
+                cmd.Parameters.AddWithValue("@ounces_consumed", i.ouncesConsumed);
+                cmd.Parameters.AddWithValue("@name", i.name);
                 return cmd;
             });
         }
@@ -1116,6 +1138,12 @@ namespace RachelsRosesWebPages.Models {
                         ing_id int,
                         ingredient nvarchar(max),
                         density decimal(4,2)
+                        );", a => a);
+            dropTableIfExists("consumption_ounces_consumed");
+            executeVoidQuery(@"create table consumption_ounces_consumed (
+                        ing INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+                        name nvarchar(max), 
+                        ounces_consumed decimal(5,2)
                         );", a => a);
             //this ingredient name is to represent the ingredient.typeOfIngredient
             executeVoidQuery("SET IDENTITY_INSERT densities ON", cmd => cmd);
