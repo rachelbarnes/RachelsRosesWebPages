@@ -382,7 +382,7 @@ namespace RachelsRosesWebPages.Models {
                     i.recipeId = ing.recipeId;
                     i.measurement = ing.measurement;
                     i.typeOfIngredient = ing.typeOfIngredient;
-                    if (i.itemId == 0 && !i.classification.ToLower().Contains("egg") && !i.classification.ToLower().Contains("dairy"))
+                    if (i.itemId == 0 && !i.classification.ToLower().Contains("egg") && !i.classification.ToLower().Contains("dairy") && !string.IsNullOrEmpty(i.classification))
                         i.itemId = myItemResponse.itemId;
                     else i.itemId = ing.itemId;
                     break;
@@ -652,7 +652,7 @@ namespace RachelsRosesWebPages.Models {
             }
             var myUpdatedIngredients = queryAllTablesForAllIngredients(myListOfIngredients);
         }
-        public decimal getDoubleAverageOuncesConsumedForIngredient(Ingredient i) {
+        public decimal doubleAverageOuncesConsumed(Ingredient i) {
             var convert = new ConvertMeasurement();
             var listOfIngredientOuncesConsumed = new List<decimal>();
             var myIngredientOuncesConsumedTable = queryConsumptionOuncesConsumed();
@@ -758,12 +758,14 @@ namespace RachelsRosesWebPages.Models {
             if (string.IsNullOrEmpty(temp.name))
                 temp.name = i.name;
             if (alreadyContainsIngredient == false) {
-                var commandText = @"Insert into consumption (name, density, ounces_consumed, ounces_remaining) values (@name, @density, @ounces_consumed, @ounces_remaining);";
+                var commandText = @"Insert into consumption (name, density, ounces_consumed, ounces_remaining, expiration_date) values (@name, @density, @ounces_consumed, @ounces_remaining, @expiration_date);";
                 executeVoidQuery(commandText, cmd => {
                     cmd.Parameters.AddWithValue("@name", temp.name);
                     cmd.Parameters.AddWithValue("@density", i.density);
                     cmd.Parameters.AddWithValue("@ounces_consumed", i.ouncesConsumed);
+                    //when the time comes, i want to change any negative ouncesRemaining to be 0 so i can start fresh when i refill the ingredient in my consumption table
                     cmd.Parameters.AddWithValue("@ounces_remaining", i.ouncesRemaining);
+                    cmd.Parameters.AddWithValue("@expiration_date", i.expirationDate); 
                     return cmd;
                 });
                 updateConsumptionTable(i);
@@ -785,6 +787,7 @@ namespace RachelsRosesWebPages.Models {
                     if (ingredient.ouncesRemaining == 0m)
                         i.ouncesRemaining = i.sellingWeightInOunces - i.ouncesConsumed;
                     else i.ouncesRemaining = ingredient.ouncesRemaining - i.ouncesConsumed;
+                    break; 
                 } else {
                     //this above is a catch all for eggs... i don't want cake flour and bread flour to come from the same source for ounces remaining, but i want all eggs to be coming from the same place, the egg carton :)
                     if (ingredient.name.ToLower() == i.name.ToLower()) {
@@ -793,19 +796,47 @@ namespace RachelsRosesWebPages.Models {
                             i.ouncesRemaining = i.sellingWeightInOunces - i.ouncesConsumed;
                         else
                             i.ouncesRemaining = ingredient.ouncesRemaining - i.ouncesConsumed;
+                        break; 
                     }
                 }
             }
-            insertIngredientIntoConsumptionOuncesConsumed(i);
             if (string.IsNullOrEmpty(temp.name))
                 temp.name = i.name;
-            var commandText = "update consumption set ounces_consumed=@ounces_consumed, ounces_remaining=@ounces_remaining where name=@name;";
+            var commandText = "update consumption set ounces_consumed=@ounces_consumed, ounces_remaining=@ounces_remaining, expiration_date=@expiration_date where name=@name;";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@name", temp.name);
                 cmd.Parameters.AddWithValue("@ounces_consumed", i.ouncesConsumed);
                 cmd.Parameters.AddWithValue("@ounces_remaining", i.ouncesRemaining);
+                cmd.Parameters.AddWithValue("@expiration_date", i.expirationDate); 
                 return cmd;
             });
+            insertIngredientIntoConsumptionOuncesConsumed(i);
+            deleteIngredientFromConsumptionTableBasedOnExpirationDate(i); 
+            var myUpdatedIngredient = queryConsumptionTable(); 
+        }
+        public void updateExpirationDate(Ingredient i) { }
+        public void deleteIngredientFromConsumptionTableBasedOnExpirationDate(Ingredient i) {
+            var convert = new ConvertWeight();
+            var myIngredient = queryAllTablesForIngredient(i);
+            if (i.expirationDate < DateTime.Today) {
+                i.ouncesRemaining = myIngredient.ouncesRemaining - i.sellingWeightInOunces;
+                if (i.ouncesRemaining < 0m)
+                    i.ouncesRemaining = 0m; 
+                    var commandText = @"update consumption set ounces_remaining=@ounces_remaining where name=@name";
+                    executeVoidQuery(commandText, cmd => {
+                        cmd.Parameters.AddWithValue("@name", myIngredient.name);
+                        cmd.Parameters.AddWithValue("@ounces_remaining", i.ouncesRemaining);
+                        return cmd;
+                    });
+            }
+            var myUpdatedIngredient = queryConsumptionTable(); 
+        }
+        public bool doesIngredientNeedRestocking(Ingredient i) {
+            var currentIngredientOuncesRemaining = queryAllTablesForIngredient(i).ouncesRemaining;
+            var doubleOunces = doubleAverageOuncesConsumed(i);
+            return currentIngredientOuncesRemaining <= doubleOunces ? true : false;
+            //this can be continue to be true if someone refills their ingredient and the ingredient ouncesRemaining is still less than the doubleOunces
+            //for example: if i use 10.7 ounces of chocolate chips (2 cups) of a 12 oz bag, and I add another 12 lb bag to my pantry, the doubleAverage is still going to be 21.4 oz... more than 1.3 + 12 oz
         }
         public List<Ingredient> queryConsumptionOuncesConsumed() {
             var ingredientConsumptionInformation = queryItems("select * from consumption_ounces_consumed", reader => {
@@ -1123,6 +1154,7 @@ namespace RachelsRosesWebPages.Models {
                         density decimal (4,2),
                         ounces_consumed decimal (5,2),
                         ounces_remaining decimal(6,2),
+                        expiration_date date
                      );", a => a);
             dropTableIfExists("costs");
             executeVoidQuery(@"create table costs (
@@ -1131,7 +1163,7 @@ namespace RachelsRosesWebPages.Models {
                         selling_weight varchar(max),
                         selling_price decimal(6,2),
                         price_per_ounce decimal (6,4),
-                        item_id int,
+                        item_id int
                     );", a => a);
             dropTableIfExists("densityInfo");
             executeVoidQuery(@"create table densityInfo (

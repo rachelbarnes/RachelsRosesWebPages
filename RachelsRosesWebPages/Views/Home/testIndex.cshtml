@@ -1,0 +1,17 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+@RenderPage("~/Views/Shared/test.cshtml", 12, "My Prefix: "); 
+
+@section header {
+    <h1>Our Section Header Title</h1>
+}
+
+@section scripts {
+    @*where various scripts would be made mention, such as...*@
+    <script src="~/Scripts/jquery-1.10.2-vsdoc.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    }

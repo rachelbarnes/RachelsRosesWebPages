@@ -2768,7 +2768,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var APFlour = new Ingredient("All Purpose Flour") { ingredientId = 1, recipeId = 1, measurement = "1 1/2 cups", sellingWeight = "5 lb", typeOfIngredient = "all purpose flour" };
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(APFlour, bananaNutMuffins);
-            var doubleAverage = t.getDoubleAverageOuncesConsumedForIngredient(APFlour);
+            var doubleAverage = t.doubleAverageOuncesConsumed(APFlour);
             Assert.AreEqual(15m, doubleAverage);
         }
         [Test]
@@ -2787,7 +2787,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.insertIngredientIntoAllTables(chocolateChips2, chocolateChipCookies);
             t.insertListOfIngredientsIntoAllTables(bananaChocolateChipMuffinsIngredients, bananaChocolateChipMuffins);
             var myIngredientConsumptionInformation = t.queryConsumptionOuncesConsumed();
-            var doubleAverage = t.getDoubleAverageOuncesConsumedForIngredient(chocolateChips);
+            var doubleAverage = t.doubleAverageOuncesConsumed(chocolateChips);
             Assert.AreEqual(9.36m, myIngredientConsumptionInformation[0].ouncesConsumed);
             Assert.AreEqual(2.68m, myIngredientConsumptionInformation[1].ouncesConsumed);
             Assert.AreEqual(8.02m, myIngredientConsumptionInformation[2].ouncesConsumed);
@@ -2807,7 +2807,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.initializeDatabase();
             t.insertListOfIngredientsIntoConsumptionOuncesConsumed(myIngredientBox);
             var myIngredients = t.queryConsumptionOuncesConsumed();
-            var doubleAverage = t.getDoubleAverageOuncesConsumedForIngredient(cakeFlour);
+            var doubleAverage = t.doubleAverageOuncesConsumed(cakeFlour);
             Assert.AreEqual(10m, myIngredientBox[0].ouncesConsumed);
             Assert.AreEqual(20m, myIngredientBox[1].ouncesConsumed);
             Assert.AreEqual(30m, myIngredientBox[2].ouncesConsumed);
@@ -2853,7 +2853,7 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(.7m, myIngredients[7].ouncesConsumed);
             Assert.AreEqual(3m, myIngredients[8].ouncesConsumed);
             Assert.AreEqual(33.08m, myIngredients[9].ouncesConsumed);
-            Assert.AreEqual(5, myConsumptionTable.Count()); 
+            Assert.AreEqual(5, myConsumptionTable.Count());
         }
         [Test]
         public void TestConsumptionOuncesConsumedTable() {
@@ -2912,6 +2912,117 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(30m, myIngredientBox[2].ouncesConsumed);
             Assert.AreEqual(40m, myIngredientBox[3].ouncesConsumed);
             Assert.AreEqual(50m, myIngredientBox[4].ouncesConsumed);
+        }
+        [Test]
+        public void TestIngredientRestockCondition() {
+            var t = new DatabaseAccess();
+            var chocolateChipCookies = new Recipe("Chocolate Chip Cookies") { id = 1, yield = 18 };
+            var chocolateChipCheesecake = new Recipe("Chocolate Chip Cheesecake") { id = 2, yield = 16 };
+            var cheeseCake = new Recipe("Cheesecake") { id = 3, yield = 16 };
+            var chocolateCake = new Recipe("Chocolate Cake") { id = 4, yield = 20 };
+            var yellowCake = new Recipe("Yellow Cake") { id = 5, yield = 16 };
+            var chocolateChips = new Ingredient("Chocolate Chips") { ingredientId = 1, recipeId = 1, measurement = "1 1/2 cups", sellingWeight = "12 oz", typeOfIngredient = "chocolate chips" };
+            var brownSugar = new Ingredient("Brown Sugar") { ingredientId = 2, recipeId = 1, measurement = "1/2 cup", sellingWeight = "2 lb", typeOfIngredient = "brown sugar" };
+            var granSugar = new Ingredient("Granulated Sugar") { ingredientId = 3, recipeId = 1, measurement = "1/2 cup", sellingWeight = "4 lb", typeOfIngredient = "granulated sugar" };
+            var granSugar2 = new Ingredient("Granulated Sugar") { ingredientId = 4, recipeId = 2, measurement = "1 1/2 cups", sellingWeight = "4 lb", typeOfIngredient = "granulated sugar" };
+            var granSugar3 = new Ingredient("Granulated Sugar") { ingredientId = 5, recipeId = 3, measurement = "2 cups", sellingWeight = "4 lb", typeOfIngredient = "granulated sugar" };
+            var granSugar4 = new Ingredient("Granulated Sugar") { ingredientId = 6, recipeId = 4, measurement = "2 3/4 cups", sellingWeight = "4 lb", typeOfIngredient = "granlated sugar" };
+            var chocolateChipCookesIngredients = new List<Ingredient> { chocolateChips, brownSugar, granSugar };
+            t.initializeDatabase();
+            t.insertListOfIngredientsIntoAllTables(chocolateChipCookesIngredients, chocolateChipCookies);
+            t.insertIngredientIntoAllTables(granSugar2, chocolateChipCheesecake);
+            t.insertIngredientIntoAllTables(granSugar3, cheeseCake);//.5 1.5 2 2.75 average: 12.07     17.85
+            t.insertIngredientIntoAllTables(granSugar4, chocolateCake);
+            var myIngredients = t.queryConsumptionTable();
+            var granSugarRestock = t.doesIngredientNeedRestocking(granSugar4);
+            var brownSugarRestock = t.doesIngredientNeedRestocking(brownSugar);
+            var chocolateChipsRestock = t.doesIngredientNeedRestocking(chocolateChips);
+            Assert.AreEqual(true, granSugarRestock);
+            Assert.AreEqual(false, brownSugarRestock);
+            Assert.AreEqual(true, chocolateChipsRestock);
+        }
+        [Test]
+        public void TestIngredientRestockConditionWithRestock() {
+            var t = new DatabaseAccess();
+            var chocolateChipCheesecake = new Recipe("Chocolate Chip Cheesecake") { id = 1, yield = 16 };
+            var chocolateChips = new Ingredient("Chocolate Chips") { ingredientId = 1, recipeId = 1, measurement = "2 cups", typeOfIngredient = "chocolate chips", sellingWeight = "12 oz" };
+            t.initializeDatabase();
+            t.insertIngredientIntoAllTables(chocolateChips, chocolateChipCheesecake);
+            var sugarRestock = t.doesIngredientNeedRestocking(chocolateChips);
+            t.refillIngredientInConsumptionDatabase(chocolateChips, "12 oz");
+            var myUpdatedIngredient = t.queryAllTablesForIngredient(chocolateChips);
+            var updatedSugarRestock = t.doesIngredientNeedRestocking(myUpdatedIngredient);
+            Assert.AreEqual(true, sugarRestock);
+            Assert.AreEqual(true, updatedSugarRestock);
+        }
+        [Test]
+        public void TestIngredientRestockConditionWithRestock2() {
+            var t = new DatabaseAccess();
+            var chocolateChipCheesecake = new Recipe("Chocolate Chip Cheesecake") { id = 1, yield = 16 };
+            var chocolateChips = new Ingredient("Chocolate Chips") { ingredientId = 1, recipeId = 1, measurement = "2 cups", typeOfIngredient = "chocolate chips", sellingWeight = "12 oz" };
+            t.initializeDatabase();
+            t.insertIngredientIntoAllTables(chocolateChips, chocolateChipCheesecake);
+            var sugarRestock = t.doesIngredientNeedRestocking(chocolateChips);
+            t.refillIngredientInConsumptionDatabase(chocolateChips, "36 oz");
+            var myUpdatedIngredient = t.queryAllTablesForIngredient(chocolateChips);
+            var updatedSugarRestock = t.doesIngredientNeedRestocking(myUpdatedIngredient);
+            Assert.AreEqual(true, sugarRestock);
+            Assert.AreEqual(false, updatedSugarRestock);
+        }
+        [Test]
+        public void TestIngredientExpirationDateAndDeletionFromConsumptionTable() {
+            var t = new DatabaseAccess();
+            var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 24 };
+            //can i do 8 oz for this for the measurement
+            var sourCream = new Ingredient("Sour Cream") { ingredientId = 1, recipeId = 1, measurement = "1 cup", sellingWeight = "16 oz", sellingPrice = 2.79m, typeOfIngredient = "sour cream", classification = "dairy", expirationDate = new DateTime(1988, 1, 25) };
+            t.initializeDatabase();
+            t.insertIngredientIntoAllTables(sourCream, chocolateCake);
+            var myIngredient = t.queryAllTablesForIngredient(sourCream);
+            var myIngredients = t.queryConsumptionTable();
+            //why does this not include the expiration date, but querying all tables does give me the expiration date... weird
+            t.deleteIngredientFromConsumptionTableBasedOnExpirationDate(sourCream);
+            var myUpdatedIngredient = t.queryAllTablesForIngredient(sourCream);
+            var myUpdatedIngredients = t.queryConsumptionTable();
+            var exDate = new DateTime(1988, 1, 25);
+            Assert.AreEqual(1, myIngredients.Count());
+            Assert.AreEqual(0m, myUpdatedIngredients[0].ouncesRemaining);
+            Assert.AreEqual(exDate, myIngredients[0].expirationDate);
+        }
+        [Test]
+        public void TestIngredientExpirationDateDeleteFromConsumptionTable2() {
+            var t = new DatabaseAccess();
+            var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 16 };
+            var sourCream = new Ingredient("Sour Cream") { ingredientId = 1, recipeId = 1, measurement = "1 cup", sellingWeight = "16 oz", sellingPrice = 2.79m, typeOfIngredient = "sour cream", classification = "dairy", expirationDate = new DateTime(2017, 1, 25) };
+            t.initializeDatabase();
+            t.insertIngredientIntoAllTables(sourCream, chocolateCake);
+            var myIngredient = t.queryAllTablesForIngredient(sourCream);
+            var myIngredients = t.queryConsumptionTable();
+            t.deleteIngredientFromConsumptionTableBasedOnExpirationDate(sourCream);
+            var myUpdatedIngredient = t.queryAllTablesForIngredient(sourCream);
+            var myUpdatedIngredients = t.queryConsumptionTable();
+            var exDate = new DateTime(2017, 1, 25);
+            Assert.AreEqual(1, myIngredients.Count());
+            Assert.AreEqual(7.4m, myUpdatedIngredient.ouncesRemaining); 
+            Assert.AreEqual(exDate, myIngredients[0].expirationDate);
+            //something with the date is not transfering... i'm getting a data type incorrect somewhere with the consumption table
+        }
+        [Test]
+        public void TestIngredientExpirationDateDeleteFromConsumptionTable3() {
+            var t = new DatabaseAccess();
+            var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 16 };
+            var sourCream = new Ingredient("Sour Cream") { ingredientId = 1, recipeId = 1, measurement = "1 cup", sellingWeight = "16 oz", sellingPrice = 2.79m, typeOfIngredient = "sour cream", classification = "dairy", expirationDate = new DateTime(2017, 1, 16) };
+            t.initializeDatabase();
+            t.insertIngredientIntoAllTables(sourCream, chocolateCake);
+            var myIngredient = t.queryAllTablesForIngredient(sourCream);
+            var myIngredients = t.queryConsumptionTable();
+            var myUpdatedIngredient = t.queryAllTablesForIngredient(sourCream);
+            var myUpdatedIngredients = t.queryConsumptionTable();
+            var exDate = new DateTime(2017, 1, 16);
+            Assert.AreEqual(1, myIngredients.Count());
+            Assert.AreEqual(0m, myUpdatedIngredient.ouncesRemaining); 
+            Assert.AreEqual(0m, myUpdatedIngredients[0].ouncesRemaining);
+            Assert.AreEqual(exDate, myIngredients[0].expirationDate);
+            //something with the date is not transfering... i'm getting a data type incorrect somewhere with the consumption table
         }
         //[Test]
         //public void TestingConsumptionTableWithMoreIngredientsMoreExtensiveTest() {

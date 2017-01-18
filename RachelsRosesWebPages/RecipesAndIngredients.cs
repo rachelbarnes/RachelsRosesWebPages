@@ -21,7 +21,9 @@ namespace RachelsRosesWebPages {
         public List<string> comments;
         public string typeOfIngredient;
         public string classification;
-        public string itemResponseName; 
+        public string itemResponseName;
+        public bool restock; //1 = false, 0 = true
+        public DateTime expirationDate; 
         public Ingredient(string _name, string _measurement) {
             name = _name;
             measurement = _measurement;
@@ -38,7 +40,9 @@ namespace RachelsRosesWebPages {
             priceOfMeasuredConsumption = 0m;
             typeOfIngredient = "";
             classification = ""; 
-            itemResponseName = ""; 
+            itemResponseName = "";
+            restock = false; 
+            expirationDate = new DateTime(); 
         }
         public Ingredient(string _name) {
             name = _name;
@@ -63,6 +67,8 @@ namespace RachelsRosesWebPages {
             yield = 0;
             aggregatedPrice = 0m;
             typeOfRecipe = "";
+            pricePerServing = 0m; 
+
                 //this type of recipe is meant to be "bread" or "cake" or "frosting"
         }
         public Recipe(int _id) {

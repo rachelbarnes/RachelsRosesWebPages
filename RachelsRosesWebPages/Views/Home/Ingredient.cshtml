@@ -1,7 +1,8 @@
 ﻿
-@{
+@*@{
     ViewBag.Title = "My Recipe";
-}
+}*@
+@section
 <a href="/home/recipe?name=@ViewBag.currentrecipe.name">Go back to @ViewBag.currentrecipe.name</a>
 <br />
 <h4>@ViewBag.currentingredient.measurement : @ViewBag.currentingredient.name</h4>
@@ -18,18 +19,24 @@
     <input name="updatedMeasurement" />
     <input type="submit" value="Update Measurement" />
     <br />
-    <h5><b>Edit Type of Ingredient: </b>
-    <br />(this may affect the automated density)</h5>
+    <h5>
+        <b>Edit Type of Ingredient: </b>
+        <br />(this may affect the automated density)
+    </h5>
     <input name="updatedType" />
     <input type="submit" value="Update Type" />
     <br />
-    <h5><b>Edit Density: </b> 
-    <br />(this may will overwrite the automated density)</h5>
+    <h5>
+        <b>Edit Density: </b>
+        <br />(this may will overwrite the automated density)
+    </h5>
     <input name="updatedDensity" />
     <input type="submit" value="Update Density" />
     <br />
-    <h5><b>Edit Selling Weight:</b>
-    <br />(this will change the price gotten from the walmart database)</h5>
+    <h5>
+        <b>Edit Selling Weight:</b>
+        <br />(this will change the price gotten from the walmart database)
+    </h5>
     <input name="updateSellingWeight" />
     <input type="submit" value="Update Selling Weight" />
     <br />
@@ -62,26 +69,26 @@
     @foreach (var itemresponse in @ViewBag.currentitemresponselist) {
         <li>
             <p>@itemresponse.name : @itemresponse.salePrice</p>
-             
+
         </li>
     }
 </ul>
 
-@*Need to: 
+@*Need to:
     when i click to view the details of an ingredient, i'm met with an error where it ry to convert the weight to ounces...
-        i need to debug and see what's happening. 
+        i need to debug and see what's happening.
 
 
     give a list of items from online that match our ingredient description
     be able to autopopulate those fields based on which item is chosen, or be able to manually fill them in
     have a check list of recipes that have been made, and a record of how many times they've been made...
-        when they have been made, ajust the consumption table, otherwise, don't do anything with the consumption table until then, or make ounces consumed 0 instead of the measurement... 
+        when they have been made, ajust the consumption table, otherwise, don't do anything with the consumption table until then, or make ounces consumed 0 instead of the measurement...
     do some more with the looks of the View... it looks pretty painfully plain
 
-    i have a drop down option for the ingredients from queryIngredients... i'll have to test if the distinct is working... 
+    i have a drop down option for the ingredients from queryIngredients... i'll have to test if the distinct is working...
      have a drop down of ingredient densities from queryDensities so we can choose one or konw if we have to input one
 
-    have a detailed description of what's happening with the classification and type for what a user would need/like to know and why it's so impt... 
-        put as a readme or as footnotes in the bottom... but they need to be filled in, esp for density and more esp for eggs 
-    
-    *@
+    have a detailed description of what's happening with the classification and type for what a user would need/like to know and why it's so impt...
+        put as a readme or as footnotes in the bottom... but they need to be filled in, esp for density and more esp for eggs
+
+*@
