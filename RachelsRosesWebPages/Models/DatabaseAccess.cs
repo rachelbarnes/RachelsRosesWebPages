@@ -289,6 +289,7 @@ namespace RachelsRosesWebPages.Models {
                 ingredient.itemId = (int)reader["item_id"];
                 ingredient.typeOfIngredient = (string)reader["ingredient_type"];
                 ingredient.classification = (string)reader["ingredient_classification"];
+                ingredient.expirationDate = convertStringToDateYYYYMMDD((string)reader["expiration_date"]);
                 return ingredient;
             });
             foreach (var ingredient in myIngredientBox)
@@ -385,6 +386,7 @@ namespace RachelsRosesWebPages.Models {
                     if (i.itemId == 0 && !i.classification.ToLower().Contains("egg") && !i.classification.ToLower().Contains("dairy") && !string.IsNullOrEmpty(i.classification))
                         i.itemId = myItemResponse.itemId;
                     else i.itemId = ing.itemId;
+                    i.expirationDate = ing.expirationDate;
                     break;
                 }
             }
@@ -432,24 +434,25 @@ namespace RachelsRosesWebPages.Models {
             }
             return i;
         }
-        public List<Ingredient> queryAllTablesForAllIngredients(List<Ingredient> ListOfIngredients) { //, Recipe r) {
+        public List<Ingredient> queryAllTablesForAllIngredients(List<Ingredient> ListOfIngredients) {
             var queriedListOfIngredients = new List<Ingredient>();
             foreach (var ingredient in ListOfIngredients)
                 queriedListOfIngredients.Add(queryAllTablesForIngredient(ingredient));
             return queriedListOfIngredients;
-            //this queried list of ingredients has 2 of the same... need to find where it's doubling
         }
         public void insertIngredient(Ingredient i, Recipe r) {
-            myItemResponse = returnItemResponse(i);
-            if (i.itemId == 0)
-                i.itemId = myItemResponse.itemId;
-            if (string.IsNullOrEmpty(i.itemResponseName))
-                i.itemResponseName = myItemResponse.name;
-            if (string.IsNullOrEmpty(i.itemResponseName)) // || (i.classification.ToLower().Contains("dairy") || i.classification.ToLower().Contains("egg"))
-                i.itemResponseName = " ";
+            if (i.sellingPrice != 0m) { //this is assuming that if they're providing their own selling price, they're not going to be looking for walmart's price, item id or name for the product
+                myItemResponse = returnItemResponse(i);
+                if (i.itemId == 0)
+                    i.itemId = myItemResponse.itemId;
+                if (string.IsNullOrEmpty(i.itemResponseName))
+                    i.itemResponseName = myItemResponse.name;
+                if (string.IsNullOrEmpty(i.itemResponseName)) // || (i.classification.ToLower().Contains("dairy") || i.classification.ToLower().Contains("egg"))
+                    i.itemResponseName = " ";
+            }
             if (string.IsNullOrEmpty(i.classification))
                 i.classification = " ";
-            var commandText = "Insert into ingredients(recipe_id, name, measurement, price_measured_ingredient, item_id, ingredient_type, ingredient_classification, item_response_name) values (@rid, @name, @measurement, @price_measured_ingredient, @item_id, @ingredient_type, @ingredient_classification, @item_response_name);";
+            var commandText = "Insert into ingredients(recipe_id, name, measurement, price_measured_ingredient, item_id, ingredient_type, ingredient_classification, item_response_name, expiration_date) values (@rid, @name, @measurement, @price_measured_ingredient, @item_id, @ingredient_type, @ingredient_classification, @item_response_name, @expiration_date);";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@rid", r.id);
                 cmd.Parameters.AddWithValue("@name", i.name);
@@ -459,8 +462,12 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@ingredient_type", i.typeOfIngredient);
                 cmd.Parameters.AddWithValue("@ingredient_classification", i.classification);
                 cmd.Parameters.AddWithValue("@item_response_name", i.itemResponseName);
+                //cmd.Parameters.AddWithValue("@expiration_date", i.expirationDate); 
+                cmd.Parameters.AddWithValue("@expiration_date", convertDateToStringMMDDYYYY(i.expirationDate));
+                //this convertDateToString formats the string in MM/DD/YYYY
                 return cmd;
             });
+            var myIngredients = queryIngredients();
         }
         public void UpdateIngredient(Ingredient i) {
             var myIngredients = queryIngredients();
@@ -474,7 +481,7 @@ namespace RachelsRosesWebPages.Models {
             if (string.IsNullOrEmpty(i.classification))
                 i.classification = " ";
             var myIngredientId = i.ingredientId;
-            var commandText = "update ingredients set name=@name, measurement=@measurement, recipe_id=@recipeId, price_measured_ingredient=@price_measured_ingredient, item_id=@item_id, ingredient_type=@ingredient_type, ingredient_classification=@ingredient_classification, item_response_name=@item_response_name where ing_id=@ing_id;";
+            var commandText = "update ingredients set name=@name, measurement=@measurement, recipe_id=@recipeId, price_measured_ingredient=@price_measured_ingredient, item_id=@item_id, ingredient_type=@ingredient_type, ingredient_classification=@ingredient_classification, item_response_name=@item_response_name, expiration_date=@expiration_date where ing_id=@ing_id;";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@name", i.name);
                 cmd.Parameters.AddWithValue("@measurement", i.measurement);
@@ -486,6 +493,8 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
                 cmd.Parameters.AddWithValue("@ingredient_classification", i.classification);
                 cmd.Parameters.AddWithValue("@item_response_name", i.itemResponseName);
+                cmd.Parameters.AddWithValue("@expiration_date", convertDateToStringMMDDYYYY(i.expirationDate));
+                //this convertDateToString formats the string in MM/DD/YYYY
                 return cmd;
             });
         }
@@ -749,8 +758,6 @@ namespace RachelsRosesWebPages.Models {
             } else i.ouncesConsumed = CalculateOuncesConsumedFromMeasurement(i);
             foreach (var ingredient in myConsumptionTable) {
                 if (ingredient.name.ToLower() == i.name.ToLower() || (ingredient.name.ToLower().Contains(i.classification.ToLower()) && i.classification != " ")) {
-                    //i have to be careful here with the eggs... if the name is "eggs", then this may fail as a condition becasue both can be true and I have the || instead of hte &&...
-                    //write some tests around this
                     alreadyContainsIngredient = true;
                     break;
                 }
@@ -758,14 +765,14 @@ namespace RachelsRosesWebPages.Models {
             if (string.IsNullOrEmpty(temp.name))
                 temp.name = i.name;
             if (alreadyContainsIngredient == false) {
-                var commandText = @"Insert into consumption (name, density, ounces_consumed, ounces_remaining, expiration_date) values (@name, @density, @ounces_consumed, @ounces_remaining, @expiration_date);";
+                var commandText = @"Insert into consumption (name, density, ounces_consumed, ounces_remaining) values (@name, @density, @ounces_consumed, @ounces_remaining);";
                 executeVoidQuery(commandText, cmd => {
                     cmd.Parameters.AddWithValue("@name", temp.name);
                     cmd.Parameters.AddWithValue("@density", i.density);
                     cmd.Parameters.AddWithValue("@ounces_consumed", i.ouncesConsumed);
                     //when the time comes, i want to change any negative ouncesRemaining to be 0 so i can start fresh when i refill the ingredient in my consumption table
+                    //although, it would be nice to say "you need 2 tablespoons more granulated sugar to make this recipe"... maybe if you refill, then put at 0 first, if not, then leave negative?
                     cmd.Parameters.AddWithValue("@ounces_remaining", i.ouncesRemaining);
-                    cmd.Parameters.AddWithValue("@expiration_date", i.expirationDate); 
                     return cmd;
                 });
                 updateConsumptionTable(i);
@@ -787,7 +794,7 @@ namespace RachelsRosesWebPages.Models {
                     if (ingredient.ouncesRemaining == 0m)
                         i.ouncesRemaining = i.sellingWeightInOunces - i.ouncesConsumed;
                     else i.ouncesRemaining = ingredient.ouncesRemaining - i.ouncesConsumed;
-                    break; 
+                    break;
                 } else {
                     //this above is a catch all for eggs... i don't want cake flour and bread flour to come from the same source for ounces remaining, but i want all eggs to be coming from the same place, the egg carton :)
                     if (ingredient.name.ToLower() == i.name.ToLower()) {
@@ -796,40 +803,138 @@ namespace RachelsRosesWebPages.Models {
                             i.ouncesRemaining = i.sellingWeightInOunces - i.ouncesConsumed;
                         else
                             i.ouncesRemaining = ingredient.ouncesRemaining - i.ouncesConsumed;
-                        break; 
+                        break;
                     }
                 }
             }
             if (string.IsNullOrEmpty(temp.name))
                 temp.name = i.name;
-            var commandText = "update consumption set ounces_consumed=@ounces_consumed, ounces_remaining=@ounces_remaining, expiration_date=@expiration_date where name=@name;";
+            var commandText = "update consumption set ounces_consumed=@ounces_consumed, ounces_remaining=@ounces_remaining where name=@name;";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@name", temp.name);
                 cmd.Parameters.AddWithValue("@ounces_consumed", i.ouncesConsumed);
                 cmd.Parameters.AddWithValue("@ounces_remaining", i.ouncesRemaining);
-                cmd.Parameters.AddWithValue("@expiration_date", i.expirationDate); 
                 return cmd;
             });
             insertIngredientIntoConsumptionOuncesConsumed(i);
-            deleteIngredientFromConsumptionTableBasedOnExpirationDate(i); 
-            var myUpdatedIngredient = queryConsumptionTable(); 
+            subtractOuncesRemainingIfExpirationDateIsPast(i);
+            var myUpdatedIngredient = queryConsumptionTable();
         }
         public void updateExpirationDate(Ingredient i) { }
-        public void deleteIngredientFromConsumptionTableBasedOnExpirationDate(Ingredient i) {
+        public void subtractOuncesRemainingIfExpirationDateIsPast(Ingredient i) {
             var convert = new ConvertWeight();
             var myIngredient = queryAllTablesForIngredient(i);
             if (i.expirationDate < DateTime.Today) {
-                i.ouncesRemaining = myIngredient.ouncesRemaining - i.sellingWeightInOunces;
-                if (i.ouncesRemaining < 0m)
-                    i.ouncesRemaining = 0m; 
-                    var commandText = @"update consumption set ounces_remaining=@ounces_remaining where name=@name";
+                myIngredient.ouncesRemaining = myIngredient.ouncesRemaining - i.sellingWeightInOunces;
+                if (myIngredient.ouncesRemaining < 0m)
+                    myIngredient.ouncesRemaining = 0m;
+                var commandText = @"update consumption set ounces_remaining=@ounces_remaining where name=@name";
+                executeVoidQuery(commandText, cmd => {
+                    cmd.Parameters.AddWithValue("@name", myIngredient.name);
+                    cmd.Parameters.AddWithValue("@ounces_remaining", i.ouncesRemaining);
+                    return cmd;
+                });
+            }
+            var myUpdatedIngredient = queryConsumptionTable();
+        }
+        public void refillIngredientInConsumptionDatabase(Ingredient i, string sellingWeightToRefill) {
+            var convert = new ConvertWeight();
+            var myConsumptionTable = queryConsumptionTable();
+            var sellingWeightToRefillInOunces = convert.ConvertWeightToOunces(sellingWeightToRefill);
+            foreach (var ingredient in myConsumptionTable) {
+                if (ingredient.name.ToLower() == i.name.ToLower()) {
+                    if (i.ouncesRemaining < 0m)
+                        i.ouncesRemaining = 0m;
+                    i.ouncesRemaining = ingredient.ouncesRemaining + sellingWeightToRefillInOunces;
+                    break;
+                }
+            }
+            var commandText = "update consumption set ounces_remaining=@ounces_remaining where name=@name;";
+            executeVoidQuery(commandText, cmd => {
+                cmd.Parameters.AddWithValue("@name", i.name);
+                cmd.Parameters.AddWithValue("@ounces_remaining", i.ouncesRemaining);
+                return cmd;
+            });
+        }
+        public void refillIngredientInConsumptionDatabase(Ingredient i, string sellingWeightToRefill, string newExpirationDate) {
+            var convert = new ConvertWeight();
+            var myConsumptionTable = queryConsumptionTable();
+            var myIngredientTable = queryIngredients();
+            var sellingWeightToRefillOunces = convert.ConvertWeightToOunces(sellingWeightToRefill);
+            foreach (var ingredient in myConsumptionTable) {
+                if (ingredient.name.ToLower() == i.name.ToLower()) {
+                    if (i.ouncesRemaining < 0m)
+                        i.ouncesRemaining = 0m;
+                    i.ouncesRemaining = ingredient.ouncesRemaining + sellingWeightToRefillOunces;
+                    var commandText = "update consumption set ounces_remaining=@ounces_remaining where name=@name;";
                     executeVoidQuery(commandText, cmd => {
-                        cmd.Parameters.AddWithValue("@name", myIngredient.name);
+                        cmd.Parameters.AddWithValue("@name", i.name);
                         cmd.Parameters.AddWithValue("@ounces_remaining", i.ouncesRemaining);
                         return cmd;
                     });
+                    break;
+                }
             }
-            var myUpdatedIngredient = queryConsumptionTable(); 
+            foreach (var ingredient in myIngredientTable) {
+                if (ingredient.ingredientId == i.ingredientId && ingredient.name.ToLower() == i.name.ToLower()) {
+                    ingredient.expirationDate = convertStringToDateYYYYMMDD(newExpirationDate);
+                    var commandText = "update ingredients set expiration_date=@expiration_date where ing_id=@ing_id";
+                    executeVoidQuery(commandText, cmd => {
+                        cmd.Parameters.AddWithValue("@expiration_date", convertDateToStringMMDDYYYY(ingredient.expirationDate));
+                        cmd.Parameters.AddWithValue("@ing_id", ingredient.ingredientId);
+                        return cmd;
+                    });
+                    break;
+                }
+            }
+        }
+        //date data type helper function: 
+        public DateTime convertIntToDate(int dateInInt) {
+            var dateString = dateInInt.ToString();
+            if (dateString.Length != 8) {
+                return new DateTime();
+            }
+            var year = dateString.Substring(0, 4);
+            var month = dateString.Substring(4, 2);
+            var day = dateString.Substring(6, 2);
+            return new DateTime(int.Parse(year), int.Parse(month), int.Parse(day));
+        }
+        public DateTime convertStringToDateYYYYMMDD(string dateString) {
+            if (dateString.Length < 8)
+                return new DateTime();
+            var dateStringArray = new string[] { };
+            if (dateString.Contains('.'))
+                dateStringArray = dateString.Split('.');
+            if (dateString.Contains('/'))
+                dateStringArray = dateString.Split('/');
+            if (dateString.Contains('-'))
+                dateStringArray = dateString.Split('-');
+            var year = int.Parse(dateStringArray[2]);
+            var month = int.Parse(dateStringArray[0]);
+            var day = int.Parse(dateStringArray[1]);
+            return new DateTime(year, month, day);
+        }
+        public string convertDateToStringMMDDYYYY(DateTime date) {
+            var dateTimeArray = date.ToString().Split(' ');
+            var dateString = dateTimeArray[0];
+            var dateStringArray = dateString.Split('/');
+            var month = dateStringArray[0];
+            if (int.Parse(month) < 10)
+                month = "0" + month;
+            var day = dateStringArray[1];
+            var year = dateStringArray[2];
+            return string.Format("{0}/{1}/{2}", month, day, year);
+        }
+        public DateTime getExpirationDateFromIngredientsTable(Ingredient i) {
+            var myIngredients = queryIngredients();
+            var myIngredientExpirationDate = new DateTime();
+            foreach (var ingredient in myIngredients) {
+                if (ingredient.ingredientId == i.ingredientId) {
+                    (ingredient.expirationDate) = myIngredientExpirationDate;
+                    break;
+                }
+            }
+            return myIngredientExpirationDate;
         }
         public bool doesIngredientNeedRestocking(Ingredient i) {
             var currentIngredientOuncesRemaining = queryAllTablesForIngredient(i).ouncesRemaining;
@@ -837,6 +942,7 @@ namespace RachelsRosesWebPages.Models {
             return currentIngredientOuncesRemaining <= doubleOunces ? true : false;
             //this can be continue to be true if someone refills their ingredient and the ingredient ouncesRemaining is still less than the doubleOunces
             //for example: if i use 10.7 ounces of chocolate chips (2 cups) of a 12 oz bag, and I add another 12 lb bag to my pantry, the doubleAverage is still going to be 21.4 oz... more than 1.3 + 12 oz
+            //as soon as this is done, i really have to play around with the mvc stuff... i really want to get more acquainted with that!!
         }
         public List<Ingredient> queryConsumptionOuncesConsumed() {
             var ingredientConsumptionInformation = queryItems("select * from consumption_ounces_consumed", reader => {
@@ -863,23 +969,6 @@ namespace RachelsRosesWebPages.Models {
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@ounces_consumed", i.ouncesConsumed);
                 cmd.Parameters.AddWithValue("@name", i.name);
-                return cmd;
-            });
-        }
-        public void refillIngredientInConsumptionDatabase(Ingredient i, string sellingWeighToRefill) {
-            var convert = new ConvertWeight();
-            var myConsumptionTable = queryConsumptionTable();
-            var sellingWeightToRefillInOunces = convert.ConvertWeightToOunces(sellingWeighToRefill);
-            foreach (var ingredient in myConsumptionTable) {
-                if (ingredient.name.ToLower() == i.name.ToLower()) {
-                    i.ouncesRemaining = ingredient.ouncesRemaining + sellingWeightToRefillInOunces;
-                    break;
-                }
-            }
-            var commandText = "update consumption set ounces_remaining=@ounces_remaining where name=@name;";
-            executeVoidQuery(commandText, cmd => {
-                cmd.Parameters.AddWithValue("@name", i.name);
-                cmd.Parameters.AddWithValue("@ounces_remaining", i.ouncesRemaining);
                 return cmd;
             });
         }
@@ -1135,7 +1224,8 @@ namespace RachelsRosesWebPages.Models {
                         ingredient_classification nvarchar(max),
                         ingredient_type nvarchar(max),
                         price_measured_ingredient decimal(6,2),
-                        item_response_name varchar(max)
+                        item_response_name varchar(max),
+                        expiration_date nvarchar(25)
                      );", a => a);
             dropTableIfExists("densities");
             executeVoidQuery(@"create table densities (
@@ -1154,7 +1244,6 @@ namespace RachelsRosesWebPages.Models {
                         density decimal (4,2),
                         ounces_consumed decimal (5,2),
                         ounces_remaining decimal(6,2),
-                        expiration_date date
                      );", a => a);
             dropTableIfExists("costs");
             executeVoidQuery(@"create table costs (

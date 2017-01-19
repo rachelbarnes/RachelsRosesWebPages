@@ -528,6 +528,8 @@ namespace RachelsRosesWebPages {
                 return 12m;
             if (quantityArray.Count() == 2 && int.TryParse(quantityArray[0], out n) && quantityArray[1].ToLower() == "dozen")
                 return ((int.Parse(quantityArray[0])) * 12);
+            if (quantityArray.Count() == 2 && int.TryParse(quantityArray[0], out n) && quantityArray[1].Contains("egg"))
+                return (int.Parse(quantityArray[0]));
             if (quantityArray.Count() == 1 && int.TryParse(quantityArray[0], out n))
                 return (int.Parse(quantityArray[0]));
             else return 0m;

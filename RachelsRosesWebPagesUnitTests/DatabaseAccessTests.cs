@@ -2977,16 +2977,13 @@ namespace RachelsRosesWebPagesUnitTests {
             var sourCream = new Ingredient("Sour Cream") { ingredientId = 1, recipeId = 1, measurement = "1 cup", sellingWeight = "16 oz", sellingPrice = 2.79m, typeOfIngredient = "sour cream", classification = "dairy", expirationDate = new DateTime(1988, 1, 25) };
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(sourCream, chocolateCake);
-            var myIngredient = t.queryAllTablesForIngredient(sourCream);
-            var myIngredients = t.queryConsumptionTable();
+            var myIngredientTable = t.queryAllTablesForIngredient(sourCream);
+            var myConsumptionTable = t.queryConsumptionTable();
             //why does this not include the expiration date, but querying all tables does give me the expiration date... weird
-            t.deleteIngredientFromConsumptionTableBasedOnExpirationDate(sourCream);
-            var myUpdatedIngredient = t.queryAllTablesForIngredient(sourCream);
-            var myUpdatedIngredients = t.queryConsumptionTable();
             var exDate = new DateTime(1988, 1, 25);
-            Assert.AreEqual(1, myIngredients.Count());
-            Assert.AreEqual(0m, myUpdatedIngredients[0].ouncesRemaining);
-            Assert.AreEqual(exDate, myIngredients[0].expirationDate);
+            Assert.AreEqual(1, myConsumptionTable.Count());
+            Assert.AreEqual(-8.6m, myConsumptionTable[0].ouncesRemaining);
+            Assert.AreEqual(exDate, myIngredientTable.expirationDate);
         }
         [Test]
         public void TestIngredientExpirationDateDeleteFromConsumptionTable2() {
@@ -2996,111 +2993,269 @@ namespace RachelsRosesWebPagesUnitTests {
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(sourCream, chocolateCake);
             var myIngredient = t.queryAllTablesForIngredient(sourCream);
-            var myIngredients = t.queryConsumptionTable();
-            t.deleteIngredientFromConsumptionTableBasedOnExpirationDate(sourCream);
-            var myUpdatedIngredient = t.queryAllTablesForIngredient(sourCream);
-            var myUpdatedIngredients = t.queryConsumptionTable();
+            var myIngredientConsumptionTable = t.queryConsumptionTable();
+            t.subtractOuncesRemainingIfExpirationDateIsPast(sourCream);
+            //var myUpdatedIngredient = t.queryAllTablesForIngredient(sourCream);
+            //var myUpdatedIngredients = t.queryConsumptionTable();
             var exDate = new DateTime(2017, 1, 25);
-            Assert.AreEqual(1, myIngredients.Count());
-            Assert.AreEqual(7.4m, myUpdatedIngredient.ouncesRemaining); 
-            Assert.AreEqual(exDate, myIngredients[0].expirationDate);
+            Assert.AreEqual(1, myIngredientConsumptionTable.Count());
+            Assert.AreEqual(7.4m, myIngredient.ouncesRemaining);
+            Assert.AreEqual(exDate, myIngredient.expirationDate);
             //something with the date is not transfering... i'm getting a data type incorrect somewhere with the consumption table
         }
         [Test]
-        public void TestIngredientExpirationDateDeleteFromConsumptionTable3() {
+        public void TestIngredientExpirationDateFromConsumptionTable3() {
             var t = new DatabaseAccess();
             var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 16 };
             var sourCream = new Ingredient("Sour Cream") { ingredientId = 1, recipeId = 1, measurement = "1 cup", sellingWeight = "16 oz", sellingPrice = 2.79m, typeOfIngredient = "sour cream", classification = "dairy", expirationDate = new DateTime(2017, 1, 16) };
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(sourCream, chocolateCake);
             var myIngredient = t.queryAllTablesForIngredient(sourCream);
-            var myIngredients = t.queryConsumptionTable();
+            var myIngredients = t.queryIngredients();
             var myUpdatedIngredient = t.queryAllTablesForIngredient(sourCream);
             var myUpdatedIngredients = t.queryConsumptionTable();
             var exDate = new DateTime(2017, 1, 16);
             Assert.AreEqual(1, myIngredients.Count());
-            Assert.AreEqual(0m, myUpdatedIngredient.ouncesRemaining); 
+            Assert.AreEqual(0m, myUpdatedIngredient.ouncesRemaining);
             Assert.AreEqual(0m, myUpdatedIngredients[0].ouncesRemaining);
             Assert.AreEqual(exDate, myIngredients[0].expirationDate);
             //something with the date is not transfering... i'm getting a data type incorrect somewhere with the consumption table
         }
-        //[Test]
-        //public void TestingConsumptionTableWithMoreIngredientsMoreExtensiveTest() {
-        //    var t = new DatabaseAccess();
-        //    t.initializeDatabase();
-        //    var chocolateChipCookies = new Recipe("Chocolate Chip Cookies") { id = 1 };
-        //    var chocolateBananaBread = new Recipe("Chocolate Banana Bread") { id = 2 };
-        //    var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 3 };
-        //    var fluffyWhiteCake = new Recipe("Fluffy White Cake") { id = 4 };
-        //    //---
-        //    var chocolateChips = new Ingredient("Semi Sweet Chocolate Chips") { ingredientId = 1, recipeId = 1, measurement = "1 3/4 cups", sellingWeight = "12 oz", typeOfIngredient = "chocoalte chips" };
-        //    var APFlour = new Ingredient("All Purpose Flour") { ingredientId = 2, recipeId = 1, measurement = "1 cup 2 tablespoons", sellingWeight = "5 lb", typeOfIngredient = "all purpose flour" };
-        //    var bakingSoda = new Ingredient("Baking Soda") { ingredientId = 3, recipeId = 1, measurement = "3/4 teaspoon", sellingWeight = "4 lb", typeOfIngredient = "baking soda" };
-        //    var salt = new Ingredient("Salt") { ingredientId = 4, recipeId = 1, measurement = "1 teaspoon", sellingWeight = "48 oz", typeOfIngredient = "salt" };
-        //    var brownSugar = new Ingredient("Brown Sugar") { ingredientId = 5, recipeId = 1, measurement = "1/2 cup", sellingWeight = "2 lb", typeOfIngredient = "brown sugar" };
-        //    var granSugar = new Ingredient("Granualted Sugar") { ingredientId = 6, recipeId = 1, measurement = "1/2 cup", sellingWeight = "4 lb", typeOfIngredient = "white sugar" };
-        //    //---
-        //    t.refillIngredientInConsumptionDatabase(chocolateChips, "12 oz");
-        //    var chocolateChips2 = new Ingredient("Semi Sweet Chocolate Chips") { ingredientId = 7, recipeId = 2, measurement = "2 cups", sellingWeight = "12 oz", typeOfIngredient = "chocoalte chips" };
-        //    var bananas = new Ingredient("Mashed Bananas") { ingredientId = 8, recipeId = 2, measurement = "2 cups", sellingWeight = "1 lb", sellingPrice = .49m, typeOfIngredient = "bananas, mashed" };
-        //    var cocoa = new Ingredient("Unsweetened Cocoa") { ingredientId = 9, recipeId = 2, measurement = "3/4 cup", sellingWeight = "16 oz", typeOfIngredient = "baking cocoa" };
-        //    var APFlour2 = new Ingredient("All Purpose Flour") { ingredientId = 10, recipeId = 2, measurement = "2 cups", sellingWeight = "5 lb", typeOfIngredient = "flour" };
-        //    var granSugar2 = new Ingredient("Granualted Sugar") { ingredientId = 11, recipeId = 2, measurement = "1 1/2 cups", sellingWeight = "4 lb", typeOfIngredient = "white sugar" };
-        //    //---
-        //    var honey = new Ingredient("Honey") { ingredientId = 12, recipeId = 3, measurement = "1/3 cup", sellingWeight = "32 oz", typeOfIngredient = "honey" };
-        //    var breadFlour = new Ingredient("Bread Flour") { ingredientId = 13, recipeId = 3, measurement = "6 cups", sellingWeight = "5 lb", typeOfIngredient = "bread flour" };
-        //    var salt2 = new Ingredient("Salt") { ingredientId = 14, recipeId = 3, measurement = "1 tablespoon", sellingWeight = "48 oz", typeOfIngredient = "salt" };
-        //    var granSugar3 = new Ingredient("Granulated Sugar") { ingredientId = 15, recipeId = 3, measurement = "1 tablespoon", sellingWeight = "4 lb", typeOfIngredient = "white sugar" };
-        //    var buttermilk = new Ingredient("Buttermilk") { ingredientId = 16, recipeId = 3, measurement = "2 cups", sellingWeight = "1 quart", sellingPrice = 1.69m, typeOfIngredient = "buttermilk" };
-        //    //---
-        //    var cakeFlour = new Ingredient("Softasilk") { ingredientId = 17, recipeId = 4, measurement = "2 cups 2 tablespoons", sellingWeight = "32 oz", typeOfIngredient = "cake flour" };
-        //    var butter = new Ingredient("Butter") { ingredientId = 18, recipeId = 4, measurement = "1/2 cup", sellingWeight = "1 lb", sellingPrice = 3.99m, typeOfIngredient = "butter" };
-        //    var granSugar4 = new Ingredient("Granulated Sugar") { ingredientId = 19, recipeId = 4, measurement = "1 1/2 cups", sellingWeight = "4 lb", typeOfIngredient = "white sugar" };
-        //     var salt3 = new Ingredient("Salt") { ingredientId = 20, recipeId = 4, measurement = "1 teaspoon", sellingWeight = "48 oz", typeOfIngredient = "salt" };
-        //    var bakingPowder = new Ingredient("Baking Powder") { ingredientId = 21, recipeId =4, measurement = "1 1/2 teaspoons", sellingWeight = "10 0z", typeOfIngredient = "baking powder" };
-        //    var vanilla = new Ingredient("Vanilla Extract") { ingredientId = 22, recipeId = 4, measurement = "1 tablespoon", sellingWeight = "4 oz", typeOfIngredient = "vanilla extract" };
-        //    //---
-        //    var chocolateChipCookiesRecipeIngredients = new List<Ingredient> { chocolateChips, APFlour, bakingSoda, salt, brownSugar, granSugar };
-        //    var chocolateBananaBreadRecipeIngredients = new List<Ingredient> { chocolateChips2, bananas, cocoa, APFlour2, granSugar2 };
-        //    var honeyButtermilkBreadRecipeIngredients = new List<Ingredient> { honey, breadFlour, salt2, granSugar3, buttermilk };
-        //    var fluffywhiteCakeRecipeIngredients = new List<Ingredient> { cakeFlour, butter, granSugar4, salt3, bakingPowder, vanilla };
-        //    t.insertListOfIngredientsIntoAllTables(chocolateBananaBreadRecipeIngredients, chocolateChipCookies);
-        //    t.insertListOfIngredientsIntoAllTables(chocolateBananaBreadRecipeIngredients, chocolateBananaBread);
-        //    t.insertListOfIngredientsIntoAllTables(honeyButtermilkBreadRecipeIngredients, honeyButtermilkBread);
-        //    t.insertListOfIngredientsIntoAllTables(fluffywhiteCakeRecipeIngredients, fluffyWhiteCake);
-        //    var myconsumptionTable = t.queryConsumptionTable();
-        //    var myRecipes = t.MyRecipeBox();
-        //    var myChocolateChipCookieIngredientDataInfo = t.queryAllTablesForAllIngredients(chocolateChipCookiesRecipeIngredients);
-        //    var myChocolateBananaBreadIngredientDataInfo = t.queryAllTablesForAllIngredients(chocolateBananaBreadRecipeIngredients);
-        //    var myHoneyButtermilkBreadIngredientDataInfo = t.queryAllTablesForAllIngredients(honeyButtermilkBreadRecipeIngredients);
-        //    var myFluffyWhiteCakeIngredientDataInfo = t.queryAllTablesForAllIngredients(fluffywhiteCakeRecipeIngredients);
-        //    Assert.AreEqual(4, myRecipes.Count());
-        //    //these should accumulate, just commend them out as you and keep tabs of what ingredient line is what in these tests, aggregate the ounces consumed
-        //    Assert.AreEqual(9.36m, myChocolateChipCookieIngredientDataInfo[0].ouncesConsumed); //chocolate chips
-        //    Assert.AreEqual(6.25m, myChocolateChipCookieIngredientDataInfo[1].ouncesConsumed); //all purpose flour
-        //    Assert.AreEqual(.13m, myChocolateChipCookieIngredientDataInfo[2].ouncesConsumed); //baking soda
-        //    Assert.AreEqual(.22m, myChocolateChipCookieIngredientDataInfo[3].ouncesConsumed); //salt
-        //    Assert.AreEqual(3.88m, myChocolateChipCookieIngredientDataInfo[4].ouncesConsumed); //brown sugar    
-        //    Assert.AreEqual(3.55m, myChocolateChipCookieIngredientDataInfo[5].ouncesConsumed); //gran sugar
-        //    Assert.AreEqual(20.06m, myChocolateBananaBreadIngredientDataInfo[0].ouncesConsumed); //chocolate chips 20.06+9.36
-        //    Assert.AreEqual(24m, myChocolateBananaBreadIngredientDataInfo[1].ouncesConsumed); //bananas
-        //    Assert.AreEqual(3.12m, myChocolateBananaBreadIngredientDataInfo[2].ouncesConsumed); //cocoa powder
-        //    Assert.AreEqual(10m, myChocolateBananaBreadIngredientDataInfo[3].ouncesConsumed); //all purpose flour 6.25 + 10
-        //    Assert.AreEqual(10.65m, myChocolateBananaBreadIngredientDataInfo[4].ouncesConsumed); //gran sugar
-        //    Assert.AreEqual(4m, myHoneyButtermilkBreadIngredientDataInfo[0].ouncesConsumed); // honey
-        //    Assert.AreEqual(32.4m, myHoneyButtermilkBreadIngredientDataInfo[1].ouncesConsumed); //bread flour
-        //    Assert.AreEqual(.67m, myHoneyButtermilkBreadIngredientDataInfo[2].ouncesConsumed); //salt .22 + .67 + .22
-        //    Assert.AreEqual(.44m, myHoneyButtermilkBreadIngredientDataInfo[3].ouncesConsumed); //gran sugar 3.55 + .44 + 10.65
-        //    Assert.AreEqual(16.4m, myHoneyButtermilkBreadIngredientDataInfo[4].ouncesConsumed); //buttermilk
-        //    Assert.AreEqual(9.28m, myFluffyWhiteCakeIngredientDataInfo[0].ouncesConsumed); //cake flour 
-        //    Assert.AreEqual(4m, myFluffyWhiteCakeIngredientDataInfo[1].ouncesConsumed); //butter
-        //    Assert.AreEqual(10.65m, myFluffyWhiteCakeIngredientDataInfo[2].ouncesConsumed); //gran sugar
-        //    Assert.AreEqual(.22m, myFluffyWhiteCakeIngredientDataInfo[3].ouncesConsumed); //salt
-        //    Assert.AreEqual(.26m, myFluffyWhiteCakeIngredientDataInfo[4].ouncesConsumed); //baking powder
-        //    Assert.AreEqual(.43m, myFluffyWhiteCakeIngredientDataInfo[5].ouncesConsumed); //vanilla extract
+        [Test]
+        public void TestIngredientExpirationDateConsumptionTable4() {
+            var t = new DatabaseAccess();
+            var yellowCake = new Recipe("Yellow Cake") { id = 1, yield = 12 };
+            var wholeMilk = new Ingredient("Whole Milk") { ingredientId = 1, recipeId = 1, measurement = "1 1/2 cups", sellingWeight = "1 gallon", sellingPrice = 3.99m, typeOfIngredient = "milk", classification = "dairy", expirationDate = new DateTime(2017, 1, 18) };
+            t.initializeDatabase();
+            t.insertIngredientIntoAllTables(wholeMilk, yellowCake);
+            var myIngredient = t.queryAllTablesForIngredient(wholeMilk);
+            var myIngredientBox = t.queryIngredients();
+            var myConsumptionTable = t.queryConsumptionTable();
+            var exDate = new DateTime(2017, 1, 18);
+            Assert.AreEqual(12.3m, myIngredient.ouncesConsumed);
+            Assert.AreEqual(12.3m, myConsumptionTable[0].ouncesConsumed);
+            Assert.AreEqual(-12.3m, myConsumptionTable[0].ouncesRemaining);
+            Assert.AreEqual(exDate, myIngredientBox[0].expirationDate);
+            Assert.AreEqual(exDate, myIngredient.expirationDate);
+        }
+        [Test]
+        public void TestIngredientExpirationDateAndRefill() {
+            var t = new DatabaseAccess();
+            var yellowCake = new Recipe("Yellow Cake") { id = 1, yield = 12 };
+            var wholeMilk = new Ingredient("Whole Milk") { ingredientId = 1, recipeId = 1, measurement = "1 3/4 cups", sellingWeight = "1 gallon", sellingPrice = 3.99m, typeOfIngredient = "milk", classification = "dairy", expirationDate = new DateTime(2017, 1, 18) };
+            t.initializeDatabase();
+            t.insertIngredientIntoAllTables(wholeMilk, yellowCake);
+            var myIngredient = t.queryAllTablesForIngredient(wholeMilk);
+            var exDate = new DateTime(2017, 1, 18);
+            t.refillIngredientInConsumptionDatabase(wholeMilk, "1 quart", "1.27.2017");
+            var newExDate = new DateTime(2017, 1, 27);
 
-        //I would like something like this to be the final test... well, something that looks like this, or that I can make sure all of my stuff is working exactly as I see it needs to
-
-        //}
+            var myUpdatedIngredient = t.queryAllTablesForIngredient(wholeMilk);
+            Assert.AreEqual(14.35m, myIngredient.ouncesConsumed);
+            //Assert.AreEqual(-113.65m, myIngredient.ouncesRemaining);
+            Assert.AreEqual(32m, myUpdatedIngredient.ouncesRemaining);
+            //Assert.AreEqual(exDate, myIngredient.expirationDate);
+            Assert.AreEqual(newExDate, myUpdatedIngredient.expirationDate);
+        }
+        [Test]
+        public void TestConvertIntToDate() {
+            var t = new DatabaseAccess();
+            var expected = new DateTime(2017, 01, 17);
+            var actual = t.convertIntToDate(20170117);
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestConvertStringToDate() {
+            var t = new DatabaseAccess();
+            var expected = new DateTime(2017, 04, 16);
+            var actual = t.convertStringToDateYYYYMMDD("2017.04.16");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestConvertStringToDate2() {
+            var t = new DatabaseAccess();
+            var expected = new DateTime(2017, 04, 16);
+            var actual = t.convertStringToDateYYYYMMDD("2017-04-16");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestConvertStringToDate3() {
+            var t = new DatabaseAccess();
+            var expected = new DateTime(2017, 04, 16);
+            var actual = t.convertStringToDateYYYYMMDD("2017/04/16");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestCovnertStringtoDate4() {
+            var t = new DatabaseAccess();
+            var expected = new DateTime(2017, 04, 16);
+            var actual = t.convertStringToDateYYYYMMDD("20170416");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestConvertDateToString() {
+            var expected = "4/16/2017";
+            var actual = new DateTime(2017, 04, 16).Date.ToString();
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestConvertDateToString2() {
+            var t = new DatabaseAccess();
+            var expected = "04/16/2017";
+            var actual = t.convertDateToStringMMDDYYYY(new DateTime(2017, 04, 16));
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestConvertDateToString3() {
+            var t = new DatabaseAccess();
+            var expected = "12/12/2015";
+            var actual = t.convertDateToStringMMDDYYYY(new DateTime(2015, 12, 12));
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestingPaddingLeadingZeros() {
+            var value = 1;
+            var valueLength = value.ToString("D").Length + 3;
+            var expected = "01";
+            var actual = value.ToString("D" + valueLength.ToString()).ToString();
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestingDateTimeParameters() {
+            var expected = "";//this is just a test to look at the output from converting the date to a string
+            var actual = new DateTime(2017, 1, 2).ToString();
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestingZeros() {
+            var expected = 0;
+            var actual = int.Parse("0");
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestingMultipleRecipesWIthExpiredIngredients() {
+            var t = new DatabaseAccess();
+            var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 16 };
+            var yellowCake = new Recipe("Yellow Cake") { id = 2, yield = 20 };
+            var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 3, yield = 24 };
+            var sourCream = new Ingredient("Sour Cream") { ingredientId = 1, recipeId = 1, measurement = "1 cup", sellingWeight = "16 oz", sellingPrice = 2.79m, classification = "dairy", typeOfIngredient = "sour cream", expirationDate = new DateTime(2017, 1, 18) };
+            var wholeMilk = new Ingredient("Whole Milk") { ingredientId = 2, recipeId = 2, measurement = "1 1/2 cups", sellingWeight = "1 quart", sellingPrice = 1.29m, classification = "dairy", typeOfIngredient = "milk", expirationDate = new DateTime(2017, 1, 4) };
+            var buttermilk = new Ingredient("Buttermilk") { ingredientId = 3, recipeId = 3, measurement = "2 cups", sellingWeight = "1 quart", sellingPrice = 1.79m, classification = "dairy", typeOfIngredient = "buttermilk", expirationDate = new DateTime(2016, 12, 28) };
+            var myIngredientBox = new List<Ingredient> { sourCream, wholeMilk, buttermilk }; 
+            t.initializeDatabase();
+            t.insertIngredientIntoAllTables(sourCream, chocolateCake);
+            t.insertIngredientIntoAllTables(wholeMilk, yellowCake);
+            t.insertIngredientIntoAllTables(buttermilk, honeyButtermilkBread);
+            var myIngredients = t.queryAllTablesForAllIngredients(myIngredientBox);
+            t.refillIngredientInConsumptionDatabase(sourCream, "8 oz", "1.25.17");
+            //t.refillIngredientInConsumptionDatabase(wholeMilk, "1 gallon", "1.28.17");
+            t.refillIngredientInConsumptionDatabase(buttermilk, "1 quart", "2.14.17");
+            Assert.AreEqual(8.6m, myIngredients[0].ouncesConsumed);
+            Assert.AreEqual(8m, myIngredientBox[0].ouncesRemaining);
+            Assert.AreEqual(12.3, myIngredientBox[1].ouncesConsumed);
+            Assert.AreEqual(0m, myIngredientBox[1].ouncesRemaining);
+            Assert.AreEqual(16.4m, myIngredientBox[2].ouncesConsumed);
+            Assert.AreEqual(32m, myIngredientBox[2].ouncesRemaining); 
+        }
+        [Test]
+        public void TestEggsExpirationDate() {
+            var t = new DatabaseAccess();
+            var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 24 };
+            var eggs = new Ingredient("Eggs") { ingredientId = 1, recipeId = 1, measurement = "3 eggs", sellingWeight = "12 eggs", sellingPrice = 2.99m, classification = "eggs", typeOfIngredient = "eggs", expirationDate = new DateTime(2017, 1, 13) };
+            t.initializeDatabase();
+            t.insertIngredientIntoAllTables(eggs, chocolateCake);
+            var myIngredient = t.queryAllTablesForIngredient(eggs);
+            Assert.AreEqual(3m, myIngredient.ouncesConsumed);
+            Assert.AreEqual(0m, myIngredient.ouncesRemaining); 
+        }
+        [Test]
+        public void TestEggsExpirationDate2() {
+            var t = new DatabaseAccess();
+            var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 24 };
+            var eggs = new Ingredient("Eggs") { ingredientId = 1, recipeId = 1, measurement = "3 eggs", sellingWeight = "12 eggs", sellingPrice = 2.99m, classification = "eggs", typeOfIngredient = "eggs", expirationDate = new DateTime(2017, 3, 13) };
+            t.initializeDatabase();
+            t.insertIngredientIntoAllTables(eggs, chocolateCake);
+            var myIngredient = t.queryAllTablesForIngredient(eggs);
+            Assert.AreEqual(3m, myIngredient.ouncesConsumed);
+            Assert.AreEqual(9m, myIngredient.ouncesRemaining); 
+        }
     }
 }
+//[Test]
+//public void TestingConsumptionTableWithMoreIngredientsMoreExtensiveTest() {
+//    var t = new DatabaseAccess();
+//    t.initializeDatabase();
+//    var chocolateChipCookies = new Recipe("Chocolate Chip Cookies") { id = 1 };
+//    var chocolateBananaBread = new Recipe("Chocolate Banana Bread") { id = 2 };
+//    var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 3 };
+//    var fluffyWhiteCake = new Recipe("Fluffy White Cake") { id = 4 };
+//    //---
+//    var chocolateChips = new Ingredient("Semi Sweet Chocolate Chips") { ingredientId = 1, recipeId = 1, measurement = "1 3/4 cups", sellingWeight = "12 oz", typeOfIngredient = "chocoalte chips" };
+//    var APFlour = new Ingredient("All Purpose Flour") { ingredientId = 2, recipeId = 1, measurement = "1 cup 2 tablespoons", sellingWeight = "5 lb", typeOfIngredient = "all purpose flour" };
+//    var bakingSoda = new Ingredient("Baking Soda") { ingredientId = 3, recipeId = 1, measurement = "3/4 teaspoon", sellingWeight = "4 lb", typeOfIngredient = "baking soda" };
+//    var salt = new Ingredient("Salt") { ingredientId = 4, recipeId = 1, measurement = "1 teaspoon", sellingWeight = "48 oz", typeOfIngredient = "salt" };
+//    var brownSugar = new Ingredient("Brown Sugar") { ingredientId = 5, recipeId = 1, measurement = "1/2 cup", sellingWeight = "2 lb", typeOfIngredient = "brown sugar" };
+//    var granSugar = new Ingredient("Granualted Sugar") { ingredientId = 6, recipeId = 1, measurement = "1/2 cup", sellingWeight = "4 lb", typeOfIngredient = "white sugar" };
+//    //---
+//    t.refillIngredientInConsumptionDatabase(chocolateChips, "12 oz");
+//    var chocolateChips2 = new Ingredient("Semi Sweet Chocolate Chips") { ingredientId = 7, recipeId = 2, measurement = "2 cups", sellingWeight = "12 oz", typeOfIngredient = "chocoalte chips" };
+//    var bananas = new Ingredient("Mashed Bananas") { ingredientId = 8, recipeId = 2, measurement = "2 cups", sellingWeight = "1 lb", sellingPrice = .49m, typeOfIngredient = "bananas, mashed" };
+//    var cocoa = new Ingredient("Unsweetened Cocoa") { ingredientId = 9, recipeId = 2, measurement = "3/4 cup", sellingWeight = "16 oz", typeOfIngredient = "baking cocoa" };
+//    var APFlour2 = new Ingredient("All Purpose Flour") { ingredientId = 10, recipeId = 2, measurement = "2 cups", sellingWeight = "5 lb", typeOfIngredient = "flour" };
+//    var granSugar2 = new Ingredient("Granualted Sugar") { ingredientId = 11, recipeId = 2, measurement = "1 1/2 cups", sellingWeight = "4 lb", typeOfIngredient = "white sugar" };
+//    //---
+//    var honey = new Ingredient("Honey") { ingredientId = 12, recipeId = 3, measurement = "1/3 cup", sellingWeight = "32 oz", typeOfIngredient = "honey" };
+//    var breadFlour = new Ingredient("Bread Flour") { ingredientId = 13, recipeId = 3, measurement = "6 cups", sellingWeight = "5 lb", typeOfIngredient = "bread flour" };
+//    var salt2 = new Ingredient("Salt") { ingredientId = 14, recipeId = 3, measurement = "1 tablespoon", sellingWeight = "48 oz", typeOfIngredient = "salt" };
+//    var granSugar3 = new Ingredient("Granulated Sugar") { ingredientId = 15, recipeId = 3, measurement = "1 tablespoon", sellingWeight = "4 lb", typeOfIngredient = "white sugar" };
+//    var buttermilk = new Ingredient("Buttermilk") { ingredientId = 16, recipeId = 3, measurement = "2 cups", sellingWeight = "1 quart", sellingPrice = 1.69m, typeOfIngredient = "buttermilk" };
+//    //---
+//    var cakeFlour = new Ingredient("Softasilk") { ingredientId = 17, recipeId = 4, measurement = "2 cups 2 tablespoons", sellingWeight = "32 oz", typeOfIngredient = "cake flour" };
+//    var butter = new Ingredient("Butter") { ingredientId = 18, recipeId = 4, measurement = "1/2 cup", sellingWeight = "1 lb", sellingPrice = 3.99m, typeOfIngredient = "butter" };
+//    var granSugar4 = new Ingredient("Granulated Sugar") { ingredientId = 19, recipeId = 4, measurement = "1 1/2 cups", sellingWeight = "4 lb", typeOfIngredient = "white sugar" };
+//     var salt3 = new Ingredient("Salt") { ingredientId = 20, recipeId = 4, measurement = "1 teaspoon", sellingWeight = "48 oz", typeOfIngredient = "salt" };
+//    var bakingPowder = new Ingredient("Baking Powder") { ingredientId = 21, recipeId =4, measurement = "1 1/2 teaspoons", sellingWeight = "10 0z", typeOfIngredient = "baking powder" };
+//    var vanilla = new Ingredient("Vanilla Extract") { ingredientId = 22, recipeId = 4, measurement = "1 tablespoon", sellingWeight = "4 oz", typeOfIngredient = "vanilla extract" };
+//    //---
+//    var chocolateChipCookiesRecipeIngredients = new List<Ingredient> { chocolateChips, APFlour, bakingSoda, salt, brownSugar, granSugar };
+//    var chocolateBananaBreadRecipeIngredients = new List<Ingredient> { chocolateChips2, bananas, cocoa, APFlour2, granSugar2 };
+//    var honeyButtermilkBreadRecipeIngredients = new List<Ingredient> { honey, breadFlour, salt2, granSugar3, buttermilk };
+//    var fluffywhiteCakeRecipeIngredients = new List<Ingredient> { cakeFlour, butter, granSugar4, salt3, bakingPowder, vanilla };
+//    t.insertListOfIngredientsIntoAllTables(chocolateBananaBreadRecipeIngredients, chocolateChipCookies);
+//    t.insertListOfIngredientsIntoAllTables(chocolateBananaBreadRecipeIngredients, chocolateBananaBread);
+//    t.insertListOfIngredientsIntoAllTables(honeyButtermilkBreadRecipeIngredients, honeyButtermilkBread);
+//    t.insertListOfIngredientsIntoAllTables(fluffywhiteCakeRecipeIngredients, fluffyWhiteCake);
+//    var myconsumptionTable = t.queryConsumptionTable();
+//    var myRecipes = t.MyRecipeBox();
+//    var myChocolateChipCookieIngredientDataInfo = t.queryAllTablesForAllIngredients(chocolateChipCookiesRecipeIngredients);
+//    var myChocolateBananaBreadIngredientDataInfo = t.queryAllTablesForAllIngredients(chocolateBananaBreadRecipeIngredients);
+//    var myHoneyButtermilkBreadIngredientDataInfo = t.queryAllTablesForAllIngredients(honeyButtermilkBreadRecipeIngredients);
+//    var myFluffyWhiteCakeIngredientDataInfo = t.queryAllTablesForAllIngredients(fluffywhiteCakeRecipeIngredients);
+//    Assert.AreEqual(4, myRecipes.Count());
+//    //these should accumulate, just commend them out as you and keep tabs of what ingredient line is what in these tests, aggregate the ounces consumed
+//    Assert.AreEqual(9.36m, myChocolateChipCookieIngredientDataInfo[0].ouncesConsumed); //chocolate chips
+//    Assert.AreEqual(6.25m, myChocolateChipCookieIngredientDataInfo[1].ouncesConsumed); //all purpose flour
+//    Assert.AreEqual(.13m, myChocolateChipCookieIngredientDataInfo[2].ouncesConsumed); //baking soda
+//    Assert.AreEqual(.22m, myChocolateChipCookieIngredientDataInfo[3].ouncesConsumed); //salt
+//    Assert.AreEqual(3.88m, myChocolateChipCookieIngredientDataInfo[4].ouncesConsumed); //brown sugar    
+//    Assert.AreEqual(3.55m, myChocolateChipCookieIngredientDataInfo[5].ouncesConsumed); //gran sugar
+//    Assert.AreEqual(20.06m, myChocolateBananaBreadIngredientDataInfo[0].ouncesConsumed); //chocolate chips 20.06+9.36
+//    Assert.AreEqual(24m, myChocolateBananaBreadIngredientDataInfo[1].ouncesConsumed); //bananas
+//    Assert.AreEqual(3.12m, myChocolateBananaBreadIngredientDataInfo[2].ouncesConsumed); //cocoa powder
+//    Assert.AreEqual(10m, myChocolateBananaBreadIngredientDataInfo[3].ouncesConsumed); //all purpose flour 6.25 + 10
+//    Assert.AreEqual(10.65m, myChocolateBananaBreadIngredientDataInfo[4].ouncesConsumed); //gran sugar
+//    Assert.AreEqual(4m, myHoneyButtermilkBreadIngredientDataInfo[0].ouncesConsumed); // honey
+//    Assert.AreEqual(32.4m, myHoneyButtermilkBreadIngredientDataInfo[1].ouncesConsumed); //bread flour
+//    Assert.AreEqual(.67m, myHoneyButtermilkBreadIngredientDataInfo[2].ouncesConsumed); //salt .22 + .67 + .22
+//    Assert.AreEqual(.44m, myHoneyButtermilkBreadIngredientDataInfo[3].ouncesConsumed); //gran sugar 3.55 + .44 + 10.65
+//    Assert.AreEqual(16.4m, myHoneyButtermilkBreadIngredientDataInfo[4].ouncesConsumed); //buttermilk
+//    Assert.AreEqual(9.28m, myFluffyWhiteCakeIngredientDataInfo[0].ouncesConsumed); //cake flour 
+//    Assert.AreEqual(4m, myFluffyWhiteCakeIngredientDataInfo[1].ouncesConsumed); //butter
+//    Assert.AreEqual(10.65m, myFluffyWhiteCakeIngredientDataInfo[2].ouncesConsumed); //gran sugar
+//    Assert.AreEqual(.22m, myFluffyWhiteCakeIngredientDataInfo[3].ouncesConsumed); //salt
+//    Assert.AreEqual(.26m, myFluffyWhiteCakeIngredientDataInfo[4].ouncesConsumed); //baking powder
+//    Assert.AreEqual(.43m, myFluffyWhiteCakeIngredientDataInfo[5].ouncesConsumed); //vanilla extract
+
+//I would like something like this to be the final test... well, something that looks like this, or that I can make sure all of my stuff is working exactly as I see it needs to
+
+//}
