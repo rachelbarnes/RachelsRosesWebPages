@@ -1637,9 +1637,6 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual("all purpose flour", myDensityInfoTable[0].name);
             Assert.AreEqual(5m, myDensityInfoTable[0].density);
         }
-        /// <summary>
-        /// /
-        /// </summary>
         [Test]
         public void TestInsertListOfIngredientsIntoDensityInfo() {
             var t = new DatabaseAccess();

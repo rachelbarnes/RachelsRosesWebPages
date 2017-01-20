@@ -34,7 +34,8 @@ namespace RachelsRosesWebPages.Controllers {
             myDatabaseRecipe = getRecipes().First(x => x.name == name);
             currentRecipe = myDatabaseRecipe;
             ViewBag.currentingredient = currentIngredient;
-            ViewBag.currentingredienttable = t.getListOfDistintIngredients();  
+            ViewBag.currentingredienttable = t.getListOfDistintIngredients();
+            ViewBag.distinctsellingweights = t.getListOfDistinctSellingWeights(); 
             ViewBag.currentrecipe = currentRecipe;
             ViewBag.recipeboxcount = getRecipes().Count();
             return View();
@@ -113,13 +114,14 @@ namespace RachelsRosesWebPages.Controllers {
             sellingweight = sellingweight.Trim();
             sellingprice = sellingprice.Trim();
             var newIngredient = new Ingredient();
-            if ((!(string.IsNullOrEmpty(ingredient)) || !(string.IsNullOrEmpty(measurement))) && (!(string.IsNullOrEmpty(classification)) && !(string.IsNullOrEmpty(type)))) {
+            if ((!(string.IsNullOrEmpty(ingredient)) && !(string.IsNullOrEmpty(measurement)))) {// && (!(string.IsNullOrEmpty(classification)) && !(string.IsNullOrEmpty(type)))) {
                 newIngredient.name = ingredient;
                 newIngredient.measurement = measurement;
                 newIngredient.classification = classification;
                 newIngredient.typeOfIngredient = type;
                 newIngredient.recipeId = currentRecipe.id;
-                newIngredient.sellingWeight = sellingweight;
+                //newIngredient.sellingWeight = sellingweight;
+                if (!string.IsNullOrEmpty(sellingweight))
                 if (!string.IsNullOrEmpty(sellingprice))
                     newIngredient.sellingPrice = decimal.Parse(sellingprice);
                 currentRecipe.ingredients.Add(newIngredient);
@@ -128,7 +130,6 @@ namespace RachelsRosesWebPages.Controllers {
             }
             return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
-        public ActionResult
         public ActionResult CreateRecipe(string recipeTitle) {
             recipeTitle = recipeTitle.Trim();
             Recipe newrecipe = new Recipe(recipeTitle);

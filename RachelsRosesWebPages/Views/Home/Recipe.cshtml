@@ -71,25 +71,60 @@
 <h4>Recipe: @ViewBag.currentrecipe.name</h4>
 <h5>Yield: @ViewBag.currentrecipe.yield</h5>
 <h5>Price Per Serving: $@ViewBag.currentrecipe.pricePerServing</h5>
-<h5>Add an Ingredient:</h5>
-<tr>
-    <th>Ingredient</th>
-    <th>Measurement</th>
-    <th>Price of Measured Consumption</th>
-    <th>Selling Price</th>
-</tr>
-@foreach (var ingredient in ViewBag.currentrecipe.ingredients) {
+<table width="100%">
     <tr>
-        @*<td>@ingredient.ingredientId</td>*@
-        <td>@ingredient.name</td>
-        <td>@ingredient.measurement</td>
-        <td>$@ingredient.priceOfMeasuredConsumption</td>
-        <td>$@ingredient.sellingPrice</td>
+        <th>Ingredient</th>
+        <th>Measurement</th>
+        <th>Price of Measured Consumption</th>
+        @*<th>Selling Price</th>*@
     </tr>
-}
-<form action="/home/createingredient" mehtod="post">
-    <input="ingredient" placeholder=""
-</form>
-<tr> </tr>
-</f>
+    @foreach (var ingredient in ViewBag.currentrecipe.ingredients) {
+        <tr>
+            <td>@ingredient.name</td>
+            <td>@ingredient.measurement</td>
+            <td>$@ingredient.priceOfMeasuredConsumption</td>
+        </tr>
+    }
 </table>
+<h5><b>Add an ingredient to this recipe</b></h5>
+<form action="/home/createingredient" mehtod="post">
+    <h6><b>Ingredient Name:</b></h6>
+    <input name="ingredient" placeholder="Name" />
+    <select name="chooseingredient">
+        @foreach (var ingredient in ViewBag.currentingredienttable) {
+            <option value="@ingredient.name">@ingredient.name</option>
+        }
+    </select>
+    <br />
+    <h6><b>Ingredient Measurement: </b></h6>
+    <input name="measurement" placeholder="Measurement" />
+    <br />
+    <h6>Ingredient Selling Weight:</h6>
+    <input name="sellingweight" placeholder="Selling Weight" />
+    <select name="chooseingredientsellingweight">
+        @foreach (var sellingWeight in ViewBag.distinctsellingweights) {
+            //i want to write a conditional here, and only give selling weighs for hte ingredient entered in the ingredient input... how do i access that value?
+            //i don't want to give an option of .4oz (some ground ginger) for bread flour
+            <option value="@sellingWeight">@sellingWeight</option>
+        }
+    </select>
+    <br />
+    <h6><b>Ingredient Selling Price: (only mandatory if the product is not sold online such as dairy, eggs, etc.)</b></h6>
+    <input name="sellingprice" placeholder="Selling Price" />
+    <br />
+    <h6><b>Ingredient Type:</b></h6>
+    <input name="type" placeholder="Type (baking soda, milk, sour cream)" />
+    <select name="chooseingredienttype">
+        @foreach (var ingredient in ViewBag.currentingredienttable) {
+            <option value="@ingredient.typeOfIngredient">@ingredient.typeOfIngredient</option>
+        }
+    </select>
+    <br />
+    <h6><b>Ingredient Classification:</b></h6>
+    <input name="classification" placeholder="Classification (dairy, eggs, flour)" />
+    <select name="chooseingredientclassification">
+        @foreach (var ingredient in ViewBag.currentingredienttable) {
+            <option value="@ingredient.sellingWeight">@ingredient.sellingWeight</option>
+        }
+    </select>
+</form>

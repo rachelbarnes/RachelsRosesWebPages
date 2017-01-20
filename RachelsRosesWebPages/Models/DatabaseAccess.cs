@@ -27,13 +27,6 @@ namespace RachelsRosesWebPages.Models {
                 throw e;
             }
         }
-        /*
-        to do tomorrow/next:
-        need to allow eggs for the selling weight, need to make sure the conversion works for eggs,
-        convert for getting into fractions, instead of just having the decimals... 
-
-        eggs are always the black sheep... i gotta be able to do stuff with this. :)
-        */
         public List<T> queryItems<T>(string command, Func<SqlDataReader, T> convert) {
             var sqlConnection1 = new SqlConnection(connString);
             var cmd = new SqlCommand(command, sqlConnection1);
@@ -298,73 +291,6 @@ namespace RachelsRosesWebPages.Models {
                 ingredient.ingredientId = count++;
             return myIngredientBox;
         }
-        //public List<Ingredient> queryAllTablesForIngredientNoParam() {
-        //    var rest = new MakeRESTCalls();
-        //    var myRecipes = queryRecipes();
-        //    var myIngredients = queryIngredients();
-        //    var myIngredientConsumption = queryConsumptionTable();
-        //    var myIngredientDensity = queryDensityTable();
-        //    var myIngredientCost = queryCostTable();
-        //    var myDensityInfoTable = queryDensityInfoTable();
-        //    var tempListOfIngredients = new List<Ingredient>(); 
-        //    foreach (var ing in myIngredients) {
-        //        tempListOfIngredients.Add(ing); 
-        //    }
-
-        //    var temp = new Recipe();
-        //    foreach (var ing in myIngredients) {
-        //        if (ing.ingredientId == i.ingredientId) {
-        //            i.recipeId = ing.recipeId;
-        //            i.measurement = ing.measurement;
-        //            i.typeOfIngredient = ing.typeOfIngredient;
-        //            if (i.itemId == 0)
-        //                i.itemId = rest.GetItemResponse(i).itemId;
-        //            else i.itemId = ing.itemId;
-        //            break;
-        //        }
-        //    }
-        //    foreach (var ing in myIngredientConsumption) {
-        //        if (ing.ingredientId == i.ingredientId) {
-        //            i.density = ing.density;
-        //            i.ouncesConsumed = ing.ouncesConsumed;
-        //            i.ouncesRemaining = ing.ouncesRemaining;
-        //            break;
-        //        }
-        //    }
-        //    foreach (var ing in myDensityInfoTable) {
-        //        if (ing.name == i.typeOfIngredient) {
-        //            i.density = ing.density;
-        //            break;
-        //        }
-        //    }
-        //    foreach (var ing in myIngredientDensity) {
-        //        if (ing.ingredientId == i.ingredientId) {
-        //            i.sellingWeight = ing.sellingWeight;
-        //            i.sellingWeightInOunces = ing.sellingWeightInOunces;
-        //            i.itemId = ing.itemId;
-        //            break;
-        //        }
-        //    }
-        //    foreach (var ing in myIngredientCost) {
-        //        if (ing.ingredientId == i.ingredientId) {
-        //            if (ing.sellingPrice == 0m)
-        //                i.sellingPrice = rest.GetItemResponse(i).salePrice;
-        //            else i.sellingPrice = ing.sellingPrice;
-        //            if (ing.pricePerOunce == 0m)
-        //                i.pricePerOunce = (i.sellingPrice / i.sellingWeightInOunces);
-        //            else i.pricePerOunce = ing.pricePerOunce;
-        //            i.itemId = ing.itemId;
-        //            break;
-        //        }
-        //    }
-        //    foreach (var ing in myIngredients) {
-        //        if (ing.ingredientId == i.ingredientId) {
-        //            i.priceOfMeasuredConsumption = MeasuredIngredientPrice(i);
-        //            break;
-        //        }
-        //    }
-        //    return i;
-        //}
         public Ingredient queryAllTablesForIngredient(Ingredient i) {
             var rest = new MakeRESTCalls();
             var myRecipes = queryRecipes();
@@ -599,6 +525,18 @@ namespace RachelsRosesWebPages.Models {
             }
             return myUniqueIngredients;
         }
+        public List<string> getListOfDistinctSellingWeights() {
+            var myConsumptionTable = queryConsumptionTable();
+            var myUniqueSellingWeights = new List<string>();
+            foreach (var ingredient in myConsumptionTable) {
+                if (!myUniqueSellingWeights.Contains(ingredient.sellingWeight))
+                    myUniqueSellingWeights.Add(ingredient.sellingWeight);
+            }
+            return myUniqueSellingWeights;
+        }
+        //this should be fine, i have the selling weights, and i have the ingredients table, which has my ingredient names, my ingredient types and my ingredient classifications
+
+
         //return myIngredientsTable.Select(x => x).Distinct();
         //need to put a cast on this or something? this should be easily refactorable with a .Distinct(), it's just giving me a type problem for the moment and save a few lines of code
         //public Func<List<Ingredient>, List<Ingredient>> GetDistinctListOfIngredientsFromQueryIngredients = queriedIngredientsFromIngredientsTable => queriedIngredientsFromIngredientsTable.Select(x => x).Distinct();
