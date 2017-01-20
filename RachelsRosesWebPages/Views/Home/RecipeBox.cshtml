@@ -2,7 +2,15 @@
 @{
     ViewBag.Title = "Create Recipe";
 }
-<h4>You current have @ViewBag.recipeboxcount recipes in your Recipe Box</h4>
+
+<h5>
+@if (ViewBag.recipeboxcount == 1) {
+    @:You currently have @ViewBag.recipeboxcount recipe in your Recipe Box. 
+}
+else {
+    @:You currently have @ViewBag.recipeboxcount recipes in your Recipe Box. 
+}
+</h5>
 <h3>Add a recipe to your Recipe Box</h3>
 <br />
 <form action="/home/createrecipe" method="post">
@@ -11,20 +19,17 @@
 </form>
 <h4>@ViewBag.ErrorMessage</h4>
 <br />
-<h4><b>Here's your current list of recipes:</b></h4>
-<br />
-<ul>
+<ol>
     @foreach (var recipe in ViewBag.recipes) {
         <li>
-            <p><b>@recipe.id: @recipe.name</b></p>
-            <p>Current Recipe Yield: @recipe.yield</p>
-            <p>Total Recipe Price: $@recipe.aggregatedPrice</p>
-            <a href="/home/recipe?name=@recipe.name">View details</a>
-            <br />
-            <a href="/home/deleterecipe?recipeTitle=@recipe.name">Delete Recipe</a>
+            <p><a href="/home/recipe?name=@recipe.name">@recipe.name</a><br />
+            Recipe Yield: @recipe.yield<br />
+            Total Recipe Price: $@recipe.aggregatedPrice
+            <a href="/home/deleterecipe?recipeTitle=@recipe.name">Delete Recipe</a></p>
+            @*<br />*@
         </li>
     }
-</ul>
+</ol>
 
 @*the aggregated price ins't changing with the yield and neither are hte ingredients... something is happening with my method... 
     it's all good. just gotta find out what, and then i'm much closer already. :)

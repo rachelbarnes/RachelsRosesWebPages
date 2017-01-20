@@ -1,70 +1,95 @@
 ﻿@{
     ViewBag.Title = "My Recipe";
 }
-<a href="/home/recipes">Go back to your Recipe Box</a>
-<br />
-<h3>@ViewBag.currentrecipe.name</h3>
+@*<a href="/home/recipes">Go back to your Recipe Box</a>
+    <br />
+    <h3>@ViewBag.currentrecipe.name</h3>
+    <h5>Yield: @ViewBag.currentrecipe.yield</h5>
+    <h5>Price Per Serving: $@ViewBag.currentrecipe.pricePerServing</h5>
+    <h5>Total Price: $@ViewBag.currentrecipe.aggregatedPrice</h5>
+    <form action="/home/editrecipetitle" method="post">
+        <input name="newRecipeTitle" />
+        <input type="submit" value="Edit Recipe Title" />
+    </form>
+    <form action="/home/adjustyield" method="post">
+        <input name="updatedYield" />
+        <input type="submit" value="Change Yield" />
+    </form>
+    <h5>@ViewBag.currentRecipe.name ingredients:</h5>
+    <br />
+    <ul>
+        @foreach (var ingredient in ViewBag.currentrecipe.ingredients) {
+            <li>
+                <p>@ingredient.measurement @ingredient.name<p>
+                <p>
+                    <a href="/home/ingredient?name=@ingredient.name&measurement=@ingredient.measurement">View details of @ingredient.name</a>
+                    <br />
+                    <a href="/home/deleteingredient?ingredient=@ingredient.name">Delete Ingredient</a>
+                </p>
+            </li>
+        }
+    </ul>
+    <br />
+    <h5><b>Add new ingredients to your recipe:</b></h5>
+    <form action="/home/createingredient" method="post">
+        <h5>**A list of items to choose from can be seen in ingredient details, as well as more details can be filled in when you view your ingredient details</h5>
+        <p>Enter or choose an ingredient already in your Ingredient Box:</p>
+        <br />
+        <select name="chooseingredient">
+            @foreach (var ingredient in ViewBag.currentingredienttable) {
+                <option value="@ingredient.name">@ingredient.name</option>
+            }
+        </select>
+        <input name="ingredient" placeholder="Enter an ingredient" />
+        <p>Enter the ingredient's measurement:</p>
+        <input name="measurement" placeholder="Enter your measurement" />
+        <p>Enter or choose an ingredient classification:</p>
+        <select name="chooseclassification">
+            @foreach (var ingredient in ViewBag.currentingredienttable) {
+                <option value="@ingredient.classification">@ingredient.classification</option>
+            }
+        </select>
+        when an ingredient is selected from the dropdown, put that value in the ingredient to be filled in the ingredient name entry box, that way it's more intuitive and clearer
+        ok, so that's easy, just assign the specific ingredient name that's currently chosen as the placeholder for each, or enter ingredient type or something like thta
+        <br /><br />
+        <input name="classification" placeholder="Ex. flour, dairy, eggs, yeast, etc." />
+        <p>Enter or choose an ingredient type:</p>
+        <select name="chooseType">
+            @foreach (var ingredient in ViewBag.currentingredienttable) {
+                <option value="@ingredient.typeOfIngredient">@ingredient.typeOfIngredient</option>
+            }
+        </select>
+        <input name="type" placeholder="Ex. baking powder, cake flour, bread flour, etc." />
+        <p>Enter the ingredient's selling weight (**For the selling weight for eggs, put "1 dozen" or "24")</p>
+        <input name="sellingWeight" />
+            <p>Enter the ingredient's selling price</p>
+            <input name="sellingPrice" />
+            <p>**For the moment, unless it can be ordered from walmart.com, you're going to have to enter your selling price manually. I want to get Costco, Target, BJs and some other places to get rest calls from</p>
+            <input type="submit" value="Add Ingredient to @ViewBag.currentrecipe.name" />
+            <p>**The ingredient classiication is especially important for the database deals with egg consumption and prices, as well as with dairy ingredient selling prices</p>
+    </form>*@
+<h4>Recipe: @ViewBag.currentrecipe.name</h4>
 <h5>Yield: @ViewBag.currentrecipe.yield</h5>
 <h5>Price Per Serving: $@ViewBag.currentrecipe.pricePerServing</h5>
-<h5>Total Price: $@ViewBag.currentrecipe.aggregatedPrice</h5>
-<form action="/home/editrecipetitle" method="post">
-    <input name="newRecipeTitle" />
-    <input type="submit" value="Edit Recipe Title" />
+<h5>Add an Ingredient:</h5>
+<tr>
+    <th>Ingredient</th>
+    <th>Measurement</th>
+    <th>Price of Measured Consumption</th>
+    <th>Selling Price</th>
+</tr>
+@foreach (var ingredient in ViewBag.currentrecipe.ingredients) {
+    <tr>
+        @*<td>@ingredient.ingredientId</td>*@
+        <td>@ingredient.name</td>
+        <td>@ingredient.measurement</td>
+        <td>$@ingredient.priceOfMeasuredConsumption</td>
+        <td>$@ingredient.sellingPrice</td>
+    </tr>
+}
+<form action="/home/createingredient" mehtod="post">
+    <input="ingredient" placeholder=""
 </form>
-<form action="/home/adjustyield" method="post">
-    <input name="updatedYield" />
-    <input type="submit" value="Change Yield" />
-</form>
-<h5>@ViewBag.currentRecipe.name ingredients:</h5>
-<br />
-<ul>
-    @foreach (var ingredient in ViewBag.currentrecipe.ingredients) {
-        <li>
-            <p>@ingredient.measurement @ingredient.name<p>
-            <p>
-                <a href="/home/ingredient?name=@ingredient.name&measurement=@ingredient.measurement">View details of @ingredient.name</a>
-                <br />
-                <a href="/home/deleteingredient?ingredient=@ingredient.name">Delete Ingredient</a>
-            </p>
-        </li>
-    }
-</ul>
-<br />
-<h5><b>Add new ingredients to your recipe:</b></h5>
-<form action="/home/createingredient" method="post">
-    <h5>**A list of items to choose from can be seen in ingredient details, as well as more details can be filled in when you view your ingredient details</h5>
-    <p>Enter or choose an ingredient already in your Ingredient Box:</p>
-    @*<br />*@
-    <select name="chooseingredient">
-        @foreach (var ingredient in ViewBag.currentingredienttable) {
-            <option value="@ingredient.name">@ingredient.name</option>
-        }
-    </select>
-    <input name="ingredient" placeholder="Enter an ingredient" />
-    <p>Enter the ingredient's measurement:</p>
-    <input name="measurement" placeholder="Enter your measurement" />
-    <p>Enter or choose an ingredient classification:</p>
-    <select name="chooseclassification">
-        @foreach (var ingredient in ViewBag.currentingredienttable) {
-            <option value="@ingredient.classification">@ingredient.classification</option>
-        }
-    </select>
-    @*when an ingredient is selected from the dropdown, put that value in the ingredient to be filled in the ingredient name entry box, that way it's more intuitive and clearer*@
-    @*ok, so that's easy, just assign the specific ingredient name that's currently chosen as the placeholder for each, or enter ingredient type or something like thta*@
-    <br /><br />
-    <input name="classification" placeholder="Ex. flour, dairy, eggs, yeast, etc." />
-    <p>Enter or choose an ingredient type:</p>
-    <select name="chooseType">
-        @foreach (var ingredient in ViewBag.currentingredienttable) {
-            <option value="@ingredient.typeOfIngredient">@ingredient.typeOfIngredient</option>
-        }
-    </select>
-    <input name="type" placeholder="Ex. baking powder, cake flour, bread flour, etc." />
-    <p>Enter the ingredient's selling weight (**For the selling weight for eggs, put "1 dozen" or "24")</p>
-    <input name="sellingWeight" />
-        <p>Enter the ingredient's selling price</p>
-        <input name="sellingPrice" />
-        <p>**For the moment, unless it can be ordered from walmart.com, you're going to have to enter your selling price manually. I want to get Costco, Target, BJs and some other places to get rest calls from</p>
-        <input type="submit" value="Add Ingredient to @ViewBag.currentrecipe.name" />
-        <p>**The ingredient classiication is especially important for the database deals with egg consumption and prices, as well as with dairy ingredient selling prices</p>
-</form>
+<tr> </tr>
+</f>
+</table>

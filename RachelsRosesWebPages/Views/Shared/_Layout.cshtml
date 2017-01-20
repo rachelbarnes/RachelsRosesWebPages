@@ -17,20 +17,28 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                @Html.ActionLink("Rachel's Roses Web Pages", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li>@Html.ActionLink("Home", "Index", "Home")</li>
-                    <li>@Html.ActionLink("About", "About", "Home")</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                    @*linktext, actiontext, controllername*@
+                    <li>@*@Html.ActionLink("About", "About", "Home")*@</li>
+                    <li>@*@Html.ActionLink("Contact", "Contact", "Home")*@</li>
+                    <li>@Html.ActionLink("Recipe Box", "RecipeBox", "Home")</li>
+                    <li>@Html.ActionLink("Ingredient Box", "IngredientBox", "Home")</li>
+                    <li>@Html.ActionLink("Consumption Table", "ConsumptionTable", "Home")</li>
+                    <li>@Html.ActionLink("Cost Table", "CostTable", "Home")</li>
+                    <li>@Html.ActionLink("Density Table", "DensityTable", "Home")</li>
+                    <li>@Html.ActionLink("Density Information Table", "DensityInformationTable", "Home")</li>
+                    <li>@Html.ActionLink("Read Me Information", "ReadMeInformation", "Home")</li>
                 </ul>
-                @Html.Partial("_LoginPartial")
+                @*@Html.Partial("_LoginPartial")*@
             </div>
         </div>
     </div>
     <div class="container body-content">
-        @RenderSection("header", required: true); 
+        @*@RenderSection("header", required: true);*@ 
         @RenderBody()
         <hr />
         <footer>
@@ -38,7 +46,7 @@
         </footer>
     </div>
 
-    @RenderSection("scripts", required: false); 
+    @*@RenderSection("scripts", required: false);*@ 
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")

@@ -144,7 +144,9 @@ namespace RachelsRosesWebPages.Models {
             var myRecipes = queryRecipes();
             foreach (var recipe in myRecipes) {
                 if (recipe.id == r.id)
-                    r.pricePerServing = Math.Round((recipe.aggregatedPrice / recipe.yield), 2);
+                    if (recipe.yield == 0)
+                        r.pricePerServing = 0m;
+                    else r.pricePerServing = Math.Round((recipe.aggregatedPrice / recipe.yield), 2);
             }
             return r.pricePerServing;
         }
@@ -948,13 +950,15 @@ namespace RachelsRosesWebPages.Models {
             var ingredientConsumptionInformation = queryItems("select * from consumption_ounces_consumed", reader => {
                 var ingredient = new Ingredient(reader["name"].ToString());
                 ingredient.ouncesConsumed = (decimal)reader["ounces_consumed"];
+                //ingredient.ingredientId = (int)reader["ing_id"]; 
                 return ingredient;
             });
             return ingredientConsumptionInformation;
         }
         public void insertIngredientIntoConsumptionOuncesConsumed(Ingredient i) {
-            var commandText = @"Insert into consumption_ounces_consumed (name, ounces_consumed) values (@name, @ounces_consumed);";
+            var commandText = @"Insert into consumption_ounces_consumed (ing_id, name, ounces_consumed) values (@ing_id, @name, @ounces_consumed);";
             executeVoidQuery(commandText, cmd => {
+                //cmd.Parameters.AddWithValue("@ing_id", i.ingredientId); 
                 cmd.Parameters.AddWithValue("@name", i.name);
                 cmd.Parameters.AddWithValue("@ounces_consumed", i.ouncesConsumed);
                 return cmd;
@@ -965,8 +969,9 @@ namespace RachelsRosesWebPages.Models {
                 insertIngredientIntoConsumptionOuncesConsumed(ingredient);
         }
         public void updateIngredientInConsumptionouncesConsumed(Ingredient i) {
-            var commandText = @"Update consumption_ounces_consumed set ounces_consumed=@ounces_consumed where name=@name;";
+            var commandText = @"Update consumption_ounces_consumed set ounces_consumed=@ounces_consumed, name=@name where ing_id=@ing_id;";
             executeVoidQuery(commandText, cmd => {
+                //cmd.Parameters.AddWithValue("@ing_id", i.ingredientId); 
                 cmd.Parameters.AddWithValue("@ounces_consumed", i.ouncesConsumed);
                 cmd.Parameters.AddWithValue("@name", i.name);
                 return cmd;
@@ -1262,7 +1267,7 @@ namespace RachelsRosesWebPages.Models {
                         );", a => a);
             dropTableIfExists("consumption_ounces_consumed");
             executeVoidQuery(@"create table consumption_ounces_consumed (
-                        ing INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+                        ing_id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
                         name nvarchar(max), 
                         ounces_consumed decimal(5,2)
                         );", a => a);

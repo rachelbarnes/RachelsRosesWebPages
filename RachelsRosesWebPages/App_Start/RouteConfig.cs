@@ -14,7 +14,7 @@ namespace RachelsRosesWebPages {
                 name: "Default",
                 //url: "home/recipes",
                 url: "{controller}/{action}/{id}",
-                defaults: new { controller = "Home", action = "Recipes", id = UrlParameter.Optional }
+                defaults: new { controller = "Home", action = "RecipeBox", id = UrlParameter.Optional }
             );
         }
     }

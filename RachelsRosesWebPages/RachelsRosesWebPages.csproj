@@ -264,6 +264,7 @@
     <Content Include="Models\MyRecipeBox.edmx.diagram">
       <DependentUpon>MyRecipeBox.edmx</DependentUpon>
     </Content>
+    <Content Include="Views\Home\IngredientBox.cshtml" />
     <None Include="Scripts\jquery-1.10.2-vsdoc.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
@@ -287,7 +288,7 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\Recipes.cshtml" />
+    <Content Include="Views\Home\RecipeBox.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Account\_ExternalLoginsListPartial.cshtml" />
@@ -312,8 +313,13 @@
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Home\Recipe.cshtml" />
     <Content Include="Views\Home\Ingredient.cshtml" />
-    <Content Include="Views\Shared\test.cshtml" />
+    <Content Include="Views\Shared\Test.cshtml" />
     <Content Include="Views\Home\testIndex.cshtml" />
+    <Content Include="Views\Home\DensityInformationTable.cshtml" />
+    <Content Include="Views\Home\DensityTable.cshtml" />
+    <Content Include="Views\Home\ConsumptionTable.cshtml" />
+    <Content Include="Views\Home\CostTable.cshtml" />
+    <Content Include="Views\Home\ReadMeInformation.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

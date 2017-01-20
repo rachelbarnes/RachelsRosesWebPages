@@ -20,7 +20,7 @@ namespace RachelsRosesWebPages.Controllers {
             var db = new DatabaseAccess();
             return db.MyRecipeBox();
         }
-        public ActionResult Recipes() {
+        public ActionResult RecipeBox() {
             var myRecipes = getRecipes();
             ViewBag.recipes = myRecipes;
             ViewBag.recipeboxcount = getRecipes().Count();
@@ -29,7 +29,7 @@ namespace RachelsRosesWebPages.Controllers {
         public ActionResult Recipe(string name) {
             var t = new DatabaseAccess();
             if (string.IsNullOrEmpty(name))
-                return Redirect("/home/recipes");
+                return Redirect("/home/RecipeBox");
             name = name.Trim();
             myDatabaseRecipe = getRecipes().First(x => x.name == name);
             currentRecipe = myDatabaseRecipe;
@@ -42,7 +42,7 @@ namespace RachelsRosesWebPages.Controllers {
         public ActionResult Ingredient(string name, string measurement) {
             var rest = new MakeRESTCalls();
             if (string.IsNullOrEmpty(name))
-                return Redirect("/home/recipes");
+                return Redirect("/home/RecipeBox");
             if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(measurement))
                 return Redirect("/home/recipe?name=" + currentRecipe.name);
             foreach (var ingredient in currentRecipe.ingredients) {
@@ -128,12 +128,13 @@ namespace RachelsRosesWebPages.Controllers {
             }
             return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
+        public ActionResult
         public ActionResult CreateRecipe(string recipeTitle) {
             recipeTitle = recipeTitle.Trim();
             Recipe newrecipe = new Recipe(recipeTitle);
             var db = new DatabaseAccess();
             db.InsertRecipe(newrecipe);
-            return Redirect("/home/recipes");
+            return Redirect("/home/RecipeBox");
         }
         public ActionResult DeleteRecipe(string recipeTitle) {
             recipeTitle = recipeTitle.Trim();
@@ -144,7 +145,7 @@ namespace RachelsRosesWebPages.Controllers {
                     currentRecipe = recipe;
                 db.DeleteRecipeAndRecipeIngredients(currentRecipe);
             }
-            return Redirect("/home/recipes");
+            return Redirect("/home/RecipeBox");
         }
         public ActionResult EditRecipeTitle(string newRecipeTitle) {
             var db = new DatabaseAccess();
@@ -177,6 +178,26 @@ namespace RachelsRosesWebPages.Controllers {
                 }
             }
             return Redirect("/home/recipe?name=" + currentRecipe.name);
+        }
+        public ActionResult IngredientBox() {
+            return View(); 
+        }
+        public ActionResult DensityTable() {
+            return View();
+        }
+        public ActionResult ConsumptionTable() {
+            return View();
+        }
+        public ActionResult CostTable() {
+            return View();
+        }
+        public ActionResult DensityInformationTable() {
+            return View();
+        }
+        public ActionResult ReadMeInformation() {
+            //there's some quirks, like needing to put in the type of ingredient and the classification that will be really helpful to someone new coming in, 
+            //this needs to happen 
+            return View(); 
         }
     }
 }
