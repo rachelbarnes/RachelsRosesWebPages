@@ -49,7 +49,7 @@ namespace RachelsRosesWebPages {
             var tempItemResponse = new ItemResponse();
             if (string.IsNullOrEmpty(i.classification) || (i.classification == " ") || !(i.classification.ToLower().Contains("dairy")) || !(i.classification.ToLower().Contains("egg"))) { 
                 if ((MakeRequest<SearchResponse>(buildSearchRequest(i)).Items.Count() == 0))
-                    return newItemResponse;
+                    return newItemResponse;//ok, selling weight is not being transfered
                 var items = MakeRequest<SearchResponse>(buildSearchRequest(i)).Items;
                 var sellingWeightOunces = convert.ConvertWeightToOunces(i.sellingWeight);
                 foreach (var item in items) {

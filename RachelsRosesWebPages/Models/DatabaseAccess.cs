@@ -170,6 +170,7 @@ namespace RachelsRosesWebPages.Models {
             foreach (var ingredient in myRecipe.ingredients) {
                 DeleteIngredientFromAllRelevantTables(ingredient);
             }
+            //this will change the ingredient ids... i may have to go through and make sure all my logic for comparing ids will still be compatible when i start deleting stuff... lots of integrative testing needs to be done with that
             var delete = "DELETE FROM recipes WHERE name=@title";
             executeVoidQuery(delete, cmd => {
                 cmd.Parameters.AddWithValue("@title", r.name);
@@ -178,14 +179,15 @@ namespace RachelsRosesWebPages.Models {
         }
         public void DeleteIngredientFromIngredientTable(Ingredient i) {
             i.name = i.name.Trim();
-            var delete = "delete from ingredients where ing_id=@ing_id";
+            var delete = "delete from ingredients where name=@name AND ing_id=@ing_id";
             executeVoidQuery(delete, cmd => {
+                cmd.Parameters.AddWithValue("@name", i.name);
                 cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
                 return cmd;
             });
         }
         public void DeleteIngredientFromCostTable(Ingredient i) {
-            var deleteCommand = "delete from costs where ing_id=@ing_id";
+            var deleteCommand = "delete from costs where ing_id=@ing_id"; //if needed, : AND name=@name;
             executeVoidQuery(deleteCommand, cmd => {
                 cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
                 return cmd;
@@ -214,28 +216,27 @@ namespace RachelsRosesWebPages.Models {
             var myDensityTable = queryDensitiesTable();
             var myConsumptionTable = queryConsumptionTable();
             foreach (var ingredient in myIngredientsTable) {
-                if (ingredient.ingredientId == i.ingredientId)
+                if (ingredient.ingredientId == i.ingredientId && ingredient.name == i.name) {
                     DeleteIngredientFromIngredientTable(ingredient);
-                break;
+                    break;
+                }//ok, so this isn't deleting it from the ingreident table... come on
             }
+            var myUpdatedIngredientsTable = queryIngredients();
             foreach (var ingredient in myCostTable) {
-                if (ingredient.ingredientId == i.ingredientId)
+                if (ingredient.ingredientId == i.ingredientId) {
                     DeleteIngredientFromCostTable(ingredient);
-                break;
+                    break;
+                }
             }
+            var myUpdatedCostTable = queryCostTable();
             foreach (var ingredient in myDensityTable) {
-                if (ingredient.ingredientId == i.ingredientId)
+                if (ingredient.ingredientId == i.ingredientId) {
                     DeleteIngredientFromDensitiesTable(ingredient);
-                break;
+                    break; //i may not need to do anything with this table... the name and the id are the only things that really relate it to specific ingredients, but it has selling weights, selling prices, price per ounce... 
+                }
             }
-            foreach (var ingredient in myConsumptionTable) {
-                if (ingredient.name.ToLower() == i.name.ToLower())
-                    DeleteIngredientFromConsumptionTable(ingredient);
-                break;
-            }
+            var myUpdatedDensitiesTable = queryDensitiesTable();
             var myNewIngredients = queryAllTablesForIngredient(i);
-            //i dont want to keep the consumption table stuff... that's pretty impt
-            //i'm still trying to determine the pros of having the consumption? 
         }
         public void UpdateRecipeYield(Recipe r) {
             var convert = new ConvertMeasurement();
@@ -369,7 +370,7 @@ namespace RachelsRosesWebPages.Models {
             return queriedListOfIngredients;
         }
         public void insertIngredient(Ingredient i, Recipe r) {
-            if (i.sellingPrice != 0m) { //this is assuming that if they're providing their own selling price, they're not going to be looking for walmart's price, item id or name for the product
+            if (i.sellingPrice == 0m && (!i.classification.ToLower().Contains("dairy")) || (!i.classification.ToLower().Contains("egg"))) {
                 myItemResponse = returnItemResponse(i);
                 if (i.itemId == 0)
                     i.itemId = myItemResponse.itemId;
@@ -378,8 +379,12 @@ namespace RachelsRosesWebPages.Models {
                 if (string.IsNullOrEmpty(i.itemResponseName)) // || (i.classification.ToLower().Contains("dairy") || i.classification.ToLower().Contains("egg"))
                     i.itemResponseName = " ";
             }
+            if ((!i.classification.ToLower().Contains("dairy")) || (!i.classification.ToLower().Contains("egg")))
+                i.itemResponseName = " ";
             if (string.IsNullOrEmpty(i.classification))
                 i.classification = " ";
+            if (i.expirationDate == null)
+                i.expirationDate = new DateTime();
             var commandText = "Insert into ingredients(recipe_id, name, measurement, price_measured_ingredient, item_id, ingredient_type, ingredient_classification, item_response_name, expiration_date) values (@rid, @name, @measurement, @price_measured_ingredient, @item_id, @ingredient_type, @ingredient_classification, @item_response_name, @expiration_date);";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@rid", r.id);
@@ -390,22 +395,39 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@ingredient_type", i.typeOfIngredient);
                 cmd.Parameters.AddWithValue("@ingredient_classification", i.classification);
                 cmd.Parameters.AddWithValue("@item_response_name", i.itemResponseName);
-                //cmd.Parameters.AddWithValue("@expiration_date", i.expirationDate); 
+                //cmd.Parameters.AddWithValue("@expiration_date", i.expirationDate);
                 cmd.Parameters.AddWithValue("@expiration_date", convertDateToStringMMDDYYYY(i.expirationDate));
-                //this convertDateToString formats the string in MM/DD/YYYY
                 return cmd;
             });
             var myIngredients = queryIngredients();
+            var myIngredientFull = queryAllTablesForIngredient(i);
         }
         public void UpdateIngredient(Ingredient i) {
             var myIngredients = queryIngredients();
-            myItemResponse = returnItemResponse(i);
-            if (i.itemId == 0)
-                i.itemId = myItemResponse.itemId;
-            if (string.IsNullOrEmpty(i.itemResponseName))
-                i.itemResponseName = myItemResponse.name;
-            if (i.priceOfMeasuredConsumption == 0)
-                i.priceOfMeasuredConsumption = returnIngredientMeasuredPrice(i);
+            if (i.sellingPrice == 0m && (!i.classification.ToLower().Contains("dairy")) || (!i.classification.ToLower().Contains("egg"))) {
+                myItemResponse = returnItemResponse(i);
+                if (i.itemId == 0)
+                    i.itemId = myItemResponse.itemId;
+                if (string.IsNullOrEmpty(i.itemResponseName))
+                    i.itemResponseName = myItemResponse.name;
+                if (string.IsNullOrEmpty(i.itemResponseName)) // || (i.classification.ToLower().Contains("dairy") || i.classification.ToLower().Contains("egg"))
+                    i.itemResponseName = " ";
+            }
+            if ((!i.classification.ToLower().Contains("dairy")) || (!i.classification.ToLower().Contains("egg"))) {
+                i.itemResponseName = " ";
+                if (string.IsNullOrEmpty(i.classification))
+                    i.classification = " ";
+                if (i.expirationDate == null)
+                    i.expirationDate = new DateTime();
+            } else {
+                myItemResponse = returnItemResponse(i);
+                if (i.itemId == 0)
+                    i.itemId = myItemResponse.itemId;
+                if (string.IsNullOrEmpty(i.itemResponseName))
+                    i.itemResponseName = myItemResponse.name;
+                if (i.priceOfMeasuredConsumption == 0)
+                    i.priceOfMeasuredConsumption = returnIngredientMeasuredPrice(i);
+            }
             if (string.IsNullOrEmpty(i.classification))
                 i.classification = " ";
             var myIngredientId = i.ingredientId;
@@ -526,15 +548,23 @@ namespace RachelsRosesWebPages.Models {
             return myUniqueIngredients;
         }
         public List<string> getListOfDistinctSellingWeights() {
-            var myConsumptionTable = queryConsumptionTable();
+            var myDensiitiesTable = queryDensitiesTable();
             var myUniqueSellingWeights = new List<string>();
-            foreach (var ingredient in myConsumptionTable) {
+            foreach (var ingredient in myDensiitiesTable) {
                 if (!myUniqueSellingWeights.Contains(ingredient.sellingWeight))
                     myUniqueSellingWeights.Add(ingredient.sellingWeight);
             }
             return myUniqueSellingWeights;
         }
-        //this should be fine, i have the selling weights, and i have the ingredients table, which has my ingredient names, my ingredient types and my ingredient classifications
+        public List<string> getListOfIngredientTypesFromDensityTable() {
+            var myDensityTable = queryDensityInfoTable();
+            var myIngredientTypes = new List<string>();
+            foreach (var ingredient in myDensityTable) {
+                if (!myIngredientTypes.Contains(ingredient.name))
+                    myIngredientTypes.Add(ingredient.name);
+            }
+            return myIngredientTypes;
+        }
 
 
         //return myIngredientsTable.Select(x => x).Distinct();
@@ -635,7 +665,7 @@ namespace RachelsRosesWebPages.Models {
             i.density = returnIngredientDensityFromDensityTable(i);
             if (i.sellingPrice == 0m)
                 i.sellingPrice = myItemResponse.salePrice;
-            if (i.classification.ToLower().Contains("egg")) {
+            if (i.classification.ToLower() == "egg" || i.classification.ToLower() == "eggs") {
                 i.sellingWeightInOunces = convert.NumberOfEggsFromSellingQuantity(i.sellingWeight);
             } else i.sellingWeightInOunces = convert.ConvertWeightToOunces(i.sellingWeight);
             i.pricePerOunce = Math.Round((i.sellingPrice / i.sellingWeightInOunces), 4);
@@ -725,7 +755,6 @@ namespace RachelsRosesWebPages.Models {
             var myConsumptionTable = queryConsumptionTable();
             var temp = new Ingredient();
             foreach (var ingredient in myConsumptionTable) {
-                //problems: my ouncesConsumed should be 2 instead of 3, and my priceofmeasuredconsumption is 0 for the moment... 
                 if (i.classification.ToLower().Contains("egg") && ingredient.name.ToLower().Contains("egg")) {
                     temp.name = ingredient.name;
                     var currentOuncesConsumed = convert.EggsConsumedFromIngredientMeasurement(i.measurement);
@@ -736,13 +765,13 @@ namespace RachelsRosesWebPages.Models {
                     else i.ouncesRemaining = ingredient.ouncesRemaining - i.ouncesConsumed;
                     break;
                 } else {
-                    //this above is a catch all for eggs... i don't want cake flour and bread flour to come from the same source for ounces remaining, but i want all eggs to be coming from the same place, the egg carton :)
                     if (ingredient.name.ToLower() == i.name.ToLower()) {
-                        i.ouncesConsumed = CalculateOuncesConsumedFromMeasurement(i);
+                        ingredient.ouncesConsumed = CalculateOuncesConsumedFromMeasurement(i);
                         if (ingredient.ouncesRemaining == 0m)
-                            i.ouncesRemaining = i.sellingWeightInOunces - i.ouncesConsumed;
+                            myIngredient.ouncesRemaining = myIngredient.sellingWeightInOunces - ingredient.ouncesConsumed;
                         else
-                            i.ouncesRemaining = ingredient.ouncesRemaining - i.ouncesConsumed;
+                            myIngredient.ouncesRemaining = ingredient.ouncesRemaining - ingredient.ouncesConsumed;
+                        i.ouncesRemaining = myIngredient.ouncesRemaining;
                         break;
                     }
                 }
@@ -756,7 +785,7 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@ounces_remaining", i.ouncesRemaining);
                 return cmd;
             });
-            insertIngredientIntoConsumptionOuncesConsumed(i);
+            //insertIngredientIntoConsumptionOuncesConsumed(i); //still determining the value of this table... 
             subtractOuncesRemainingIfExpirationDateIsPast(i);
             var myUpdatedIngredient = queryConsumptionTable();
         }
@@ -764,7 +793,7 @@ namespace RachelsRosesWebPages.Models {
         public void subtractOuncesRemainingIfExpirationDateIsPast(Ingredient i) {
             var convert = new ConvertWeight();
             var myIngredient = queryAllTablesForIngredient(i);
-            if (i.expirationDate < DateTime.Today) {
+            if (i.expirationDate < DateTime.Today && i.expirationDate != new DateTime()) {
                 myIngredient.ouncesRemaining = myIngredient.ouncesRemaining - i.sellingWeightInOunces;
                 if (myIngredient.ouncesRemaining < 0m)
                     myIngredient.ouncesRemaining = 0m;
@@ -894,9 +923,9 @@ namespace RachelsRosesWebPages.Models {
             return ingredientConsumptionInformation;
         }
         public void insertIngredientIntoConsumptionOuncesConsumed(Ingredient i) {
-            var commandText = @"Insert into consumption_ounces_consumed (ing_id, name, ounces_consumed) values (@ing_id, @name, @ounces_consumed);";
+            var commandText = @"Insert into consumption_ounces_consumed (name, ounces_consumed) values (@name, @ounces_consumed);";
             executeVoidQuery(commandText, cmd => {
-                //cmd.Parameters.AddWithValue("@ing_id", i.ingredientId); 
+                //cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
                 cmd.Parameters.AddWithValue("@name", i.name);
                 cmd.Parameters.AddWithValue("@ounces_consumed", i.ouncesConsumed);
                 return cmd;
@@ -909,12 +938,16 @@ namespace RachelsRosesWebPages.Models {
         public void updateIngredientInConsumptionouncesConsumed(Ingredient i) {
             var commandText = @"Update consumption_ounces_consumed set ounces_consumed=@ounces_consumed, name=@name where ing_id=@ing_id;";
             executeVoidQuery(commandText, cmd => {
-                //cmd.Parameters.AddWithValue("@ing_id", i.ingredientId); 
+                cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
                 cmd.Parameters.AddWithValue("@ounces_consumed", i.ouncesConsumed);
                 cmd.Parameters.AddWithValue("@name", i.name);
                 return cmd;
             });
         }
+        //i need to determine if this consumption_ounces_consumed really is impt... i remember it being for tracking inidivudal ounces consumed since the consumption table is more for a pantry idea than individual ingredients... 
+        //also need to have a check mark to determine if the recipe was made, and then update the consumption table... 
+        //before you edit, and before the checkmark, note the ounces remaining if the ingredients were to be used so you know if the recipe can be made with your current stock of ingredients... 
+        //that's actually another really nice feature of being able to do this in more pantry driven fasion, as opposed to individual ingredients (all "Softasilk Cake Flour" has the same row in the consumption table)
         public decimal CalculateOuncesConsumedFromMeasurement(Ingredient i) {
             var convertMeasurement = new ConvertMeasurement();
             var convertWeight = new ConvertWeight();
@@ -1010,7 +1043,8 @@ namespace RachelsRosesWebPages.Models {
             var rest = new MakeRESTCalls();
             var myDensityInfoTable = queryDensityInfoTable();
             if (myDensityInfoTable.Count() == 0)
-                insertDensityTextFileIntoDensityInfoDatabase(@"C: \Users\Rachel\Documents\Visual Studio 2015\Projects\RachelsRosesWebPages\RachelsRosesWebPages\densityTxtDatabase.txt");
+                //insertDensityTextFileIntoDensityInfoDatabase(@"C: \Users\Rachel\Documents\Visual Studio 2015\Projects\RachelsRosesWebPages\RachelsRosesWebPages\densityTxtDatabase.txt");
+                insertDensityTextFileIntoDensityInfoDatabase();
             var myUpdatedDensityInfoTable = queryDensityInfoTable();
             var myMilkAndEggDensityInfoIngredients = new List<Ingredient>();
             foreach (var ingredient in myUpdatedDensityInfoTable) {
@@ -1055,7 +1089,7 @@ namespace RachelsRosesWebPages.Models {
             }
             return myIngredients;
         }
-        public void insertDensityTextFileIntoDensityInfoDatabase(string filename) {
+        public void insertDensityTextFileIntoDensityInfoDatabase() {
             //filename = @"C: \Users\Rachel\Documents\Visual Studio 2015\Projects\RachelsRosesWebPages\RachelsRosesWebPages\densityTxtDatabase.txt";
             var read = new Reader(); //the filename below for the moment is hardcoded... 
             var DensityTextDatabaseDictionary = read.ReadDensityTextFile(@"C: \Users\Rachel\Documents\Visual Studio 2015\Projects\RachelsRosesWebPages\RachelsRosesWebPages\densityTxtDatabase.txt");
@@ -1211,6 +1245,7 @@ namespace RachelsRosesWebPages.Models {
                         );", a => a);
             //this ingredient name is to represent the ingredient.typeOfIngredient
             executeVoidQuery("SET IDENTITY_INSERT densities ON", cmd => cmd);
+            insertDensityTextFileIntoDensityInfoDatabase();
         }
     }
 }

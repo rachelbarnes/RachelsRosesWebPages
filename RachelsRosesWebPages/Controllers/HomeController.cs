@@ -38,6 +38,7 @@ namespace RachelsRosesWebPages.Controllers {
             ViewBag.distinctsellingweights = t.getListOfDistinctSellingWeights(); 
             ViewBag.currentrecipe = currentRecipe;
             ViewBag.recipeboxcount = getRecipes().Count();
+            ViewBag.distinctingredienttypes = t.getListOfIngredientTypesFromDensityTable(); 
             return View();
         }
         public ActionResult Ingredient(string name, string measurement) {
@@ -120,13 +121,14 @@ namespace RachelsRosesWebPages.Controllers {
                 newIngredient.classification = classification;
                 newIngredient.typeOfIngredient = type;
                 newIngredient.recipeId = currentRecipe.id;
-                //newIngredient.sellingWeight = sellingweight;
+                newIngredient.sellingWeight = sellingweight;
                 if (!string.IsNullOrEmpty(sellingweight))
                 if (!string.IsNullOrEmpty(sellingprice))
                     newIngredient.sellingPrice = decimal.Parse(sellingprice);
                 currentRecipe.ingredients.Add(newIngredient);
                 currentIngredient = newIngredient;
-                db.insertIngredient(currentIngredient, currentRecipe);
+                //db.insertIngredient(currentIngredient, currentRecipe);
+                db.insertIngredientIntoAllTables(currentIngredient, currentRecipe); 
             }
             return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
@@ -176,11 +178,21 @@ namespace RachelsRosesWebPages.Controllers {
             foreach (var ingredient in myIngredientsTable) {
                 if (ingredient.name == name) {
                     db.DeleteIngredientFromAllRelevantTables(ingredient);
+                    break;
                 }
             }
             return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
+        public ActionResult InitializeDatabase() {
+            var db = new DatabaseAccess();
+            db.initializeDatabase();
+            return Redirect("/home/recipeBox"); 
+        }
         public ActionResult IngredientBox() {
+            var db = new DatabaseAccess();
+            var myIngredientBox = db.queryIngredients();
+            ViewBag.ingredientbox = myIngredientBox; 
+            ViewBag.fullingredientbox = db.queryAllTablesForAllIngredients(myIngredientBox); 
             return View(); 
         }
         public ActionResult DensityTable() {
