@@ -23,14 +23,12 @@
                 <ul class="nav navbar-nav">
                     <li>@Html.ActionLink("Home", "Index", "Home")</li>
                     @*linktext, actiontext, controllername*@
-                    <li>@*@Html.ActionLink("About", "About", "Home")*@</li>
-                    <li>@*@Html.ActionLink("Contact", "Contact", "Home")*@</li>
                     <li>@Html.ActionLink("Recipe Box", "RecipeBox", "Home")</li>
-                    <li>@Html.ActionLink("Ingredient Box", "IngredientBox", "Home")</li>
-                    <li>@Html.ActionLink("Consumption Table", "ConsumptionTable", "Home")</li>
-                    <li>@Html.ActionLink("Cost Table", "CostTable", "Home")</li>
-                    <li>@Html.ActionLink("Density Table", "DensityTable", "Home")</li>
-                    <li>@Html.ActionLink("Density Information Table", "DensityInformationTable", "Home")</li>
+                    <li>@Html.ActionLink("Ingredients", "IngredientBox", "Home")</li>
+                    <li>@Html.ActionLink("Consumption", "ConsumptionTable", "Home")</li>
+                    <li>@Html.ActionLink("Cost", "CostTable", "Home")</li>
+                    <li>@Html.ActionLink("Densities", "DensityTable", "Home")</li>
+                    <li>@Html.ActionLink("Density Information", "DensityInformationTable", "Home")</li>
                     <li>@Html.ActionLink("Read Me Information", "ReadMeInformation", "Home")</li>
                 </ul>
                 @*@Html.Partial("_LoginPartial")*@
@@ -42,7 +40,7 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
+            <p>&copy; @DateTime.Now.Year - Rachel's Roses Web Pages</p>
         </footer>
     </div>
 

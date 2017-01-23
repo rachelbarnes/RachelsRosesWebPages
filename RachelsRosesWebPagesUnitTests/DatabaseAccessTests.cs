@@ -1106,7 +1106,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var i = new Ingredient("Semi Sweet Morsels") { ingredientId = 1, recipeId = 1, sellingWeight = "36 oz", density = 5.35m, measurement = "1 cup" };
             //6.98    1.04
             t.initializeDatabase();
-            var filename = @"C:\Users\Rachel\Documents\Visual Studio 2015\Projects\RachelsRosesWebPages\RachelsRosesWebPages\densityTxtDatabase.txt";
+            //var filename = @"C:\Users\Rachel\Documents\Visual Studio 2015\Projects\RachelsRosesWebPages\RachelsRosesWebPages\densityTxtDatabase.txt";
             t.insertDensityTextFileIntoDensityInfoDatabase();
             t.insertIngredientIntoAllTables(i, r);
             var mydensityDataInformation = t.queryDensityInfoTable();
@@ -1602,7 +1602,7 @@ namespace RachelsRosesWebPagesUnitTests {
         public void TestInsertFileIntoDensityDatabase() {
             var t = new DatabaseAccess();
             var read = new Reader();
-            var filename = @"C:\Users\Rachel\Documents\Visual Studio 2015\Projects\RachelsRosesWebPages\RachelsRosesWebPages\densityTxtDatabase.txt";
+            //var filename = @"C:\Users\Rachel\Documents\Visual Studio 2015\Projects\RachelsRosesWebPages\RachelsRosesWebPages\densityTxtDatabase.txt";
             t.initializeDatabase();
             t.insertDensityTextFileIntoDensityInfoDatabase();
             var myDensityInformationIngredients = t.queryDensityInfoTable();
@@ -3187,6 +3187,72 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(4, myIngredientsTable.Count());
             Assert.AreEqual(4, myCostTable.Count());
             Assert.AreEqual(4, myDensitiesTable.Count()); 
+        }
+        [Test]
+        public void TestSortingListOfIngredients() {
+            var t = new DatabaseAccess();
+            var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 12 };
+            var chocolateChips = new Ingredient("Semi Sweet Chocolate Chips") { ingredientId = 1, recipeId = 1, measurement = "2 cups", sellingWeight = "12 oz", typeOfIngredient = "chocolate chips", classification = "baking chocolate" };
+            var bakingCocoa = new Ingredient("Unsweetened Cocoa") { ingredientId = 2, recipeId = 1, measurement = "1 cup", sellingWeight = "16 oz", typeOfIngredient = "baking cocoa", classification = "baking chocolate" };
+            var milk = new Ingredient("Whole Milk") { ingredientId = 3, recipeId = 1, measurement = "2 cups", sellingWeight = "1/2 gallon", sellingPrice = 1.79m, typeOfIngredient = "milk", classification = "dairy" };
+            var chocolateCakeIngredients = new List<Ingredient>() { chocolateChips, bakingCocoa, milk };
+            t.initializeDatabase();
+            t.insertListOfIngredientsIntoAllTables(chocolateCakeIngredients, chocolateCake);
+            var myIngredientBox = t.myIngredientBox();
+            Assert.AreEqual("Semi Sweet Chocolate Chips", myIngredientBox[0].name);
+            Assert.AreEqual("Unsweetened Cocoa", myIngredientBox[1].name);
+            Assert.AreEqual("Whole Milk", myIngredientBox[2].name);
+        }
+        [Test]
+        public void TestSortingListOfINgredients2() {
+            var t = new DatabaseAccess();
+            var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 12 };
+            var chocolateChips = new Ingredient("Semi Sweet Chocolate Chips") { ingredientId = 1, recipeId = 1, measurement = "2 cups", sellingWeight = "12 oz", typeOfIngredient = "chocolate chips", classification = "baking chocolate" };
+            var bakingCocoa = new Ingredient("Unsweetened Cocoa") { ingredientId = 2, recipeId = 1, measurement = "1 cup", sellingWeight = "16 oz", typeOfIngredient = "baking cocoa", classification = "baking chocolate" };
+            var milk = new Ingredient("Whole Milk") { ingredientId = 3, recipeId = 1, measurement = "2 cups", sellingWeight = "1/2 gallon", sellingPrice = 1.79m, typeOfIngredient = "milk", classification = "dairy" };
+            var eggs = new Ingredient("Eggs") { ingredientId = 4, recipeId = 1, measurement = "2 eggs", sellingWeight = "1 dozen", sellingPrice = 2.50m, typeOfIngredient = "eggs", classification = "eggs" };
+            var salt = new Ingredient("Salt") { ingredientId = 5, recipeId = 1, measurement = "1 teapsoon", sellingWeight = "48 oz", typeOfIngredient = "salt", classification = "salt" };
+            var bakingPowder = new Ingredient("Baking Powder") { ingredientId = 6, recipeId = 1, measurement = "2 teaspoons", sellingWeight = "10 oz", typeOfIngredient = "baking powder", classification = "rising agent" }; 
+            var chocolateCakeIngredients = new List<Ingredient>() {chocolateChips, bakingCocoa, milk, eggs, salt, bakingPowder };
+            t.initializeDatabase();
+            t.insertListOfIngredientsIntoAllTables(chocolateCakeIngredients, chocolateCake);
+            var myIngredientBox = t.myIngredientBoxSorted();
+            Assert.AreEqual("Baking Powder", myIngredientBox[0].name);
+            Assert.AreEqual("Eggs", myIngredientBox[1].name);
+            Assert.AreEqual("Salt", myIngredientBox[2].name); 
+            Assert.AreEqual("Semi Sweet Chocolate Chips", myIngredientBox[3].name);
+            Assert.AreEqual("Unsweetened Cocoa", myIngredientBox[4].name);
+            Assert.AreEqual("Whole Milk", myIngredientBox[5].name);
+        }
+        [Test]
+        public void TestSortingListOfStrings() {
+            var t = new DatabaseAccess();
+            var expected = new List<string> { "b", "g", "c", "f", "a", "r" };
+            var actual = new List<string> { "a", "b", "c", "f", "g", "r" };
+            expected.Sort();//ok, so this is working as I planned... 
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestSortingListOfIngredients3() {
+            var t = new DatabaseAccess(); 
+            var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 12 };
+            var chocolateChips = new Ingredient("Semi Sweet Chocolate Chips") { ingredientId = 1, recipeId = 1, measurement = "2 cups", sellingWeight = "12 oz", typeOfIngredient = "chocolate chips", classification = "baking chocolate" };
+            var bakingCocoa = new Ingredient("Unsweetened Cocoa") { ingredientId = 2, recipeId = 1, measurement = "1 cup", sellingWeight = "16 oz", typeOfIngredient = "baking cocoa", classification = "baking chocolate" };
+            var milk = new Ingredient("Whole Milk") { ingredientId = 3, recipeId = 1, measurement = "2 cups", sellingWeight = "1/2 gallon", sellingPrice = 1.79m, typeOfIngredient = "milk", classification = "dairy" };
+            var eggs = new Ingredient("Eggs") { ingredientId = 4, recipeId = 1, measurement = "2 eggs", sellingWeight = "1 dozen", sellingPrice = 2.50m, typeOfIngredient = "eggs", classification = "eggs" };
+            var salt = new Ingredient("Salt") { ingredientId = 5, recipeId = 1, measurement = "1 teapsoon", sellingWeight = "48 oz", typeOfIngredient = "salt", classification = "salt" };
+            var bakingPowder = new Ingredient("Baking Powder") { ingredientId = 6, recipeId = 1, measurement = "2 teaspoons", sellingWeight = "10 0z", typeOfIngredient = "baking powder", classification = "rising agent" }; 
+            var chocolateCakeIngredients = new List<Ingredient>() {eggs, salt, bakingPowder, chocolateChips, bakingCocoa, milk };
+            t.initializeDatabase();
+            t.insertListOfIngredientsIntoAllTables(chocolateCakeIngredients, chocolateCake);
+            var myIngredientBox = t.myIngredientBox();
+            myIngredientBox.OrderBy(x => x.name); 
+            Assert.AreEqual("Baking Powder", myIngredientBox[0].name);
+            Assert.AreEqual("Eggs", myIngredientBox[1].name);
+            Assert.AreEqual("Salt", myIngredientBox[2].name); 
+            Assert.AreEqual("Semi Sweet Chocolate Chips", myIngredientBox[3].name);
+            Assert.AreEqual("Unsweetened Cocoa", myIngredientBox[4].name);
+            Assert.AreEqual("Whole Milk", myIngredientBox[5].name);
         }
     }
 }

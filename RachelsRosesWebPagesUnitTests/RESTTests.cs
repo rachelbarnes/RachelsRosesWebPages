@@ -405,5 +405,68 @@ namespace RachelsRosesWebPagesUnitTests {
             var actual = t.returnIngredientDensityFromDensityTable(breadFlour);
             Assert.AreEqual(expected, actual); 
         }
+        [Test]
+        public void TestListOfItemResponsesNoWeight() {
+            var rest = new MakeRESTCalls();
+            var i = new Ingredient("Bread Flour"); 
+            var expected = new List<Ingredient>();
+            var actual = rest.GetListItemResponseNoSellingWeights(i);
+            Assert.AreEqual(expected, actual); //this is just to make sure actual is giving me what i want... it is
+        }
+        [Test]
+        public void TestListOfItemResponsesNoWeightVanillaExtract() {
+            var rest =new MakeRESTCalls();
+            var i = new Ingredient("vanilla extract");
+            var expected = new List<Ingredient>();
+            var actual = rest.GetListItemResponseNoSellingWeights(i);
+            Assert.AreEqual(expected, actual); 
+            //ok, this one is passing, but i don't want it to, i have to test capitalization
+        }
+        [Test]
+        public void TestListOfItemResponsesNoWeightVanillaExtractFirstLetterCapitalized() {
+            var rest = new MakeRESTCalls();
+            var i = new Ingredient("Vanilla Extract");
+            var expected = new List<Ingredient>();
+            var actual = rest.GetListItemResponseNoSellingWeights(i);
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestCapitalizingWords() {
+            var rest = new MakeRESTCalls();
+            var expected = "Vanilla";
+            var actual = rest.CapitalizeString("vanilla");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestCapitalizingWords2() {
+            var rest = new MakeRESTCalls();
+            var expected = "All Purpose Unbleached Flour";
+            var actual = rest.CapitalizeString("all purpose unbleached flour");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestCapitalizingWords3() {
+            var rest = new MakeRESTCalls();
+            var expected = "I'm Just Trying To Make Something Longer To Make Sure I'm Not Going To Get Something Unexpected In My Code";
+            var actual = rest.CapitalizeString("I'm just trying to make something longer to make sure i'm not going to get something unexpected in my code");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestCapitliazingWordsWithHyphens() {
+            var rest = new MakeRESTCalls();
+            var expected = "All-Purpose Flour";
+            var actual = rest.CapitalizeString("All-purpose flour");
+            Assert.AreEqual(expected, actual); 
+        }
+        [Test]
+        public void TestParseItemResponseToIngredient() {
+            var rest = new MakeRESTCalls();
+            var expected = new Ingredient("Pillsbury Bread Flour") { sellingWeight = "5 lb", sellingPrice = 2.64m };
+            var itemResponse = new ItemResponse() { name = "Pillsbury Bread Flour 5 lb", salePrice = 2.64m };
+            var actual = rest.SplitItemResponseName(itemResponse);
+            Assert.AreEqual(expected.name, actual.name);
+            Assert.AreEqual(expected.sellingPrice, actual.sellingPrice);
+            Assert.AreEqual(expected.sellingWeight, actual.sellingWeight); 
+        }
     }
 }

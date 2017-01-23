@@ -1,79 +1,70 @@
-﻿
-@*@{
-    ViewBag.Title = "My Recipe";
-}*@
-@section
-<a href="/home/recipe?name=@ViewBag.currentrecipe.name">Go back to @ViewBag.currentrecipe.name</a>
+﻿<style>
+    h4{
+        color: cadetblue; 
+    }
+    h5{
+        color: teal; 
+    }
+</style>
+@{ 
+    var RoundedPricePerOunce= Math.Round(ViewBag.currentingredient.pricePerOunce, 3); 
+}
 <br />
 <h4>@ViewBag.currentingredient.measurement : @ViewBag.currentingredient.name</h4>
 <h5>Price of Measured Consumption: $ @ViewBag.currentingredient.priceOfMeasuredConsumption</h5>
 <br />
-<h4>Edit @ViewBag.currentingredient.name</h4>
+<h4>Edit @ViewBag.currentingredient.name Information</h4>
 <form action="/home/EditIng" method="post">
     @*this method works without putting the parameters here too... looking specifically at line 32 of this commit*@
-    <h5><b>Edit Name: </b></h5>
-    <input name="updatedName" />
+    <h5>Name: @ViewBag.currentingredient.name</h5>
+
+    <input name="updatedName" placeholder="@ViewBag.currentingredient.name"/>
     <input type="submit" value="Update Name" />
-    <br />
-    <h5><b>Edit Measurement: </b></h5>
-    <input name="updatedMeasurement" />
+    <h5>Measurement: @ViewBag.currentingredient.measurement</h5>
+    <input name="updatedMeasurement" placeholder="@ViewBag.currentingredient.measurement"/>
     <input type="submit" value="Update Measurement" />
-    <br />
-    <h5>
-        <b>Edit Type of Ingredient: </b>
-        <br />(this may affect the automated density)
-    </h5>
-    <input name="updatedType" />
-    <input type="submit" value="Update Type" />
-    <br />
-    <h5>
-        <b>Edit Density: </b>
-        <br />(this may will overwrite the automated density)
-    </h5>
-    <input name="updatedDensity" />
+    <h5>Density: @ViewBag.currentingredient.density</h5>
+    <input name="updatedDensity" placeholder="@ViewBag.currentingredient.density"/>
     <input type="submit" value="Update Density" />
-    <br />
-    <h5>
-        <b>Edit Selling Weight:</b>
-        <br />(this will change the price gotten from the walmart database)
-    </h5>
-    <input name="updateSellingWeight" />
+    <h5>Selling Weight: @ViewBag.currentingredient.sellingWeight</h5>
+    <input name="updateSellingWeight" placeholder="@ViewBag.currentingredient.sellingWeight"/>
     <input type="submit" value="Update Selling Weight" />
-    <br />
-    <h5><b>Edit Selling Price: </b></h5>
-    <input name="updatedSellingPrice" />
+    <h5>Selling Price: $ @ViewBag.currentingredient.sellingPrice (Price Per Ounce: $ @RoundedPricePerOunce)</h5>
+    <input name="updatedSellingPrice" placeholder="@ViewBag.currentingredient.sellingPrice" />
     <input type="submit" value="Update Selling Price" />
-    <br />
-    <h5><b>Edit Ingredient Classification</b></h5>
-    <input name="updatedClassification" />
+    @*<h5>Price Per Ounce $ @ViewBag.currentingredient.pricePerOunce</h5>*@
+    <h5>Type: @ViewBag.currentingredient.typeOfIngredient</h5>
+    <input name="updatedType" placeholder="@ViewBag.currentingredient.typeOfIngredient"/>
+    <input type="submit" value="Update Type" />
+    <h5>Classification: @ViewBag.currentingredient.classification</h5>
+    <input name="updatedClassification" placeholder="@ViewBag.currentingredient.classification" />
     <input type="submit" value="Update Ingredient Classification" />
-    <br />
 </form>
 <form action="/home/ResetSellingPrice" method="post">
     @*<h5><b>Reset Selling Price: </b></h5>*@
     <input type="submit" value="Reset Selling Price" />
 </form>
 <br />
-<br />
-<h5><b>Update your ingredient Information:</b></h5>
-<p>Selling Price: $@ViewBag.currentingredient.sellingPrice</p>
-<p>Price of Measured Consumption: $@ViewBag.currentingredient.priceOfMeasuredConsumption</p>
-<p>Ounces Consumed: @ViewBag.currentingredient.ouncesConsumed</p>
-<p>Ounces Remaining in your Pantry: @ViewBag.currentingredient.ouncesRemaining</p>
-<p>Ingredient Type: @ViewBag.currentingredient.typeOfIngredient</p>
-<p>Classification: @ViewBag.currentingredient.classification</p>
-<p>Density: @ViewBag.currentingredient.density</p>
 
-<h5><b>Autopopulate selling weight, selling price, price of measured consumption</b></h5>
+<h4>List of Item Responses:</h4>
 <ul>
     @foreach (var itemresponse in @ViewBag.currentitemresponselist) {
         <li>
             <p>@itemresponse.name : @itemresponse.salePrice</p>
-
+            @*I want to auto populate ingredients if I choose another item response, which means i need an item reponse parser (separate price, name, selling weight are generally the ones that i would have to worry about)
+                        another thing that i would liek to diwht it is involve the packs... most people who this is for will be buying in bulk, so accomodate them... if you see packs, associate the number with it(let the user change it based on what's given, so just do another form)
+                        but don't not include those if i don't have to *@
         </li>
     }
 </ul>
-
+<h4>Other Item Responses (including other selling weighs)</h4>
+<ul>
+    @foreach (var itemresponse in ViewBag.currentitemresponselistnoweight) {
+        <li>
+            <p>@itemresponse.name : @itemresponse.salePrice</p>
+        </li>
+    }
+</ul>
 @*Need to:
     when i click to view the details of an ingredient, i'm met with an error where it ry to convert the weight to ounces...
         i need to debug and see what's happening.

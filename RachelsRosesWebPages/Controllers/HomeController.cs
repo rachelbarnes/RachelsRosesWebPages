@@ -14,7 +14,7 @@ namespace RachelsRosesWebPages.Controllers {
         public static void RegisterRoutes(RouteCollection routes) {
             routes.MapRoute(
                 "Default",
-                "home/recipes?name=" + currentRecipe.name); 
+                "home/recipes?name=" + currentRecipe.name);
         }
         public List<Recipe> getRecipes() {
             var db = new DatabaseAccess();
@@ -27,6 +27,7 @@ namespace RachelsRosesWebPages.Controllers {
             return View();
         }
         public ActionResult Recipe(string name) {
+            var rest = new MakeRESTCalls();
             var t = new DatabaseAccess();
             if (string.IsNullOrEmpty(name))
                 return Redirect("/home/RecipeBox");
@@ -35,11 +36,30 @@ namespace RachelsRosesWebPages.Controllers {
             currentRecipe = myDatabaseRecipe;
             ViewBag.currentingredient = currentIngredient;
             ViewBag.currentingredienttable = t.getListOfDistintIngredients();
-            ViewBag.distinctsellingweights = t.getListOfDistinctSellingWeights(); 
+            ViewBag.distinctsellingweights = t.getListOfDistinctSellingWeights();
             ViewBag.currentrecipe = currentRecipe;
             ViewBag.recipeboxcount = getRecipes().Count();
-            ViewBag.distinctingredienttypes = t.getListOfIngredientTypesFromDensityTable(); 
+            ViewBag.distinctingredienttypes = t.getListOfIngredientTypesFromDensityTable();
+            if (!string.IsNullOrEmpty(currentIngredient.name)) {
+                if (string.IsNullOrEmpty(currentIngredient.measurement))
+                    ViewBag.itemresponselist = rest.GetListItemResponseNoSellingWeights(currentIngredient);
+                else {
+                    ViewBag.itemresponselist = rest.GetListItemResponses(currentIngredient);
+                    ViewBag.itemresponselistcombined = rest.CombineItemResponses(currentIngredient);
+                }
+            } else {
+                ViewBag.itemresponselist = new List<ItemResponse>();
+                ViewBag.itemresponselistNoWeight = new List<ItemResponse>();
+            }
+            //ViewBag.currentingredient = rest.SplitItemResponseName(currentItemResponse); 
             return View();
+            /*
+            foreach of these item responses in the list of item responses i think it would be wise to have an 
+            algorithm to filter out the top 2 prices (or put them at the end of the list and gray them out so they're visible but not prominent...
+            there's a product of 6 5 lb bags of king arthur organic unbleached flour, but in the itemr esponse name, it doesn't give any packs... 
+            
+            this is walmart's faulty naming system for this, but i would prefere to still be able to side step around this
+            */
         }
         public ActionResult Ingredient(string name, string measurement) {
             var rest = new MakeRESTCalls();
@@ -54,6 +74,7 @@ namespace RachelsRosesWebPages.Controllers {
             ViewBag.currentrecipe = currentRecipe;
             ViewBag.currentingredient = currentIngredient;
             ViewBag.currentitemresponselist = rest.GetListItemResponses(currentIngredient);
+            ViewBag.currentitemresponselistnoweight = rest.GetListItemResponseNoSellingWeights(currentIngredient);
             return View();
         }
         public ActionResult EditIng(string updatedName, string updatedMeasurement, string updatedType, string updatedDensity, string updatedSellingWeight, string updatedSellingPrice, string updatedClassification) {
@@ -108,12 +129,13 @@ namespace RachelsRosesWebPages.Controllers {
             measurement = measurement.Trim();
             if (string.IsNullOrEmpty(classification))
                 classification = " ";
-            else classification = classification.Trim(); 
+            else classification = classification.Trim();
             if (string.IsNullOrEmpty(type))
-                type = " "; 
+                type = " ";
             else type = type.Trim();
             sellingweight = sellingweight.Trim();
-            sellingprice = sellingprice.Trim();
+            if (sellingprice != null)
+                sellingprice = sellingprice.Trim();
             var newIngredient = new Ingredient();
             if ((!(string.IsNullOrEmpty(ingredient)) && !(string.IsNullOrEmpty(measurement)))) {// && (!(string.IsNullOrEmpty(classification)) && !(string.IsNullOrEmpty(type)))) {
                 newIngredient.name = ingredient;
@@ -123,14 +145,53 @@ namespace RachelsRosesWebPages.Controllers {
                 newIngredient.recipeId = currentRecipe.id;
                 newIngredient.sellingWeight = sellingweight;
                 if (!string.IsNullOrEmpty(sellingweight))
-                if (!string.IsNullOrEmpty(sellingprice))
-                    newIngredient.sellingPrice = decimal.Parse(sellingprice);
+                    if (!string.IsNullOrEmpty(sellingprice))
+                        newIngredient.sellingPrice = decimal.Parse(sellingprice);
                 currentRecipe.ingredients.Add(newIngredient);
                 currentIngredient = newIngredient;
                 //db.insertIngredient(currentIngredient, currentRecipe);
-                db.insertIngredientIntoAllTables(currentIngredient, currentRecipe); 
+                db.insertIngredientIntoAllTables(currentIngredient, currentRecipe);
             }
             return Redirect("/home/recipe?name=" + currentRecipe.name);
+        }
+        public ActionResult assignCurrentIngredientNameForSearching(string ingredientName) {
+            //when i know that assignign this to the current ingredient won't impact things negatively, then i'll go from there and work with this as the current ingredient... 
+            var rest = new MakeRESTCalls();
+            currentIngredient = new Ingredient(rest.CapitalizeString(ingredientName));
+            return Redirect(string.Format("/home/recipe?name={0}", currentRecipe.name));
+        }
+        //public ActionResult SearchForIngredient(string ingredientName) {
+        //    var rest = new MakeRESTCalls();
+
+        //    //my question here is to get the current ingredient to search for this (and then eventually get that to be the one that i get a bunch of searches for, and then autopopulate the fields based on an itemresponsename parser (so distinguishing the weight and the name and if there are any packs (if there are packs then just multiply them as needed)
+        //    //i could do a form, and just assign the current ingredient (or the temporary current ingredient based off of that form...)
+        //}
+        public Ingredient ReturnCurrentIngredientFromQueriedItemResponse(string itemresponsename, string itemresponsesaleprice) {
+            var rest = new MakeRESTCalls();
+            var currentItemResponse = new ItemResponse();
+            currentItemResponse.name = itemresponsename;
+            currentItemResponse.salePrice = decimal.Parse(itemresponsesaleprice);
+            currentIngredient = rest.SplitItemResponseName(currentItemResponse);
+            return currentIngredient;
+            //now i want to autopopuate the fields of name, density, selling price, selling weight...
+            //i can give an attempt of guessing type by seeing if it matches any types... after all it's not final if i can put it as the placeholder or if
+            //for now, we can just do placeholders... 
+        }
+        public Ingredient AutopopulateCurrentIngredientFieldsIngredientFromQueriedItemResponse(Ingredient i) {
+            var db = new DatabaseAccess();
+            var densityInfoTable = db.queryDensityInfoTable(); 
+            foreach (var ingredientEntry in densityInfoTable) {
+                if (currentIngredient.name.ToLower().Contains(ingredientEntry.ToString())) {
+                    //if currentingredient.name (item response) contains the ingredient type (eg, bread flour, vanilla extract, etc.)
+                    currentIngredient.typeOfIngredient = ingredientEntry.name;
+                    break;
+                }
+            }
+            //need to do get calculate selling weight in ounces? what's the best way to do this? I don't want to etner something in the database without confirming that they want to add the ingredient... i want to get the best way to do this...
+
+            
+
+
         }
         public ActionResult CreateRecipe(string recipeTitle) {
             recipeTitle = recipeTitle.Trim();
@@ -186,14 +247,14 @@ namespace RachelsRosesWebPages.Controllers {
         public ActionResult InitializeDatabase() {
             var db = new DatabaseAccess();
             db.initializeDatabase();
-            return Redirect("/home/recipeBox"); 
+            return Redirect("/home/recipeBox");
         }
         public ActionResult IngredientBox() {
             var db = new DatabaseAccess();
             var myIngredientBox = db.queryIngredients();
-            ViewBag.ingredientbox = myIngredientBox; 
-            ViewBag.fullingredientbox = db.queryAllTablesForAllIngredients(myIngredientBox); 
-            return View(); 
+            ViewBag.ingredientbox = myIngredientBox;
+            ViewBag.fullingredientbox = db.queryAllTablesForAllIngredients(myIngredientBox);
+            return View();
         }
         public ActionResult DensityTable() {
             return View();
@@ -210,7 +271,7 @@ namespace RachelsRosesWebPages.Controllers {
         public ActionResult ReadMeInformation() {
             //there's some quirks, like needing to put in the type of ingredient and the classification that will be really helpful to someone new coming in, 
             //this needs to happen 
-            return View(); 
+            return View();
         }
     }
 }

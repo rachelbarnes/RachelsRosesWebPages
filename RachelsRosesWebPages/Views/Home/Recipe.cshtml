@@ -2,33 +2,42 @@
     ViewBag.Title = "My Recipe";
 }
 <style>
-table {
-    /*font-family: arial, sans-serif;*/ 
-    border-collapse: collapse;
-    width: 100%; 
-}
-th{
-    color:cadetblue; 
-}
-th, td, tr {
-    text-align: center; 
-}
-td, th { 
-    border: 1px solid #ededed; 
-    padding: 8px; 
-}
-tr:nth-child(even) {
-    background-color: linen; 
-}
-select {
-    width: 300px; 
-}
+    table {
+        /*font-family: arial, sans-serif;*/
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th {
+        color: cadetblue;
+    }
+
+    th, td, tr {
+        text-align: center;
+    }
+
+    td, th {
+        border: 1px solid #ededed;
+        padding: 8px;
+    }
+
+    .right-align {
+        text-align: right;
+    }
+
+    tr:nth-child(even) {
+        background-color: linen;
+    }
+
+    select {
+        width: 300px;
+    }
 </style>
 <h6><a href="/home/RecipeBox">Go back to your recipe box</a></h6>
 <h6><a href="/home/IngredientBox">Go to your ingredient box</a></h6>
 <h4>Recipe: @ViewBag.currentrecipe.name</h4>
 <h5>Yield: @ViewBag.currentrecipe.yield</h5>
-<form @*I want to make this one smaller, maybe 50px?*@action="/home/AdjustYield" method="post">
+<form @*I want to make this one smaller, maybe 50px?*@ action="/home/AdjustYield" method="post">
     <input name="updatedYield" placeholder="Desired Yield" />
     <input type="submit" value="Change" />
 </form>
@@ -46,22 +55,40 @@ select {
         <tr>
             <td><a href="/home/deleteIngredient?name=@ingredient.name">Delete</a></td>
             <td>@ingredient.ingredientId</td>
-            <td>@ingredient.name</td>
+            <td><a href="/home/ingredient?name=@ingredient.name&measurement=@ingredient.measurement">@ingredient.name</a></td>
             <td>@ingredient.measurement</td>
             <td>$@ingredient.priceOfMeasuredConsumption</td>
         </tr>
     }
+    <tr>
+        <td></td>
+        <td> </td>
+        <td></td>
+        <td class="right-align">Total Price:</td>
+        <td>$@ViewBag.currentrecipe.aggregatedPrice</td>
+    </tr>
 </table>
 <h5><b>Add an ingredient to this recipe</b></h5>
+<h5>Select from this list or create your own ingredient:</h5>
+<form action="/home/assignCurrentIngredientNameForSearching" method="post">
+    <input name="ingredientName" placeholder="Search for ingredient" />
+    <input type="submit" value="Search" />
+</form>
+<ul>
+    @foreach (var itemresponse in ViewBag.itemresponselist) {
+        <li>
+            <a href="/home/ReturnCurrentIngredientFromQueriedItemResponse?itemresponsename=@itemresponse.name&itemresponsesaleprice=@itemresponse.salePrice">@itemresponse.name : $ @itemresponse.salePrice</a>
+            @*@itemresponse.name : $ @itemresponse.salePrice*@
+        </li>
+    }
+</ul>
 <form action="/home/createingredient" mehtod="post">
     <h6><b>Ingredient Name:</b></h6>
     <input name="ingredient" placeholder="Name" />
     <select name="chooseingredient">
         @foreach (var ingredient in ViewBag.currentingredienttable) {
             <option value="@ingredient.name">@ingredient.name</option>
-            //what to do next: do the pages for the other views... print out all the ingredients and have a view for mypantry
         }
-       
     </select>
     <br />
     <h6><b>Ingredient Measurement: </b></h6>
@@ -95,5 +122,5 @@ select {
             <option value="@ingredient.classification">@ingredient.classification</option>
         }
     </select>
-    <input  type="submit" value="Add" />
+    <input type="submit" value="Add" />
 </form>

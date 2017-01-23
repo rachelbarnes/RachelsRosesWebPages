@@ -241,6 +241,7 @@ namespace RachelsRosesWebPages.Models {
         public void UpdateRecipeYield(Recipe r) {
             var convert = new ConvertMeasurement();
             var myRecipeBox = MyRecipeBox();
+            //var home = new HomeController(); 
             foreach (var recipe in myRecipeBox) {
                 var myIngredients = queryAllTablesForAllIngredients(recipe.ingredients);
                 var tempIngredient = new Ingredient();
@@ -250,7 +251,7 @@ namespace RachelsRosesWebPages.Models {
                         if (tempIngredient.density == 0)
                             tempIngredient.density = returnIngredientDensityFromDensityTable(ingredient);
                         tempIngredient.measurement = convert.AdjustIngredientMeasurement(ingredient.measurement, recipe.yield, r.yield);
-                        tempIngredient.ouncesConsumed = ingredient.ouncesConsumed * (recipe.yield / r.yield);
+                        tempIngredient.ouncesConsumed = ingredient.ouncesConsumed * (HomeController.currentRecipe.yield / r.yield);
                         updateAllTables(tempIngredient, r);
                         var myUpdatedIngredient = queryAllTablesForIngredient(tempIngredient);
                     }
@@ -369,6 +370,22 @@ namespace RachelsRosesWebPages.Models {
                 queriedListOfIngredients.Add(queryAllTablesForIngredient(ingredient));
             return queriedListOfIngredients;
         }
+        public List<Ingredient> myIngredientBox() {
+            var ingredientBox = new List<Ingredient>(); 
+            var queriedIngredients = queryIngredients();
+            foreach (var ingredient in queriedIngredients)
+                ingredientBox.Add(queryAllTablesForIngredient(ingredient));
+            return ingredientBox; 
+        }
+        public List<Ingredient> myIngredientBoxSorted() {
+            var ingredientBox = new List<Ingredient>(); 
+            var queriedIngredients = queryIngredients();
+            foreach (var ingredient in queriedIngredients)
+                ingredientBox.Add(queryAllTablesForIngredient(ingredient));
+            ingredientBox.OrderBy(x => x.name); 
+            //this is not sorting my ingredients  by name... not sure why. look into this more, this is pretty low level of importance
+            return ingredientBox; 
+        }
         public void insertIngredient(Ingredient i, Recipe r) {
             if (i.sellingPrice == 0m && (!i.classification.ToLower().Contains("dairy")) || (!i.classification.ToLower().Contains("egg"))) {
                 myItemResponse = returnItemResponse(i);
@@ -385,6 +402,10 @@ namespace RachelsRosesWebPages.Models {
                 i.classification = " ";
             if (i.expirationDate == null)
                 i.expirationDate = new DateTime();
+            var expirationDateString = convertDateToStringMMDDYYYY(i.expirationDate);
+            if ((i.classification.ToLower() == "dairy" || i.classification.ToLower() == "egg" || i.classification.ToLower() == "eggs") && expirationDateString == "01/01/0000")
+                throw new Exception("Please enter an expiration date for dairy and egg items"); 
+                    //i know there's a more "profession" way to put in exceptions, but for the time being, this will do
             var commandText = "Insert into ingredients(recipe_id, name, measurement, price_measured_ingredient, item_id, ingredient_type, ingredient_classification, item_response_name, expiration_date) values (@rid, @name, @measurement, @price_measured_ingredient, @item_id, @ingredient_type, @ingredient_classification, @item_response_name, @expiration_date);";
             executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@rid", r.id);
@@ -545,6 +566,7 @@ namespace RachelsRosesWebPages.Models {
                     myUniqueIngredients.Add(queryAllTablesForIngredient(ingredient));
                 }
             }
+            myUniqueIngredients.Sort(); 
             return myUniqueIngredients;
         }
         public List<string> getListOfDistinctSellingWeights() {
@@ -554,6 +576,7 @@ namespace RachelsRosesWebPages.Models {
                 if (!myUniqueSellingWeights.Contains(ingredient.sellingWeight))
                     myUniqueSellingWeights.Add(ingredient.sellingWeight);
             }
+            myUniqueSellingWeights.Sort(); 
             return myUniqueSellingWeights;
         }
         public List<string> getListOfIngredientTypesFromDensityTable() {
@@ -563,7 +586,8 @@ namespace RachelsRosesWebPages.Models {
                 if (!myIngredientTypes.Contains(ingredient.name))
                     myIngredientTypes.Add(ingredient.name);
             }
-            return myIngredientTypes;
+            myIngredientTypes.Sort();
+            return myIngredientTypes; 
         }
 
 
@@ -668,6 +692,8 @@ namespace RachelsRosesWebPages.Models {
             if (i.classification.ToLower() == "egg" || i.classification.ToLower() == "eggs") {
                 i.sellingWeightInOunces = convert.NumberOfEggsFromSellingQuantity(i.sellingWeight);
             } else i.sellingWeightInOunces = convert.ConvertWeightToOunces(i.sellingWeight);
+            if (i.sellingWeightInOunces == 0m)
+                throw new Exception("Selling Weight In Ounces is 0; please check that your Selling Weight is an appopriate weight."); 
             i.pricePerOunce = Math.Round((i.sellingPrice / i.sellingWeightInOunces), 4);
             if (string.IsNullOrEmpty(i.classification))
                 i.classification = " ";

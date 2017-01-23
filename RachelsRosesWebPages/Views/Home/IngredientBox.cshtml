@@ -34,23 +34,22 @@
         <th>Type</th>
         <th>Classification</th>
         <th>Price Per Ounce</th>
-        @*<th>Selling Weight</th>*@
         <th>Selling Price</th>
     </tr>
     @foreach (var ingredient in ViewBag.fullingredientbox) {
         <tr>
             <td><a href="/home/deleteIngredient?name=@ingredient.name">Delete</a></td>
+            <th>@ingredient.ingredientId</th>
             <td>@ingredient.name</td>
             <td>@ingredient.measurement</td>
-            <td>@ingredient.priceOfMeasuredConsumption</td>
-            <td>@ingredient.ouncesConsumed</td>
-            <td>@ingredient.ouncesRemaining</td>
-            <td>@ingredient.density</td>
+            <td>$@ingredient.priceOfMeasuredConsumption</td>
+            <td>@ingredient.ouncesConsumed oz</td>
+            <td>$@ingredient.pricePerOunce</td>
+            <td>@ingredient.ouncesRemaining oz</td>
+            <td>@ingredient.density oz</td>
             <td>@ingredient.typeOfIngredient</td>
             <td>@ingredient.classification</td>
-            <td>@ingredient.pricePerOunce</td>
-            @*<td>@ingredient.sellingWeight</td>*@
-            <td>@ingredient.sellingPrice</td>
+            <td>$@ingredient.sellingPrice</td>
         </tr>
     }
 </table>
