@@ -1,14 +1,46 @@
-﻿
+﻿<style>
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th {
+        color: cadetblue;
+    }
+
+    th, td, tr {
+        text-align: center;
+    }
+
+    td, th {
+        border: 1px solid #ededed;
+        padding: 8px;
+    }
+
+    .right-align {
+        text-align: right;
+    }
+
+    tr:nth-child(even) {
+        background-color: linen;
+    }
+
+    select {
+        width: 300px;
+    }
+</style>
+@{
+    var count = 1;
+}
 @{
     ViewBag.Title = "Create Recipe";
 }
 <a href="/home/initializeDatabase">Reset Button</a>
 <h5>
-@if (ViewBag.recipeboxcount == 1) {
-    @:You currently have @ViewBag.recipeboxcount recipe in your Recipe Box. 
-}
-else {
-    @:You currently have @ViewBag.recipeboxcount recipes in your Recipe Box. 
+    @if (ViewBag.recipeboxcount == 1) {
+        @:You currently have @ViewBag.recipeboxcount recipe in your Recipe Box.
+} else {
+        @:You currently have @ViewBag.recipeboxcount recipes in your Recipe Box.
 }
 </h5>
 <h3>Add a recipe to your Recipe Box</h3>
@@ -19,18 +51,26 @@ else {
 </form>
 <h4>@ViewBag.ErrorMessage</h4>
 <br />
-<ol>
+<table>
+    <tr>
+        <th></th>
+        <th></th>
+        <th>Title</th>
+        <th>Yield</th>
+        <th>Total Price</th>
+        <th>Price Per Serving</th>
+    </tr>
     @foreach (var recipe in ViewBag.recipes) {
-        <li>
-            <p><a href="/home/recipe?name=@recipe.name">@recipe.name</a><br />
-            Recipe Yield: @recipe.yield<br />
-            Total Recipe Price: $@recipe.aggregatedPrice
-            <a href="/home/deleterecipe?recipeTitle=@recipe.name">Delete Recipe</a></p>
-            @*<br />*@
-        </li>
+        <tr>
+            <td><a href="/home/deleterecipe?recipeTitle=@recipe.name">Delete</a></td>
+            <td>@(count++)</td>
+            <td><a href="/home/recipe?name=@recipe.name">@recipe.name</a></td>
+            <td>@recipe.yield servings</td>
+            <td>$@recipe.aggregatedPrice</td>
+            <td>$@recipe.pricePerServing</td>
+        </tr>
     }
-</ol>
-
-@*the aggregated price ins't changing with the yield and neither are hte ingredients... something is happening with my method... 
+</table>
+@*the aggregated price ins't changing with the yield and neither are hte ingredients... something is happening with my method...
     it's all good. just gotta find out what, and then i'm much closer already. :)
-    *@
+*@

@@ -160,12 +160,6 @@ namespace RachelsRosesWebPages.Controllers {
             currentIngredient = new Ingredient(rest.CapitalizeString(ingredientName));
             return Redirect(string.Format("/home/recipe?name={0}", currentRecipe.name));
         }
-        //public ActionResult SearchForIngredient(string ingredientName) {
-        //    var rest = new MakeRESTCalls();
-
-        //    //my question here is to get the current ingredient to search for this (and then eventually get that to be the one that i get a bunch of searches for, and then autopopulate the fields based on an itemresponsename parser (so distinguishing the weight and the name and if there are any packs (if there are packs then just multiply them as needed)
-        //    //i could do a form, and just assign the current ingredient (or the temporary current ingredient based off of that form...)
-        //}
         public Ingredient ReturnCurrentIngredientFromQueriedItemResponse(string itemresponsename, string itemresponsesaleprice) {
             var rest = new MakeRESTCalls();
             var currentItemResponse = new ItemResponse();
@@ -177,22 +171,21 @@ namespace RachelsRosesWebPages.Controllers {
             //i can give an attempt of guessing type by seeing if it matches any types... after all it's not final if i can put it as the placeholder or if
             //for now, we can just do placeholders... 
         }
-        public Ingredient AutopopulateCurrentIngredientFieldsIngredientFromQueriedItemResponse(Ingredient i) {
-            var db = new DatabaseAccess();
-            var densityInfoTable = db.queryDensityInfoTable(); 
-            foreach (var ingredientEntry in densityInfoTable) {
-                if (currentIngredient.name.ToLower().Contains(ingredientEntry.ToString())) {
-                    //if currentingredient.name (item response) contains the ingredient type (eg, bread flour, vanilla extract, etc.)
-                    currentIngredient.typeOfIngredient = ingredientEntry.name;
-                    break;
-                }
-            }
-            //need to do get calculate selling weight in ounces? what's the best way to do this? I don't want to etner something in the database without confirming that they want to add the ingredient... i want to get the best way to do this...
-
-            
-
-
-        }
+        //public Ingredient AutopopulateCurrentIngredientFieldsIngredientFromQueriedItemResponse(Ingredient i) {
+        //    //now i have to 
+        //    var db = new DatabaseAccess();
+        //    var densityInfoTable = db.queryDensityInfoTable();
+        //    foreach (var ingredientEntry in densityInfoTable) {
+        //        if (currentIngredient.name.ToLower().Contains(ingredientEntry.ToString())) {
+        //            //if currentingredient.name (item response) contains the ingredient type (eg, bread flour, vanilla extract, etc.)
+        //            currentIngredient.typeOfIngredient = ingredientEntry.name;
+        //            currentIngredient.density = ingredientEntry.density;
+        //            break;
+        //        }
+        //    }
+        //    currentIngredient.sellingWeight = i.sellingWeight;
+        //    currentIngredient.sellingPrice = i.sellingPrice; 
+        //}
         public ActionResult CreateRecipe(string recipeTitle) {
             recipeTitle = recipeTitle.Trim();
             Recipe newrecipe = new Recipe(recipeTitle);

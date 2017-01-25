@@ -488,6 +488,7 @@ namespace RachelsRosesWebPages {
                     }
                 }
             }
+
             return splitWeight;
         }
         public decimal ConvertWeightToOunces(string weight) {

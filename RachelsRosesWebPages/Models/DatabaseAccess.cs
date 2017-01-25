@@ -566,7 +566,7 @@ namespace RachelsRosesWebPages.Models {
                     myUniqueIngredients.Add(queryAllTablesForIngredient(ingredient));
                 }
             }
-            myUniqueIngredients.Sort(); 
+            //myUniqueIngredients.Sort(); 
             return myUniqueIngredients;
         }
         public List<string> getListOfDistinctSellingWeights() {
