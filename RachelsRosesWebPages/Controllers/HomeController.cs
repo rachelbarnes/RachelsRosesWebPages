@@ -131,31 +131,27 @@ namespace RachelsRosesWebPages.Controllers {
                 classification = " ";
             else classification = classification.Trim();
             if (string.IsNullOrEmpty(type))
-                type = " ";
+                throw new Exception("No type was given.");
             else type = type.Trim();
             sellingweight = sellingweight.Trim();
-            if (sellingprice != null)
+            if (!string.IsNullOrEmpty(sellingprice))
                 sellingprice = sellingprice.Trim();
             var newIngredient = new Ingredient();
-            if ((!(string.IsNullOrEmpty(ingredient)) && !(string.IsNullOrEmpty(measurement)))) {// && (!(string.IsNullOrEmpty(classification)) && !(string.IsNullOrEmpty(type)))) {
+            if ((!(string.IsNullOrEmpty(ingredient)) && !(string.IsNullOrEmpty(measurement)))) {
                 newIngredient.name = ingredient;
                 newIngredient.measurement = measurement;
                 newIngredient.classification = classification;
                 newIngredient.typeOfIngredient = type;
                 newIngredient.recipeId = currentRecipe.id;
                 newIngredient.sellingWeight = sellingweight;
-                if (!string.IsNullOrEmpty(sellingweight))
-                    if (!string.IsNullOrEmpty(sellingprice))
-                        newIngredient.sellingPrice = decimal.Parse(sellingprice);
                 currentRecipe.ingredients.Add(newIngredient);
                 currentIngredient = newIngredient;
-                //db.insertIngredient(currentIngredient, currentRecipe);
                 db.insertIngredientIntoAllTables(currentIngredient, currentRecipe);
+                var newIngredientData = db.queryAllTablesForIngredient(currentIngredient); 
             }
             return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
         public ActionResult assignCurrentIngredientNameForSearching(string ingredientName) {
-            //when i know that assignign this to the current ingredient won't impact things negatively, then i'll go from there and work with this as the current ingredient... 
             var rest = new MakeRESTCalls();
             currentIngredient = new Ingredient(rest.CapitalizeString(ingredientName));
             return Redirect(string.Format("/home/recipe?name={0}", currentRecipe.name));
@@ -171,21 +167,15 @@ namespace RachelsRosesWebPages.Controllers {
             //i can give an attempt of guessing type by seeing if it matches any types... after all it's not final if i can put it as the placeholder or if
             //for now, we can just do placeholders... 
         }
-        //public Ingredient AutopopulateCurrentIngredientFieldsIngredientFromQueriedItemResponse(Ingredient i) {
-        //    //now i have to 
-        //    var db = new DatabaseAccess();
-        //    var densityInfoTable = db.queryDensityInfoTable();
-        //    foreach (var ingredientEntry in densityInfoTable) {
-        //        if (currentIngredient.name.ToLower().Contains(ingredientEntry.ToString())) {
-        //            //if currentingredient.name (item response) contains the ingredient type (eg, bread flour, vanilla extract, etc.)
-        //            currentIngredient.typeOfIngredient = ingredientEntry.name;
-        //            currentIngredient.density = ingredientEntry.density;
-        //            break;
-        //        }
-        //    }
-        //    currentIngredient.sellingWeight = i.sellingWeight;
-        //    currentIngredient.sellingPrice = i.sellingPrice; 
-        //}
+       
+        //so, if we're searching for something, it's not in our database... 
+            //it may share a type, but it's not in the database...
+            //so when i search for it, i can give the user what i think the name, the selling weigh, the selling price, type and classificatoin (i could provide a list of classifications too, similar to my density text database... 
+                //so, first give a list of the name, sellingweight, sellingprice, priceperounce, type, density, classification... 
+                //if the user confirms that the information is correct and gives the measurement, then i can add the ingredient (i should be able to call updatealltables... it should check to make sure i have if the ingredients table doesn't have this ingredient to insert the ingredient
+                //i should also have a form that allows hte user to create a short name for it (eg: instead of King Arthur Bread Flour, the short name can be Bread Flour that the user inputs...)
+
+            //let's get the other views working first...
         public ActionResult CreateRecipe(string recipeTitle) {
             recipeTitle = recipeTitle.Trim();
             Recipe newrecipe = new Recipe(recipeTitle);
@@ -225,17 +215,24 @@ namespace RachelsRosesWebPages.Controllers {
             t.UpdateRecipe(currentRecipe);
             return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
-        public ActionResult DeleteIngredient(string name) {
+        public ActionResult DeleteIngredient(string name,string measurement) {
             name = name.Trim();
             var db = new DatabaseAccess();
-            var myIngredientsTable = db.queryIngredients();
-            foreach (var ingredient in myIngredientsTable) {
-                if (ingredient.name == name) {
-                    db.DeleteIngredientFromAllRelevantTables(ingredient);
+            //foreach (var ingredient in myIngredientsTable) {
+            foreach (var ingredient in currentRecipe.ingredients) {  
+                if (ingredient.name == name && ingredient.measurement == measurement) {
+                    db.DeleteIngredientFromIngredientTable(ingredient);
+                    //i need to make sure this is deleting from the recipe too, otherwise i'll get an incorrect total price...
+                        //it should be, but i'd rather not be suprised by a bug 
                     break;
                 }
             }
+            //manual check:
+            var countRecipeIngredients = currentRecipe.ingredients.Count();
+            var myIngredientsTable = db.queryIngredients();
+            var countIngredientTable = myIngredientsTable.Count(); 
             return Redirect("/home/recipe?name=" + currentRecipe.name);
+            //ok... so the priceOfMeasuredConsumption isn't working, as well as ounces remaining and deleting the ingredient from the ingredient table...
         }
         public ActionResult InitializeDatabase() {
             var db = new DatabaseAccess();

@@ -22,7 +22,7 @@ namespace RachelsRosesWebPages {
         public string typeOfIngredient;
         public string classification;
         public string itemResponseName;
-        public bool restock; //1 = false, 0 = true
+        public int restock; //0 = false, 1 = true
         public DateTime expirationDate; 
         public Ingredient(string _name, string _measurement) {
             name = _name;
@@ -41,7 +41,7 @@ namespace RachelsRosesWebPages {
             typeOfIngredient = "";
             classification = ""; 
             itemResponseName = "";
-            restock = false; 
+            restock = 0; 
             expirationDate = new DateTime(); 
         }
         public Ingredient(string _name) {

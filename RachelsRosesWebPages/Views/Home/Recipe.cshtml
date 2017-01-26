@@ -53,7 +53,7 @@
     </tr>
     @foreach (var ingredient in ViewBag.currentrecipe.ingredients) {
         <tr>
-            <td><a href="/home/deleteIngredient?name=@ingredient.name">Delete</a></td>
+            <td><a href="/home/deleteIngredient?name=@ingredient.name&measurement=@ingredient.measurement">Delete</a></td>
             <td>@ingredient.ingredientId</td>
             <td><a href="/home/ingredient?name=@ingredient.name&measurement=@ingredient.measurement">@ingredient.name</a></td>
             <td>@ingredient.measurement</td>
@@ -69,20 +69,7 @@
     </tr>
 </table>
 <h5><b>Add an ingredient to this recipe</b></h5>
-<h5>Select from this list or create your own ingredient:</h5>
-<form action="/home/assignCurrentIngredientNameForSearching" method="post">
-    <input name="ingredientName" placeholder="Search for ingredient" />
-    <input type="submit" value="Search" />
-</form>
-<br />
-<ul>
-    @foreach (var itemresponse in ViewBag.itemresponselist) {
-        <li>
-            <a href="/home/ReturnCurrentIngredientFromQueriedItemResponse?itemresponsename=@itemresponse.name&itemresponsesaleprice=@itemresponse.salePrice">@itemresponse.name : $ @itemresponse.salePrice</a>
-            @*@itemresponse.name : $ @itemresponse.salePrice*@
-        </li>
-    }
-</ul>
+<h5>Create your own ingredient or search for an ingredient</h5>
 <form action="/home/createingredient" mehtod="post">
     <h6><b>Ingredient Name:</b></h6>
     <input name="ingredient" placeholder="Name" />
@@ -125,3 +112,17 @@
     </select>
     <input type="submit" value="Add" />
 </form>
+<br />
+<form action="/home/assignCurrentIngredientNameForSearching" method="post">
+    <input name="ingredientName" placeholder="Search for ingredient" />
+    <input type="submit" value="Search" />
+</form>
+<br />
+<ul>
+    @foreach (var itemresponse in ViewBag.itemresponselist) {
+        <li>
+            <a href="/home/ReturnCurrentIngredientFromQueriedItemResponse?itemresponsename=@itemresponse.name&itemresponsesaleprice=@itemresponse.salePrice">@itemresponse.name : $ @itemresponse.salePrice</a>
+            @*@itemresponse.name : $ @itemresponse.salePrice*@
+        </li>
+    }
+</ul>

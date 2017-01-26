@@ -14,6 +14,7 @@
 <h5>Price of Measured Consumption: $ @ViewBag.currentingredient.priceOfMeasuredConsumption</h5>
 <br />
 <h4>Edit @ViewBag.currentingredient.name Information</h4>
+<h5><a href="/home/DeleteIngredient?name=@ViewBag.currentingredient.name&measurement=@ViewBag.currentingredient.measurement">Delete ingredient from ingredient table</a></h5>
 <form action="/home/EditIng" method="post">
     @*this method works without putting the parameters here too... looking specifically at line 32 of this commit*@
     <h5>Name: @ViewBag.currentingredient.name</h5>
