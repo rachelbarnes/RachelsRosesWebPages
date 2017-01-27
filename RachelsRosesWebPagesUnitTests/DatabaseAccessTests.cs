@@ -14,7 +14,7 @@ namespace RachelsRosesWebPagesUnitTests {
         //some of these tests will not be passing based on rest calls... some of the prices will be different, even if they were passing before... 
         [Test]
         public void TestSeveralRecipes() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             t.initializeDatabase();
             var r = new Recipe("test") {
                 yield = 4
@@ -30,7 +30,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestIngredientTable() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var i = new Ingredient("all-purpose flour", "2 1/2 cups") {
                 recipeId = 1
             };
@@ -54,7 +54,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestDeleteRecipe() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Pecan Pie") {
                 yield = 8
             };
@@ -67,7 +67,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void CompileRecipeAndProperIngredients() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Pecan Pie") {
                 yield = 8
             };
@@ -94,7 +94,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestProperRecipeIds() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("White Cake");
             var r2 = new Recipe("Pecan Pie");
             var r3 = new Recipe("Cranberry Swirl Loaf");
@@ -109,7 +109,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestEditRecipeName() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("White Cake") {
                 id = 1
             };
@@ -124,7 +124,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestEditRecipeName2() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Buttermilk Bread") {
                 id = 1
             };
@@ -154,7 +154,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestEditRecipeName3() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Cranberry Swirl Bread") {
                 //as a note to self, assign this id with the identity insert (so make sure it's the next chronological id for the recipe in the initialized table
                 id = 1
@@ -169,7 +169,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestUpdateRecipe() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("My Favorite White Cake") {
                 id = 1
             };
@@ -185,7 +185,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestInsertIngredientToIngredientDatabase() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Cranberry Swirl Bread") {
                 id = 1
             };
@@ -227,7 +227,7 @@ namespace RachelsRosesWebPagesUnitTests {
         //}
         [Test]
         public void TestUpdatingIngredients() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Honey Buttermilk Bread");
             var i = new Ingredient("Flour", "6 cups") {
                 recipeId = 1,
@@ -248,7 +248,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestInsertingYield() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Honey Buttermilk Bread") {
                 id = 1,
                 yield = 0
@@ -291,7 +291,7 @@ namespace RachelsRosesWebPagesUnitTests {
         //}
         [Test]
         public void TestGetFullRecipe() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Honey Buttermilk Bread") {
                 id = 1,
                 yield = 24
@@ -322,7 +322,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestDensitiesDatabase() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var i = new Ingredient("King Arthur Bread Flour") {
                 ingredientId = 1,
                 density = 4.5m,
@@ -342,7 +342,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestDensitiesDatabase2() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var i = new Ingredient("Honey, raw") {
                 density = 12m,
                 sellingWeight = "32 ounces",
@@ -359,7 +359,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestUdateDensityDatabase() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var i = new Ingredient("Honey, raw") {
                 ingredientId = 1,
                 density = 8m,
@@ -379,7 +379,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestUpdateDensityDatabase2() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var i = new Ingredient("Butter") {
                 ingredientId = 1,
                 density = 8m,
@@ -397,7 +397,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestSellingWeightDataType() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var i = new Ingredient("Bread Flour") {
                 ingredientId = 1,
                 sellingWeightInOunces = 80m,
@@ -413,7 +413,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestUpdateDensityDatabase() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var i = new Ingredient("Bread Flour") {
                 ingredientId = 1,
                 sellingWeight = "5 lb"
@@ -427,7 +427,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestUpdatingSellingWeightInOunces() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var i = new Ingredient("Bread Flour") {
                 ingredientId = 1,
                 sellingWeight = "5 lbs"
@@ -441,7 +441,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestUpdatingSellingWeightInOunces2() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var i = new Ingredient("Cake Flour") {
                 ingredientId = 1,
                 sellingWeight = "32 ounces"
@@ -466,7 +466,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestUpdatingSellingPrice() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var i = new Ingredient("Bread Flour") {
                 ingredientId = 1,
                 sellingWeight = "5 lb"
@@ -479,7 +479,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestPricePerOunce() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var rest = new MakeRESTCalls();
             var i = new Ingredient("King Arthur Bread Flour") {
                 ingredientId = 1,
@@ -495,7 +495,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestUpdatingSellingPrice2() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var rest = new MakeRESTCalls();
             var i = new Ingredient("Bread Flour") {
                 ingredientId = 1,
@@ -539,7 +539,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void testInsertionIntoConsumptionDatabase() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var i = new Ingredient("Butter") {
                 ingredientId = 1,
                 density = 8m,
@@ -557,7 +557,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void testInsertionIntoConsumptionDatabase2() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Wholesome Whole Wheat Bread") {
                 id = 1
             };
@@ -597,7 +597,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestInsertIntoConsumtionTable() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var i = new Ingredient("King Arthur Bread Flour") {
                 ingredientId = 1,
                 measurement = "2 cups",
@@ -620,7 +620,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestUpdateConsumptionTable2() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var i = new Ingredient("Bread Flour") {
                 ingredientId = 1,
                 density = 4.5m,
@@ -638,7 +638,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestCalculatedOuncesUsedFromGivenMeasurments() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var i = new Ingredient("Grandulated Sugar") {
                 recipeId = 1,
                 ingredientId = 1,
@@ -662,7 +662,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestCalculatedOuncesConsumedFromMeasurmeent() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var i = new Ingredient("King Arthur Bread Flour") {
                 ingredientId = 1,
                 measurement = "6 cups",
@@ -681,7 +681,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestMeasuredIngredientPriceIngredientsTable() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var rest = new MakeRESTCalls();
             var r = new Recipe("Honey Buttermilk Bread") {
                 id = 1
@@ -704,7 +704,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestMeasuredIngredientPriceIngredientsTablew() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var rest = new MakeRESTCalls();
             var r = new Recipe("Wholesome Whole Wheat Bread") {
                 id = 1
@@ -727,7 +727,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestMeasuredIngredientPriceIngredientsTable2() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var rest = new MakeRESTCalls();
             var r = new Recipe("Wholesome Whole Wheat Bread") {
                 id = 1
@@ -777,7 +777,7 @@ namespace RachelsRosesWebPagesUnitTests {
         //something else that needs to happen is i need to be able to filter our itemrepsonse names that are causing out of range exceptions for my parsers. 
         [Test]
         public void TestInsertionIntoAllTables() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Honey Buttermilk Bread") {
                 id = 1
             };
@@ -801,7 +801,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestInsertionIntoAllTables2() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Honey Buttermilk Bread") {
                 id = 1
             };
@@ -821,7 +821,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestInsertionIntoTables3() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Sour Cream Chocolate Cake") {
                 id = 1
             };
@@ -843,7 +843,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestHersheysUnsweetenedCocoa() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Chocolate Something") {
                 id = 1
             };
@@ -865,7 +865,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestQueryAllTables() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Honey Buttermilk Bread") {
                 id = 1
             };
@@ -886,7 +886,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestMarshallowsPriceConsumed() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Rocky Road Brownies") {
                 id = 1
             };
@@ -909,7 +909,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestGettingAllIngredientFromAllTables() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Sour Cream Chocolate Cake") {
                 id = 1
             };
@@ -929,7 +929,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestAggregatedPriceInRecipesTable() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Sour Cream Chocolate Cake") {
                 id = 1,
                 aggregatedPrice = 4.53m
@@ -945,7 +945,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestAggregatedPriceInPrecipesTableUpdate() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Sour Cream Chocolate Cake") {
                 id = 1
             };
@@ -959,7 +959,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestAggregatedRecipeMeasurement() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Sour Cream Chocolate Cake") {
                 id = 1
             };
@@ -992,7 +992,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestQueryingListOfIngredients() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Chocolate Chip Cookies") {
                 id = 1
             };
@@ -1075,7 +1075,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestChocolateChips() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Chooalte Chip Cookies") { id = 1 };
             var i = new Ingredient("Semi Sweet Morsels") { ingredientId = 1, recipeId = 1, sellingWeight = "36 oz", density = 5.35m, measurement = "1 cup" };
             //6.98    1.04
@@ -1095,7 +1095,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestAggregatedChocolateChipRecipeConsumedPrice() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Chocolate Chip Cookies") {
                 id = 1
             };
@@ -1169,7 +1169,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestWinterCookiesInAJarPriceCostEvaluation() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var winterCookies = new Recipe("Winter Cranberry Cookies") {
                 id = 1
             };
@@ -1257,7 +1257,7 @@ namespace RachelsRosesWebPagesUnitTests {
 
         [Test]
         public void TestWinterCookiesInAJarPriceCostEvaluationWithOtherRecipeIngredient() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var winterCookies = new Recipe("Winter Cookies") {
                 id = 1
             };
@@ -1367,7 +1367,7 @@ namespace RachelsRosesWebPagesUnitTests {
         //still have to refactor and do tech debt on QueryAllTablesFroAllIngredients
         [Test]
         public void Test2Recipse() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var brownies = new Recipe("Brownies") {
                 id = 1
             };
@@ -1405,7 +1405,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void Test3Recipes() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var cinnamonSwirlBread = new Recipe("Cinnamon Swirl Bread") {
                 id = 1
             };
@@ -1555,7 +1555,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestColumnsFromCostTable() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("My Favorite Yellow Cake") {
                 id = 1
             };
@@ -1574,7 +1574,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestInsertFileIntoDensityDatabase() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var read = new Reader();
             //var filename = @"C:\Users\Rachel\Documents\Visual Studio 2015\Projects\RachelsRosesWebPages\RachelsRosesWebPages\densityTxtDatabase.txt";
             t.initializeDatabase();
@@ -1588,7 +1588,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestAssignDictionaryValuesToIngredientObjects() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var read = new Reader();
             var filename = @"C:\Users\Rachel\Documents\Visual Studio 2015\Projects\RachelsRosesWebPages\RachelsRosesWebPages\densityTxtDatabase.txt";
             t.initializeDatabase();
@@ -1600,7 +1600,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void testinsertingredientintodensityinfo() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var i = new Ingredient("all purpose flour") {
                 density = 5m
             };
@@ -1613,7 +1613,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestInsertListOfIngredientsIntoDensityInfo() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var i = new Ingredient("all purpose flour") { density = 5m };
             var i2 = new Ingredient("pastry flour") { density = 4.25m };
             var i3 = new Ingredient("vanilla extract") { density = 6.86m };
@@ -1631,7 +1631,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestUpdateDensityInfoTable() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var i = new Ingredient("all purpose flour");
             t.initializeDatabase();
             t.insertIngredientIntoDensityInfoDatabase(i);
@@ -1646,7 +1646,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestListOfIngredientsUpdateDensityInfoTable() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var i = new Ingredient("all purpose flour");
             var i2 = new Ingredient("pastry flour");
             var i3 = new Ingredient("vanilla extract");
@@ -1670,7 +1670,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestQueryAllIngredientsWithDensityCostTableAdded() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("something that takes all purpose flour") { id = 1 };
             var i = new Ingredient("all purpose flour") {
                 ingredientId = 1,
@@ -1686,7 +1686,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestQueryListOfIngredientsDensityCostTableAdded() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var cocnutMacaroons = new Recipe("Coconut Macaroons") { id = 1 };
             var i = new Ingredient("Baker's Coconut Flakes") {
                 recipeId = 1,
@@ -1720,7 +1720,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestQueryListOfFullRecipes() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var brownies = new Recipe("Brownies") {
                 id = 1
             };
@@ -1758,7 +1758,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestGetRecipeIngredients() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var brownies = new Recipe("Brownies") {
                 id = 1
             };
@@ -1793,7 +1793,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestReturnPriceOfMeasuredIngredient() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Bread") { id = 1 };
             var i = new Ingredient("King Arthur Bread Flour") { recipeId = 1, ingredientId = 1, measurement = "6 cups", sellingWeight = "5 lb", density = 5.4m };
             t.initializeDatabase();
@@ -1803,7 +1803,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestAggregatedPriceDifferenceInYield() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var winterCranberryCookies = new Recipe("Winter Cranberry Cookies") { id = 1, yield = 18 };
             var chocolateChips = new Ingredient("White Morsels") { recipeId = 1, ingredientId = 1, measurement = "1/2 cup", sellingWeight = "12 oz", typeOfIngredient = "chocolate chips" };
             var pecans = new Ingredient("Chopped Pecans") { recipeId = 1, ingredientId = 2, measurement = "1/2 cup", sellingWeight = "24 oz", typeOfIngredient = "pecans" };
@@ -1837,7 +1837,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestReturnDensityFromDensityTable() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("bread") { id = 1 };
             var i = new Ingredient("all purpose flour") {
                 recipeId = 1,
@@ -1854,7 +1854,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestReturnDensityFromDensityTable2() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("bread") { id = 1 };
             var i = new Ingredient("Salt") { recipeId = 1, ingredientId = 1, measurement = "1/2 teaspoon", sellingWeight = "48 oz" };
             t.initializeDatabase();
@@ -1865,7 +1865,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestReturnDensityFromDensityTable3() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("bread") { id = 1 };
             var i = new Ingredient("All Purpose Flour") { recipeId = 1, ingredientId = 1, measurement = "3 cups", sellingWeight = "5 lb" };
             t.initializeDatabase();
@@ -1876,7 +1876,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestChangeInPriceFromChangeInYield() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("bread") { id = 1, yield = 24 };
             var i = new Ingredient("All Purpose Flour") { recipeId = 1, ingredientId = 1, measurement = "6 cups", sellingWeight = "5 lb" };
             t.initializeDatabase();
@@ -1895,7 +1895,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestItemId() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("bread") { id = 1 };
             var i = new Ingredient("bread flour") { recipeId = 1, ingredientId = 1, measurement = "3 cups", sellingWeight = "5 lb" };
             t.initializeDatabase();
@@ -1907,7 +1907,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestItemId2() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("bread") { id = 1 };
             var i = new Ingredient("baking soda") { recipeId = 1, ingredientId = 1, sellingWeight = "4 lb", measurement = "1/2 teaspoon" };
             t.initializeDatabase();
@@ -1919,7 +1919,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestGetListOfItemResponses() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var rest = new MakeRESTCalls();
             var r = new Recipe("bread") { id = 1 };
             var i = new Ingredient("bread flour") { ingredientId = 1, recipeId = 1, measurement = "6 cups", sellingWeight = "5 lb" };
@@ -1934,7 +1934,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestUpdateRecipeYield() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("bread") { id = 1, yield = 18 };
             var i = new Ingredient("bread flour") { recipeId = 1, ingredientId = 1, measurement = "6 cups", sellingWeight = "5 lb" };
             t.initializeDatabase();
@@ -1956,7 +1956,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestUpatedRecipeYieldForMoreThanOneIngredientInARecipe() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 1, yield = 24 };
             var honey = new Ingredient("Honey") { recipeId = 1, ingredientId = 1, measurement = "1/3 cup", sellingWeight = "32 oz" };
             var salt = new Ingredient("Salt") { recipeId = 1, ingredientId = 2, measurement = "1 teaspoon", sellingWeight = "48 oz" };
@@ -1996,7 +1996,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void Test2RecipesAdjustYieldAndIngredients() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 1, yield = 24 };
             var cinnamonSwirlBread = new Recipe("Cinnamon Swirl Buttermilk Bread") { id = 2, yield = 18 };
             var honey = new Ingredient("Honey") { recipeId = 1, ingredientId = 1, measurement = "1/3 cup", sellingWeight = "32 oz", typeOfIngredient = "honey" };
@@ -2041,7 +2041,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestUpdateYieldForListOfRecipes() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 1, yield = 24 };
             var cinnamonSwirlBread = new Recipe("Cinnamon Swirl Buttermilk Bread") { id = 2, yield = 18 };
             var honey = new Ingredient("Honey") { recipeId = 1, ingredientId = 1, measurement = "1/3 cup", sellingWeight = "32 oz", typeOfIngredient = "honey" };
@@ -2087,7 +2087,7 @@ namespace RachelsRosesWebPagesUnitTests {
         [Test]
         public void TestChangeRecipeYield() {
             //this special dark baking cocoa is so picky!! I almost have to match the direct item response name... there's gotta be a better way to do this...
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var yellowCake = new Recipe("Golden Cake") { id = 1, yield = 12 };
             var marbleCake = new Recipe("Marble Cake") { id = 2, yield = 16 };
             var chocolateCake = new Recipe("Chocolate Cake") { id = 3, yield = 24 };
@@ -2131,7 +2131,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestInsertIngredientIntoDensityInfoDatabase() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var r = new Recipe("Sample") { id = 1 };
             var i = new Ingredient("Softasilk Flour") { ingredientId = 1, recipeId = 1, measurement = "1 1/2 cups", sellingWeight = "32 oz", typeOfIngredient = "cake flour" };
             var i2 = new Ingredient("Ground Ginger") { ingredientId = 2, recipeId = 1, measurement = "1 teaspoon", sellingWeight = "8 oz", typeOfIngredient = "ground ginger", density = 2.93m };
@@ -2149,7 +2149,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestMultipleIngredientsWithTheSameName() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 24 };
             var yellowCake = new Recipe("Yellow Cake") { id = 2, yield = 16 };
             var strawberryShortcake = new Recipe("Strawberry Shortcake") { id = 3, yield = 8 };
@@ -2194,7 +2194,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestOverwritingTheCostTable() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var yellowCake = new Recipe("Yellow Cake") { id = 1, yield = 12 };
             var milk = new Ingredient("Whole Milk") { ingredientId = 1, recipeId = 1, measurement = "1 cup", sellingWeight = "1 gallon", typeOfIngredient = "milk", classification = "dairy" };
             t.initializeDatabase();
@@ -2214,7 +2214,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestOverwritingTheCostTable2() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 24 };
             var yellowCake = new Recipe("Yellow Cake") { id = 2, yield = 24 };
             var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 3, yield = 24 };
@@ -2261,7 +2261,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestOverwritingTheCostTable3() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 16 };
             var softasilk = new Ingredient("Softasilk Flour") { recipeId = 1, ingredientId = 1, sellingWeight = "32 oz", measurement = "3 cups", typeOfIngredient = "cake flour", classification = "flour" };
             t.initializeDatabase();
@@ -2278,7 +2278,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestDeleteIngredientFromIngredientsTable() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var bread = new Recipe("Bread") { id = 1 };
             var breadFlour = new Ingredient("Bread Flour") { ingredientId = 1, recipeId = 1, classification = "flour", typeOfIngredient = "bread flour", measurement = "6 cups", sellingWeight = "5 lb" };
             t.initializeDatabase();
@@ -2291,7 +2291,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestDeleteIngredientFromCostTable() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var bread = new Recipe("Bread") { id = 1 };
             var honey = new Ingredient("Honey") { ingredientId = 1, recipeId = 1, typeOfIngredient = "honey", measurement = "1/3 cup", sellingWeight = "32 oz" };
             t.initializeDatabase();
@@ -2306,7 +2306,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestDeleteIngredientFromDensitiesTable() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var bread = new Recipe("Bread") { id = 1 };
             var honey = new Ingredient("Honey") { ingredientId = 1, recipeId = 1, measurement = "1/3 cup", sellingWeight = "32 oz", typeOfIngredient = "honey" };
             t.initializeDatabase();
@@ -2321,7 +2321,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestDeleteIngredeintFromConsumptionTable() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var bread = new Recipe("Bread") { id = 1 };
             var honey = new Ingredient("Honey") { ingredientId = 1, recipeId = 1, measurement = "2 cups", sellingWeight = "32 oz", typeOfIngredient = "honey" };
             t.initializeDatabase();
@@ -2357,7 +2357,7 @@ namespace RachelsRosesWebPagesUnitTests {
         //}
         [Test]
         public void TestDeleteRecipeAndRecipeIngredients() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var bread = new Recipe("Bread") { id = 1 };
             var honey = new Ingredient("Honey") { ingredientId = 1, recipeId = 1, measurement = "2/3 cup", sellingWeight = "32 oz", typeOfIngredient = "honey" };
             t.initializeDatabase();
@@ -2374,7 +2374,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestItemResponseInformationInConsumptionTable() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var bread = new Recipe("Bread") { id = 1 };
             var honey = new Ingredient("honey") { ingredientId = 1, recipeId = 1, sellingWeight = "32 oz", measurement = "2 tablespoons", typeOfIngredient = "honey" };
             //i would eventually like for this to be a drop down menu, to show all options for the typeOfIngredient in the density table}
@@ -2387,7 +2387,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestOuncesRemainingAndConsumedInConsumptionTable() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var bread = new Recipe("Bread") { id = 1 };
             var honey = new Ingredient("honey") { ingredientId = 1, recipeId = 1, sellingWeight = "32 oz", measurement = "1/3 cup", typeOfIngredient = "honey" };
             var breadFlour = new Ingredient("bread flour") { ingredientId = 2, recipeId = 1, sellingWeight = "5 lb", measurement = "6 cups", typeOfIngredient = "bread flour" };
@@ -2408,7 +2408,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void Test2IngredientsInConsumptionTableWithSameName() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 1 };
             var cinnamonSwirlBread = new Recipe("Cinnamon Swirl Bread") { id = 2 };
             var honey = new Ingredient("honey") { ingredientId = 1, recipeId = 1, measurement = "1/3 cup", sellingWeight = "32 oz", typeOfIngredient = "honey" };
@@ -2434,7 +2434,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestMultipleIngredientsRepeatedInConsumptionTable() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 1 };
             var cinnamonSwirlBread = new Recipe("Cinnamon Swirl Bread") { id = 2 };
             var honey = new Ingredient("honey") { ingredientId = 1, recipeId = 1, measurement = "1/3 cup", sellingWeight = "32 oz", typeOfIngredient = "honey" };
@@ -2480,7 +2480,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestMultipleUsesOfOneIngredientInConsumptionDatabase() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var bread = new Recipe("Bread") { id = 1 };
             var bread2 = new Recipe("Bread2") { id = 2 };
             var bread3 = new Recipe("Bread3") { id = 3 };
@@ -2519,7 +2519,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestConsumptionRefill() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var chocolateChipCookies = new Recipe("Chocolate Chip Cookies") { id = 1 };
             var chocolateChips = new Ingredient("Semi Sweet Chocolate Chips") { ingredientId = 1, recipeId = 1, measurement = "1 3/4 cups", sellingWeight = "12 oz", typeOfIngredient = "chocolate chips" };
             t.initializeDatabase();
@@ -2539,7 +2539,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestDairyConsumptionDairy() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 1 };
             var buttermilk = new Ingredient("Buttermilk") { ingredientId = 1, recipeId = 1, measurement = "2 cups", sellingWeight = "1 quart", typeOfIngredient = "buttermilk", sellingPrice = 1.79m, classification = "dairy" };
             t.initializeDatabase();
@@ -2556,7 +2556,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestInsertEggIntoAllTables() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var chocolateChipCookies = new Recipe("Chocolate Chip Cookies") { id = 1 };
             var eggs = new Ingredient("Eggs") { ingredientId = 1, recipeId = 1, classification = "eggs", measurement = "2 eggs", sellingPrice = 2.99m, sellingWeight = "1 dozen", typeOfIngredient = "egg" };
             t.initializeDatabase();
@@ -2574,7 +2574,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestEggs2() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var fluffyWhiteCake = new Recipe("Yellow Cake") { id = 1, yield = 12 };
             var eggWhites = new Ingredient("egg whites, stiffly beaten") { ingredientId = 1, recipeId = 1, measurement = "3 egg whites", sellingWeight = "1 dozen", sellingPrice = 2.99m, typeOfIngredient = "egg", classification = "egg" }; //for the record, one egg white merginued does not equal 1.70 oz to my knowledge.. should be decently lighter
             var eggs = new Ingredient("Eggs") { ingredientId = 2, recipeId = 1, measurement = "2 eggs", sellingWeight = "1 dozen", sellingPrice = 2.99m, typeOfIngredient = "egg", classification = "egg" };
@@ -2594,7 +2594,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestEggs3() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var fluffyWhiteCake = new Recipe("Fluffy White Cake") { id = 1, yield = 16 };
             var yellowCake = new Recipe("Yellow Cake") { id = 2, yield = 24 };
             var chocolateBananaBread = new Recipe("Chocolate Banana Bread") { id = 3, yield = 12 };
@@ -2632,7 +2632,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestPricePerServing() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var fluffyWhiteCake = new Recipe("Fluffy White Cake") { id = 1, yield = 16 };
             var cakeFlour = new Ingredient("Softasilk") { ingredientId = 1, recipeId = 1, measurement = "2 cups 2 tablespoons", typeOfIngredient = "cake flour", sellingWeight = "32 oz" };
             var vanilla = new Ingredient("Vanilla Extract") { ingredientId = 2, recipeId = 1, measurement = "1 1/2 teaspoons", typeOfIngredient = "vanilla extract", sellingWeight = "16 oz" }; //27.59
@@ -2651,7 +2651,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestGettingAllDistictIngredientsFromQueryIngredients() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var fluffyWhiteCake = new Recipe("White Cake") { id = 1 };
             var cakeflour = new Ingredient("Softasilk") { ingredientId = 1, recipeId = 1, measurement = "1 cup", sellingWeight = "32 oz", typeOfIngredient = "cake flour" };
             var cakeFlour2 = new Ingredient("Softasilk") { ingredientId = 2, recipeId = 1, measurement = "1 1/2 cups", sellingWeight = "32 oz", typeOfIngredient = "cake flour" };
@@ -2661,7 +2661,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestGettingUniqueEntriesINIngredientTable() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var fluffyWhiteCake = new Recipe("Fluffy White Cake") { id = 1, yield = 12 };
             var chocolateCake = new Recipe("My Favorite Chocolat Cake") { id = 2, yield = 18 };
             var yellowCake = new Recipe("Yellow Cake") { id = 3, yield = 16 };
@@ -2690,7 +2690,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestgetDoubleAverageOuncesConsumedForIngredient() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var bananaNutMuffins = new Recipe("Banana Nut Muffins") { id = 1, yield = 18 };
             var APFlour = new Ingredient("All Purpose Flour") { ingredientId = 1, recipeId = 1, measurement = "1 1/2 cups", sellingWeight = "5 lb", typeOfIngredient = "all purpose flour" };
             t.initializeDatabase();
@@ -2700,7 +2700,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestgetDoubleAverageOuncesConsumedForIngredient2() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var chocolateChipCheesecake = new Recipe("Chocolate Chip Cheesecake") { id = 1, yield = 18 };
             var chocolateChipCookies = new Recipe("Chocolate Chip Cookies") { id = 2, yield = 24 };
             var bananaChocolateChipMuffins = new Recipe("Banana Chocolate Chip Cookies") { id = 3, yield = 12 };
@@ -2724,7 +2724,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestgetDoubleAverageOuncesConsumedForIngredient3() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var cakeFlour = new Ingredient("Cake Flour") { ingredientId = 1, ouncesConsumed = 10m };
             var cakeFlour2 = new Ingredient("Cake Flour") { ingredientId = 2, ouncesConsumed = 20m };
             var cakeFlour3 = new Ingredient("Cake Flour") { ingredientId = 3, ouncesConsumed = 30m };
@@ -2744,7 +2744,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestgetDoubleAverageOuncesConsumedForIngredient4() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 18 };
             var yellowCake = new Recipe("Yellow Cake") { id = 2, yield = 12 };
             var whiteCake = new Recipe("White Cake") { id = 3, yield = 12 };
@@ -2784,7 +2784,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestConsumptionOuncesConsumedTable() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var cakeFlour = new Ingredient("Cake Flour") { ingredientId = 1, ouncesConsumed = 20m };
             t.initializeDatabase();
             t.insertIngredientIntoConsumptionOuncesConsumed(cakeFlour);
@@ -2793,7 +2793,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestConsumptionOuncesConsumedTable2() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var cakeFlour = new Ingredient("Cake Flour") { ingredientId = 1, ouncesConsumed = 30m };
             var allPurposeFlour = new Ingredient("All Purpose Flour") { ingredientId = 2, ouncesConsumed = .4m };
             var breadFlour = new Ingredient("Bread Flour") { ingredientId = 3, ouncesConsumed = 35m };
@@ -2808,7 +2808,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestUpdateOuncesConsumedTable() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var cakeFlour = new Ingredient("Cake Flour") { ingredientId = 1, ouncesConsumed = 5m };
             var breadFlour = new Ingredient("Bread Flour") { ingredientId = 2, ouncesConsumed = 10m };
             var myIngredientBox = new List<Ingredient> { cakeFlour, breadFlour };
@@ -2824,7 +2824,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestMultipleIngredientsWithSameNameOuncesConsumedTable() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var cakeFlour = new Ingredient("Cake Flour") { ingredientId = 1, ouncesConsumed = 10m };
             var cakeFlour2 = new Ingredient("Cake Flour") { ingredientId = 2, ouncesConsumed = 20m };
             var cakeFlour3 = new Ingredient("Cake Flour") { ingredientId = 3, ouncesConsumed = 30m };
@@ -2842,7 +2842,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestIngredientRestockCondition() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var chocolateChipCookies = new Recipe("Chocolate Chip Cookies") { id = 1, yield = 18 };
             var chocolateChipCheesecake = new Recipe("Chocolate Chip Cheesecake") { id = 2, yield = 16 };
             var cheeseCake = new Recipe("Cheesecake") { id = 3, yield = 16 };
@@ -2870,7 +2870,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestIngredientRestockConditionWithRestock() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var chocolateChipCheesecake = new Recipe("Chocolate Chip Cheesecake") { id = 1, yield = 16 };
             var chocolateChips = new Ingredient("Chocolate Chips") { ingredientId = 1, recipeId = 1, measurement = "2 cups", typeOfIngredient = "chocolate chips", sellingWeight = "12 oz" };
             t.initializeDatabase();
@@ -2884,7 +2884,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestIngredientRestockConditionWithRestock2() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var chocolateChipCheesecake = new Recipe("Chocolate Chip Cheesecake") { id = 1, yield = 16 };
             var chocolateChips = new Ingredient("Chocolate Chips") { ingredientId = 1, recipeId = 1, measurement = "2 cups", typeOfIngredient = "chocolate chips", sellingWeight = "12 oz" };
             t.initializeDatabase();
@@ -2898,7 +2898,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestIngredientExpirationDateAndDeletionFromConsumptionTable() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 24 };
             //can i do 8 oz for this for the measurement
             var sourCream = new Ingredient("Sour Cream") { ingredientId = 1, recipeId = 1, measurement = "1 cup", sellingWeight = "16 oz", sellingPrice = 2.79m, typeOfIngredient = "sour cream", classification = "dairy", expirationDate = new DateTime(1988, 1, 25) };
@@ -2914,7 +2914,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestIngredientExpirationDateDeleteFromConsumptionTable2() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 16 };
             var sourCream = new Ingredient("Sour Cream") { ingredientId = 1, recipeId = 1, measurement = "1 cup", sellingWeight = "16 oz", sellingPrice = 2.79m, typeOfIngredient = "sour cream", classification = "dairy", expirationDate = new DateTime(2017, 1, 25) };
             t.initializeDatabase();
@@ -2932,7 +2932,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestIngredientExpirationDateFromConsumptionTable3() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 16 };
             var sourCream = new Ingredient("Sour Cream") { ingredientId = 1, recipeId = 1, measurement = "1 cup", sellingWeight = "16 oz", sellingPrice = 2.79m, typeOfIngredient = "sour cream", classification = "dairy", expirationDate = new DateTime(2017, 1, 16) };
             t.initializeDatabase();
@@ -2950,7 +2950,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestIngredientExpirationDateConsumptionTable4() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var yellowCake = new Recipe("Yellow Cake") { id = 1, yield = 12 };
             var wholeMilk = new Ingredient("Whole Milk") { ingredientId = 1, recipeId = 1, measurement = "1 1/2 cups", sellingWeight = "1 gallon", sellingPrice = 3.99m, typeOfIngredient = "milk", classification = "dairy", expirationDate = new DateTime(2017, 1, 18) };
             t.initializeDatabase();
@@ -2967,7 +2967,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestIngredientExpirationDateAndRefill() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var yellowCake = new Recipe("Yellow Cake") { id = 1, yield = 12 };
             var wholeMilk = new Ingredient("Whole Milk") { ingredientId = 1, recipeId = 1, measurement = "1 3/4 cups", sellingWeight = "1 gallon", sellingPrice = 3.99m, typeOfIngredient = "milk", classification = "dairy", expirationDate = new DateTime(2017, 1, 18) };
             t.initializeDatabase();
@@ -2986,35 +2986,35 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestConvertIntToDate() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var expected = new DateTime(2017, 01, 17);
             var actual = t.convertIntToDate(20170117);
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestConvertStringToDate() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var expected = new DateTime(2017, 04, 16);
             var actual = t.convertStringToDateYYYYMMDD("2017.04.16");
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestConvertStringToDate2() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var expected = new DateTime(2017, 04, 16);
             var actual = t.convertStringToDateYYYYMMDD("2017-04-16");
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestConvertStringToDate3() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var expected = new DateTime(2017, 04, 16);
             var actual = t.convertStringToDateYYYYMMDD("2017/04/16");
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestCovnertStringtoDate4() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var expected = new DateTime(2017, 04, 16);
             var actual = t.convertStringToDateYYYYMMDD("20170416");
             Assert.AreEqual(expected, actual);
@@ -3027,21 +3027,21 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestConvertDateToString2() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var expected = "04/16/2017";
             var actual = t.convertDateToStringMMDDYYYY(new DateTime(2017, 04, 16));
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestConvertDateToString3() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var expected = "12/12/2015";
             var actual = t.convertDateToStringMMDDYYYY(new DateTime(2015, 12, 12));
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestConvertDateToString4() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var expected = "01/01/0001";
             var actual = t.convertDateToStringMMDDYYYY(new DateTime());
             Assert.AreEqual(expected, actual); 
@@ -3062,7 +3062,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestingMultipleRecipesWIthExpiredIngredients() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 16 };
             var yellowCake = new Recipe("Yellow Cake") { id = 2, yield = 20 };
             var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 3, yield = 24 };
@@ -3087,7 +3087,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestEggsExpirationDate() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 24 };
             var eggs = new Ingredient("Eggs") { ingredientId = 1, recipeId = 1, measurement = "3 eggs", sellingWeight = "12 eggs", sellingPrice = 2.99m, classification = "eggs", typeOfIngredient = "eggs", expirationDate = new DateTime(2017, 1, 13) };
             t.initializeDatabase();
@@ -3098,7 +3098,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestEggsExpirationDate2() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 24 };
             var eggs = new Ingredient("Eggs") { ingredientId = 1, recipeId = 1, measurement = "3 eggs", sellingWeight = "12 eggs", sellingPrice = 2.99m, classification = "eggs", typeOfIngredient = "eggs", expirationDate = new DateTime(2017, 3, 13) };
             t.initializeDatabase();
@@ -3109,7 +3109,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestGetListOfDistinctSellingWeights() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 20 };
             var eggs = new Ingredient("Eggs") { ingredientId = 1, recipeId = 1, sellingWeight = "1 dozen", sellingPrice = 1.50m, classification = "eggs", typeOfIngredient = "eggs", measurement = "3 eggs", expirationDate = new DateTime(2017, 3, 14) };
             var cakeFlour = new Ingredient("Softasilk Cake Flour") { ingredientId = 2, recipeId = 1, sellingWeight = "32 oz", classification = "flour", typeOfIngredient = "cake flour", measurement = "2 cups 2 tablespoons" };
@@ -3130,7 +3130,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestGetListOfIngredientTypes() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             t.initializeDatabase();
             var firstType = "all purpose flour";
             var secondType = "bread flour";
@@ -3165,7 +3165,7 @@ namespace RachelsRosesWebPagesUnitTests {
         //}
         [Test]
         public void TestSortingListOfIngredients() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 12 };
             var chocolateChips = new Ingredient("Semi Sweet Chocolate Chips") { ingredientId = 1, recipeId = 1, measurement = "2 cups", sellingWeight = "12 oz", typeOfIngredient = "chocolate chips", classification = "baking chocolate" };
             var bakingCocoa = new Ingredient("Unsweetened Cocoa") { ingredientId = 2, recipeId = 1, measurement = "1 cup", sellingWeight = "16 oz", typeOfIngredient = "baking cocoa", classification = "baking chocolate" };
@@ -3180,7 +3180,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestSortingListOfINgredients2() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 12 };
             var chocolateChips = new Ingredient("Semi Sweet Chocolate Chips") { ingredientId = 1, recipeId = 1, measurement = "2 cups", sellingWeight = "12 oz", typeOfIngredient = "chocolate chips", classification = "baking chocolate" };
             var bakingCocoa = new Ingredient("Unsweetened Cocoa") { ingredientId = 2, recipeId = 1, measurement = "1 cup", sellingWeight = "16 oz", typeOfIngredient = "baking cocoa", classification = "baking chocolate" };
@@ -3201,7 +3201,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestSortingListOfStrings() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var expected = new List<string> { "b", "g", "c", "f", "a", "r" };
             var actual = new List<string> { "a", "b", "c", "f", "g", "r" };
             expected.Sort();//ok, so this is working as I planned... 
@@ -3209,7 +3209,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestSortingListOfIngredients3() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 12 };
             var chocolateChips = new Ingredient("Semi Sweet Chocolate Chips") { ingredientId = 1, recipeId = 1, measurement = "2 cups", sellingWeight = "12 oz", typeOfIngredient = "chocolate chips", classification = "baking chocolate" };
             var bakingCocoa = new Ingredient("Unsweetened Cocoa") { ingredientId = 2, recipeId = 1, measurement = "1 cup", sellingWeight = "16 oz", typeOfIngredient = "baking cocoa", classification = "baking chocolate" };
@@ -3231,7 +3231,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestSimilarNamesInDatabase() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var HoneyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 1, yield = 24 };
             var CinnamonSwirlBread = new Recipe("Cinnamon Swirl Buttermilk Bread") { id = 2, yield = 24 };
             var breadFlour1 = new Ingredient("King Arthur Bread Flour") { ingredientId = 1, recipeId = 1, measurement = "6 cups", sellingWeight = "5 lb", typeOfIngredient = "bread flour", classification = "flour" };
@@ -3253,7 +3253,7 @@ namespace RachelsRosesWebPagesUnitTests {
         //just because i don't want to use all purpose flour in my bread recipe doesn't mean it still doesn't exist in my pantry and doesn't mean i don't want the record of it in my costs table
         [Test]
         public void TestDeleteIngredientFromIngredientsTableDeleteOnlyFromIngredientTable() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var HoneyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 1, yield = 24 };
             var breadFlour = new Ingredient("King Arthur Bread Flour") { ingredientId = 1, recipeId = 1, measurement = "6 cups", sellingWeight = "5 lb", typeOfIngredient = "bread flour", classification = "flour" };
             t.initializeDatabase();
@@ -3275,7 +3275,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestDeleteIngredientFromIngredientsTableAndAccessOtherTablesForDeletedIngredient() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 1, yield = 24 };
             var cinnamonButtermilkBread = new Recipe("Cinnamon Buttermilk Bread") { id = 2, yield = 24 };
             var breadFlour1 = new Ingredient("King Arthur Bread Flour") { ingredientId = 1, recipeId = 1, measurement = "6 cups", sellingWeight = "5 lb", typeOfIngredient = "bread flour", classification = "flour" };
@@ -3300,7 +3300,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestDeleteIngredientBasedOnNameNadMeasurement() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 1, yield = 24 };
             var breadFlour = new Ingredient("Bread Flour") { ingredientId = 1, recipeId = 1, measurement = "6 cups", sellingWeight = "5 lb", typeOfIngredient = "bread flour", classification = "flour" };
             t.initializeDatabase();
@@ -3311,7 +3311,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestQueryAllTablesForIngredientWithConsumptionOuncesConsumedTable() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 1, yield = 24 };
             var cinnamonButtermilkBread = new Recipe("Cinnamon Buttermilk Bread") { id = 2, yield = 24 };
             var wholeWheatBread = new Recipe("Whole Wheat Bread") { id = 3, yield = 24 };
@@ -3342,7 +3342,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestRefillInConsumptionTable() {
-            var t = new DatabaseAccess(); 
+            var t = new DatabaseAccessRecipe(); 
             var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 1, yield = 24 };
             var breadFlour1 = new Ingredient("King Arthur Bread Flour") { ingredientId = 1, recipeId = 1, measurement = "6 cups", sellingWeight = "5 lb", typeOfIngredient = "bread flour", classification = "flour" };
             t.initializeDatabase();

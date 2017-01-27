@@ -208,10 +208,17 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\DatabaseAccess.cs" />
+    <Compile Include="Models\DatabaseAccessDensities.cs" />
+    <Compile Include="Models\DatabaseAccessDensityInformation.cs" />
+    <Compile Include="Models\DatabaseAccessCosts.cs" />
+    <Compile Include="Models\DatabaseAccessConsumptionOuncesConsumed.cs" />
+    <Compile Include="Models\DatabaseAccessConsumption.cs" />
+    <Compile Include="Models\DatabaseAccessIngredient.cs" />
     <Compile Include="Models\Reader.cs" />
     <Compile Include="Models\apiKey.cs" />
     <Compile Include="Models\Convert.cs" />
-    <Compile Include="Models\DatabaseAccess.cs" />
+    <Compile Include="Models\DatabaseAccessRecipe.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\MakeRESTCalls.cs" />
     <Compile Include="Models\ManageViewModels.cs" />

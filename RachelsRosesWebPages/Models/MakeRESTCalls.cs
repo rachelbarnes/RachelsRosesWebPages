@@ -47,7 +47,7 @@ namespace RachelsRosesWebPages {
             }
         }
         public ItemResponse GetItemResponse(Ingredient i) {
-            var db = new DatabaseAccess();
+            var db = new DatabaseAccessRecipe();
             var convert = new ConvertWeight();
             var newItemResponse = new ItemResponse();
             var tempItemResponse = new ItemResponse();
@@ -74,7 +74,7 @@ namespace RachelsRosesWebPages {
             //i would like to be able to return all brands that fit a certain selling weight, and give all of them as an option, and give the best price? 
         }
         public List<ItemResponse> GetListItemResponses(Ingredient i) {
-            var db = new DatabaseAccess();
+            var db = new DatabaseAccessRecipe();
             var convert = new ConvertWeight();
             var items = MakeRequest<SearchResponse>(buildSearchRequest(i)).Items;
             var sellingWeightOunces = convert.ConvertWeightToOunces(i.sellingWeight);
@@ -92,7 +92,7 @@ namespace RachelsRosesWebPages {
             //i think a good idea would be to have the item id associated with the ingredient in the ingredient database or the cost database, that way you can get the exact same item
         }
         public List<ItemResponse> GetListItemResponseNoSellingWeights(Ingredient i) {
-            var db = new DatabaseAccess();
+            var db = new DatabaseAccessRecipe();
             //var convert = new ConvertWeight();
             var items = MakeRequest<SearchResponse>(buildSearchRequest(i)).Items;
             var myListOfResponses = new List<ItemResponse>();

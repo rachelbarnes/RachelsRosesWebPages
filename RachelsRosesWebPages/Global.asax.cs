@@ -13,7 +13,7 @@ namespace RachelsRosesWebPages
     {
         protected void Application_Start()
         {
-            var db = new DatabaseAccess();
+            var db = new DatabaseAccessRecipe();
             //db.initializeDatabase();
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);

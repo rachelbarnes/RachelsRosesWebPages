@@ -391,7 +391,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestIngredientTypeGetDensity() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var cakeFlour = new Ingredient("Softasilk") { ingredientId = 1, typeOfIngredient = "cake flour" }; 
             var expected = 4.5m;
             var actual = t.returnIngredientDensityFromDensityTable(cakeFlour);
@@ -399,7 +399,7 @@ namespace RachelsRosesWebPagesUnitTests {
         }
         [Test]
         public void TestIngredientTypeGetDensity2() {
-            var t = new DatabaseAccess();
+            var t = new DatabaseAccessRecipe();
             var breadFlour = new Ingredient("Pillsbury Bread Flour") { ingredientId = 1, typeOfIngredient = "bread flour" };
             var expected = 5.4m;
             var actual = t.returnIngredientDensityFromDensityTable(breadFlour);
