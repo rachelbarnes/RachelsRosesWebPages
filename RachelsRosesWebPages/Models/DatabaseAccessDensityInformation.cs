@@ -26,16 +26,16 @@ namespace RachelsRosesWebPages.Models {
             var rest = new MakeRESTCalls();
             return rest.GetItemResponse(i);
         }
-        public List<string> getListOfIngredientTypesFromDensityTable() {
-            var myDensityTable = queryDensityInfoTable();
-            var myIngredientTypes = new List<string>();
-            foreach (var ingredient in myDensityTable) {
-                if (!myIngredientTypes.Contains(ingredient.name))
-                    myIngredientTypes.Add(ingredient.name);
-            }
-            myIngredientTypes.Sort();
-            return myIngredientTypes;
-        }
+        //public List<string> getListOfIngredientTypesFromDensityTable() {
+        //    var myDensityTable = queryDensityInfoTable();
+        //    var myIngredientTypes = new List<string>();
+        //    foreach (var ingredient in myDensityTable) {
+        //        if (!myIngredientTypes.Contains(ingredient.name))
+        //            myIngredientTypes.Add(ingredient.name);
+        //    }
+        //    myIngredientTypes.Sort();
+        //    return myIngredientTypes;
+        //}
         public List<Ingredient> queryDensityInfoTable() {
             var db = new DatabaseAccess(); 
             var DensityInfo = db.queryItems("select * from densityInfo", reader => {
@@ -178,6 +178,17 @@ namespace RachelsRosesWebPages.Models {
                 else
                     updateDensityInfoTable(MyIngredients[i]);
             }
+        }
+
+        public List<string> getListOfIngredientTypesFromDensityTable() {
+            var myDensityTable = queryDensityInfoTable();
+            var myIngredientTypes = new List<string>();
+            foreach (var ingredient in myDensityTable) {
+                if (!myIngredientTypes.Contains(ingredient.name))
+                    myIngredientTypes.Add(ingredient.name);
+            }
+            myIngredientTypes.Sort();
+            return myIngredientTypes;
         }
 
     }

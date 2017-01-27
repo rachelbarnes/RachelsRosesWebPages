@@ -27,18 +27,7 @@ namespace RachelsRosesWebPages.Models {
             return rest.GetItemResponse(i);
         }
         public static ItemResponse myItemResponse = new ItemResponse();
-        //public void executeVoidQuery(string command, Func<SqlCommand, SqlCommand> modifyCommand) {
-        //    var con = new SqlConnection(connString);
-        //    try {
-        //        con.Open();
-        //        var cmd = new SqlCommand(command, con);
-        //        modifyCommand(cmd).ExecuteNonQuery();
-        //        con.Close();
-        //    } catch (Exception e) {
-        //        Console.WriteLine("Query Failed somehow");
-        //        throw e;
-        //    }
-        //}
+      
         public List<Recipe> queryRecipes() {
             var db = new DatabaseAccess(); 
             var count = 1;
@@ -60,7 +49,6 @@ namespace RachelsRosesWebPages.Models {
                 if (recipe.id == r.id) {
                     if (recipe.yield != r.yield) {
                         recipe.yield = r.yield;
-                        //UpdateRecipeYield(recipe);
                     }
                 }
             }

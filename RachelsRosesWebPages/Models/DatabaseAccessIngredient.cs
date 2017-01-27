@@ -275,6 +275,14 @@ namespace RachelsRosesWebPages.Models {
             }
             return myIngredientExpirationDate;
         }
+        public List<Ingredient> myIngredientBox() {
+            var db = new DatabaseAccess(); 
+            var ingredientBox = new List<Ingredient>();
+            var queriedIngredients = queryIngredients();
+            foreach (var ingredient in queriedIngredients)
+                ingredientBox.Add(db.queryAllTablesForIngredient(ingredient));
+            return ingredientBox;
+        }
     }
 }
 // read up on the Normal Forms of a relational database: e.g what is the 1st normal form and how do you do it

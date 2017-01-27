@@ -28,18 +28,21 @@ namespace RachelsRosesWebPages.Controllers {
         }
         public ActionResult Recipe(string name) {
             var rest = new MakeRESTCalls();
-            var t = new DatabaseAccessRecipe();
+            var db = new DatabaseAccess();
+            var dbI = new DatabaseAccessIngredient();
+            var dbD = new DatabaseAccessDensityInformation();
+            var dbC = new DatabaseAccessConsumption();  
             if (string.IsNullOrEmpty(name))
                 return Redirect("/home/RecipeBox");
             name = name.Trim();
             myDatabaseRecipe = getRecipes().First(x => x.name == name);
             currentRecipe = myDatabaseRecipe;
             ViewBag.currentingredient = currentIngredient;
-            ViewBag.currentingredienttable = t.getListOfDistintIngredients();
-            ViewBag.distinctsellingweights = t.getListOfDistinctSellingWeights();
+            ViewBag.currentingredienttable = dbI.getListOfDistintIngredients();
+            ViewBag.distinctsellingweights = dbC.getListOfDistinctSellingWeights();
             ViewBag.currentrecipe = currentRecipe;
             ViewBag.recipeboxcount = getRecipes().Count();
-            ViewBag.distinctingredienttypes = t.getListOfIngredientTypesFromDensityTable();
+            ViewBag.distinctingredienttypes = dbD.getListOfIngredientTypesFromDensityTable();
             if (!string.IsNullOrEmpty(currentIngredient.name)) {
                 if (string.IsNullOrEmpty(currentIngredient.measurement))
                     ViewBag.itemresponselist = rest.GetListItemResponseNoSellingWeights(currentIngredient);
@@ -78,7 +81,7 @@ namespace RachelsRosesWebPages.Controllers {
             return View();
         }
         public ActionResult EditIng(string updatedName, string updatedMeasurement, string updatedType, string updatedDensity, string updatedSellingWeight, string updatedSellingPrice, string updatedClassification) {
-            var t = new DatabaseAccessRecipe();
+            var t = new DatabaseAccess();
             var updatedDensityDecimal = 0m;
             var updatedSellingPriceDecimal = 0m;
             if (!string.IsNullOrEmpty(updatedDensity))
@@ -116,7 +119,7 @@ namespace RachelsRosesWebPages.Controllers {
             return Redirect("/home/ingredient?name=" + currentIngredient.name + "&measurement=" + currentIngredient.measurement);
         }
         public ActionResult ResetSellingPrice() {
-            var t = new DatabaseAccessRecipe();
+            var t = new DatabaseAccess();
             var rest = new MakeRESTCalls();
             currentIngredient.sellingPrice = rest.GetItemResponse(currentIngredient).salePrice;
             t.updateAllTables(currentIngredient, currentRecipe);
@@ -124,7 +127,7 @@ namespace RachelsRosesWebPages.Controllers {
         }
         //add selling weight to the recipes page
         public ActionResult CreateIngredient(string ingredient, string measurement, string classification, string type, string sellingweight, string sellingprice) {
-            var db = new DatabaseAccessRecipe();
+            var db = new DatabaseAccess();
             ingredient = ingredient.Trim();
             measurement = measurement.Trim();
             if (string.IsNullOrEmpty(classification))
@@ -217,11 +220,11 @@ namespace RachelsRosesWebPages.Controllers {
         }
         public ActionResult DeleteIngredient(string name,string measurement) {
             name = name.Trim();
-            var db = new DatabaseAccessRecipe();
+            var dbI = new DatabaseAccessIngredient();
             //foreach (var ingredient in myIngredientsTable) {
             foreach (var ingredient in currentRecipe.ingredients) {  
                 if (ingredient.name == name && ingredient.measurement == measurement) {
-                    db.DeleteIngredientFromIngredientTable(ingredient);
+                    dbI.DeleteIngredientFromIngredientTable(ingredient);
                     //i need to make sure this is deleting from the recipe too, otherwise i'll get an incorrect total price...
                         //it should be, but i'd rather not be suprised by a bug 
                     break;
@@ -229,19 +232,20 @@ namespace RachelsRosesWebPages.Controllers {
             }
             //manual check:
             var countRecipeIngredients = currentRecipe.ingredients.Count();
-            var myIngredientsTable = db.queryIngredients();
+            var myIngredientsTable = dbI.queryIngredients();
             var countIngredientTable = myIngredientsTable.Count(); 
             return Redirect("/home/recipe?name=" + currentRecipe.name);
             //ok... so the priceOfMeasuredConsumption isn't working, as well as ounces remaining and deleting the ingredient from the ingredient table...
         }
         public ActionResult InitializeDatabase() {
-            var db = new DatabaseAccessRecipe();
+            var db = new DatabaseAccess();
             db.initializeDatabase();
             return Redirect("/home/recipeBox");
         }
         public ActionResult IngredientBox() {
-            var db = new DatabaseAccessRecipe();
-            var myIngredientBox = db.queryIngredients();
+            var db = new DatabaseAccess();
+            var dbI = new DatabaseAccessIngredient(); 
+            var myIngredientBox = dbI.queryIngredients();
             ViewBag.ingredientbox = myIngredientBox;
             ViewBag.fullingredientbox = db.queryAllTablesForAllIngredients(myIngredientBox);
             return View();

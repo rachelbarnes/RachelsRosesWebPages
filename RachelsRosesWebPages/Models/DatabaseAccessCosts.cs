@@ -92,5 +92,14 @@ namespace RachelsRosesWebPages.Models {
             }
             return pricePerOunce;
         }
+        public void DeleteIngredientFromCostTable(Ingredient i) {
+            var db = new DatabaseAccess(); 
+            var deleteCommand = "delete from costs where ing_id=@ing_id"; //if needed, : AND name=@name;
+            db.executeVoidQuery(deleteCommand, cmd => {
+                cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
+                return cmd;
+            });
+        }
+       
     }
 }

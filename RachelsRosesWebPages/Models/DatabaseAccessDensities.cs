@@ -92,5 +92,15 @@ namespace RachelsRosesWebPages.Models {
                 return cmd;
             });
         }
+
+        public void DeleteIngredientFromDensitiesTable(Ingredient i) {
+            var db = new DatabaseAccess(); 
+            var deleteCommand = "delete from densities where ing_id=@ing_id";
+            db.executeVoidQuery(deleteCommand, cmd => {
+                cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
+                return cmd;
+            });
+        }
+      
     }
 }

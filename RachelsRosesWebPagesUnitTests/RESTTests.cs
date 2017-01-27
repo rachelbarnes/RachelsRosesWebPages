@@ -392,17 +392,19 @@ namespace RachelsRosesWebPagesUnitTests {
         [Test]
         public void TestIngredientTypeGetDensity() {
             var t = new DatabaseAccessRecipe();
+            var dbD = new DatabaseAccessDensityInformation(); 
             var cakeFlour = new Ingredient("Softasilk") { ingredientId = 1, typeOfIngredient = "cake flour" }; 
             var expected = 4.5m;
-            var actual = t.returnIngredientDensityFromDensityTable(cakeFlour);
+            var actual = dbD.returnIngredientDensityFromDensityTable(cakeFlour);
             Assert.AreEqual(expected, actual); 
         }
         [Test]
         public void TestIngredientTypeGetDensity2() {
             var t = new DatabaseAccessRecipe();
+            var dbD = new DatabaseAccessDensityInformation(); 
             var breadFlour = new Ingredient("Pillsbury Bread Flour") { ingredientId = 1, typeOfIngredient = "bread flour" };
             var expected = 5.4m;
-            var actual = t.returnIngredientDensityFromDensityTable(breadFlour);
+            var actual =dbD.returnIngredientDensityFromDensityTable(breadFlour);
             Assert.AreEqual(expected, actual); 
         }
         [Test]
