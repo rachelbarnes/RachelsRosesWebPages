@@ -32,11 +32,12 @@ namespace RachelsRosesWebPages.Models {
                     listOfIngredientOuncesConsumed.Add(ingredient.ouncesConsumed);
             }
             var count = listOfIngredientOuncesConsumed.Count();
-            //var count = 1;
-            var aggregatedOuncesConsumed = 0m;
-            foreach (var measurement in listOfIngredientOuncesConsumed)
-                aggregatedOuncesConsumed += measurement;
-            return Math.Round((aggregatedOuncesConsumed / count) * 2, 2);
+            if (count > 0) {
+                var aggregatedOuncesConsumed = 0m;
+                foreach (var measurement in listOfIngredientOuncesConsumed)
+                    aggregatedOuncesConsumed += measurement;
+                return Math.Round((aggregatedOuncesConsumed / count) * 2, 2);
+            } else return 0m; 
         }
         public List<Ingredient> queryConsumptionTable() {
             var db = new DatabaseAccess();

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Web;
 
 namespace RachelsRosesWebPages.Models {
-    public class DatabaseAccessIngredient{
+    public class DatabaseAccessIngredient {
         const string connString = "Data Source=(LocalDb)\\MSSQLLocalDB;User Id=RACHELSLAPTOP\\Rachel;Initial Catalog=RachelsRosesWebPagesDB;Integrated Security=True; MultipleActiveResultSets=True";
         public void dropIfIngredientsTableExists(string table) {
             var db = new DatabaseAccess();
@@ -26,10 +26,19 @@ namespace RachelsRosesWebPages.Models {
         public ItemResponse returnItemResponse(Ingredient i) {
             var rest = new MakeRESTCalls();
             return rest.GetItemResponse(i);
+            //i wasn't able to finish my thought process because the internet crapped out...
+                //so play around with it more, but i don't know if i can have duplicate names, like recipes.name and ingredient.name... the reader can't take the multipart sql column, so it'll take the first name, which is recipes
+                //but play around with this more
+
+            //call Sarah! see if she got my stuff... if i haven't gotten an email from her by 945
+            //need to fix website, price per ounce is being funky again
+
+            //need to continue studying!!!
+                //do notecards!!!
         }
         public static ItemResponse myItemResponse = new ItemResponse();
         public void DeleteIngredientFromIngredientTable(Ingredient i) {
-            var db = new DatabaseAccess(); 
+            var db = new DatabaseAccess();
             i.name = i.name.Trim();
             i.measurement = i.measurement.Trim();
             var delete = "delete from ingredients where name=@name AND measurement=@measurement;";
@@ -40,7 +49,7 @@ namespace RachelsRosesWebPages.Models {
             });
         }
         public void DeleteIngredientFromIngredientTableIngIds(Ingredient i) {
-            var db = new DatabaseAccess(); 
+            var db = new DatabaseAccess();
             i.name = i.name.Trim();
             i.measurement = i.measurement.Trim();
             var delete = "delete from ingredients where name=@name AND ing_id=@ing_id";
@@ -51,7 +60,7 @@ namespace RachelsRosesWebPages.Models {
             });
         }
         public List<Ingredient> queryIngredients() {
-            var db = new DatabaseAccess(); 
+            var db = new DatabaseAccess();
             var count = 1;
             var myIngredientBox = db.queryItems("select * from ingredients", reader => {
                 var ingredient = new Ingredient(reader["name"].ToString());
@@ -69,7 +78,7 @@ namespace RachelsRosesWebPages.Models {
             return myIngredientBox;
         }
         public void insertIngredient(Ingredient i, Recipe r) {
-            var db = new DatabaseAccess(); 
+            var db = new DatabaseAccess();
             if (i.sellingPrice == 0m && (!i.classification.ToLower().Contains("dairy")) || (!i.classification.ToLower().Contains("egg"))) {
                 myItemResponse = returnItemResponse(i);
                 if (i.itemId == 0)
@@ -105,12 +114,13 @@ namespace RachelsRosesWebPages.Models {
             var myIngredientFull = db.queryAllTablesForIngredient(i);
         }
         public void UpdateIngredient(Ingredient i) {
-            var db = new DatabaseAccess(); 
+            var db = new DatabaseAccess();
             var myIngredients = queryIngredients();
             if (i.sellingPrice == 0m && (!i.classification.ToLower().Contains("dairy")) || (!i.classification.ToLower().Contains("egg"))) {
-                myItemResponse = returnItemResponse(i);
-                if (i.itemId == 0)
+                if (i.itemId == 0) {
+                    myItemResponse = returnItemResponse(i);
                     i.itemId = myItemResponse.itemId;
+                }
                 if (string.IsNullOrEmpty(i.itemResponseName))
                     i.itemResponseName = myItemResponse.name;
                 if (i.sellingPrice == 0m)
@@ -123,11 +133,11 @@ namespace RachelsRosesWebPages.Models {
                 if (i.expirationDate == null)
                     i.expirationDate = new DateTime();
             } else {
-                myItemResponse = returnItemResponse(i);
-                if (i.itemId == 0)
-                    i.itemId = myItemResponse.itemId;
-                if (string.IsNullOrEmpty(i.itemResponseName))
-                    i.itemResponseName = myItemResponse.name;
+                //myItemResponse = returnItemResponse(i);
+                //if (i.itemId == 0)
+                //    i.itemId = myItemResponse.itemId;
+                //if (string.IsNullOrEmpty(i.itemResponseName))
+                //    i.itemResponseName = myItemResponse.name;
                 if (i.priceOfMeasuredConsumption == 0)
                     i.priceOfMeasuredConsumption = returnIngredientMeasuredPrice(i);
             }
@@ -157,8 +167,8 @@ namespace RachelsRosesWebPages.Models {
             var dbConsumptionOuncesConsumed = new DatabaseAccessConsumptionOuncesConsumed();
             var dbConsumption = new DatabaseAccessConsumption();
             var dbDensities = new DatabaseAccessDensities();
-            var dbDensitiesInformation = new DatabaseAccessDensityInformation(); 
-            var dbCosts = new DatabaseAccessCosts(); 
+            var dbDensitiesInformation = new DatabaseAccessDensityInformation();
+            var dbCosts = new DatabaseAccessCosts();
             var convertWeight = new ConvertWeight();
             var convert = new ConvertMeasurement();
             var myCostData = dbCosts.queryCostTable();
@@ -181,7 +191,7 @@ namespace RachelsRosesWebPages.Models {
                 }
             }
             foreach (var ingredient in myCostData) {
-                if (ingredient.ingredientId == i.ingredientId) {
+                if (ingredient.name == i.name) {
                     temp.sellingPrice = ingredient.sellingPrice;
                     temp.pricePerOunce = ingredient.pricePerOunce;
                     break;
@@ -191,7 +201,6 @@ namespace RachelsRosesWebPages.Models {
                 if (ingredient.name == i.name) {
                     ingredient.ouncesConsumed = temp.ouncesConsumed;
                     ingredient.sellingPrice = temp.sellingPrice;
-                    //var accumulatedTeaspoons = convert.AccumulatedTeaspoonMeasurement(ingredient.measurement);
                     var measuredOuncesDividedBySellingWeight = 0m;
                     if (temp.sellingWeightInOunces != 0)
                         measuredOuncesDividedBySellingWeight = Math.Round((ingredient.ouncesConsumed / temp.sellingWeightInOunces), 4);
@@ -201,8 +210,10 @@ namespace RachelsRosesWebPages.Models {
             }
             return measuredIngredientPrice;
         }
+        //there's something off here, i may not have the right classification or something... 
+            //look at the pattern and see what's off here
         public List<Ingredient> getListOfDistintIngredients() {
-            var db = new DatabaseAccess(); 
+            var db = new DatabaseAccess();
             var myIngredientsTable = queryIngredients();
             var myUniqueIngredientNames = new List<string>();
             var myUniqueIngredients = new List<Ingredient>();
@@ -216,12 +227,12 @@ namespace RachelsRosesWebPages.Models {
             return myUniqueIngredients;
         }
         public decimal returnIngredientMeasuredPrice(Ingredient i) {
-            var db = new DatabaseAccess(); 
+            var db = new DatabaseAccess();
             db.queryAllTablesForIngredient(i);
             return MeasuredIngredientPrice(i);
         }
         public void getIngredientMeasuredPrice(Ingredient i, Recipe r) {
-            var db = new DatabaseAccess(); 
+            var db = new DatabaseAccess();
             db.queryAllTablesForIngredient(i);
             i.priceOfMeasuredConsumption = MeasuredIngredientPrice(i);
             UpdateIngredient(i);
@@ -276,7 +287,7 @@ namespace RachelsRosesWebPages.Models {
             return myIngredientExpirationDate;
         }
         public List<Ingredient> myIngredientBox() {
-            var db = new DatabaseAccess(); 
+            var db = new DatabaseAccess();
             var ingredientBox = new List<Ingredient>();
             var queriedIngredients = queryIngredients();
             foreach (var ingredient in queriedIngredients)

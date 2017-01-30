@@ -27,9 +27,9 @@ namespace RachelsRosesWebPages.Models {
             return rest.GetItemResponse(i);
         }
         public static ItemResponse myItemResponse = new ItemResponse();
-      
+
         public List<Recipe> queryRecipes() {
-            var db = new DatabaseAccess(); 
+            var db = new DatabaseAccess();
             var count = 1;
             var MyRecipeBox = db.queryItems("select * from recipes", reader => {
                 var recipe = new Recipe(reader["name"].ToString());
@@ -43,7 +43,7 @@ namespace RachelsRosesWebPages.Models {
             return MyRecipeBox;
         }
         public void UpdateRecipe(Recipe r) {
-            var db = new DatabaseAccess(); 
+            var db = new DatabaseAccess();
             var myRecipes = queryRecipes();
             foreach (var recipe in myRecipes) {
                 if (recipe.id == r.id) {
@@ -62,7 +62,7 @@ namespace RachelsRosesWebPages.Models {
             });
         }
         public void InsertRecipe(Recipe r) {
-            var db = new DatabaseAccess(); 
+            var db = new DatabaseAccess();
             var commandText = "Insert into recipes (name, yield, aggregated_price) values (@name, @yield, @aggregated_price);";
             db.executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@name", r.name);
@@ -72,8 +72,8 @@ namespace RachelsRosesWebPages.Models {
             });
         }
         public Recipe GetFullRecipe(Recipe r) {
-            var db = new DatabaseAccess(); 
-            var dbIngredients = new DatabaseAccessIngredient(); 
+            var db = new DatabaseAccess();
+            var dbIngredients = new DatabaseAccessIngredient();
             var aggregatedPrice = 0m;
             var myRecipeBox = queryRecipes();
             var myIngredients = dbIngredients.queryIngredients();
@@ -108,8 +108,8 @@ namespace RachelsRosesWebPages.Models {
             return myRecipeBox;
         }
         public void GetFullRecipePrice(Recipe r) {
-            var db = new DatabaseAccess(); 
-            var dbIngredients = new DatabaseAccessIngredient(); 
+            var db = new DatabaseAccess();
+            var dbIngredients = new DatabaseAccessIngredient();
             var myIngredients = GetFullRecipe(r).ingredients;
             foreach (var ing in myIngredients) {
                 if (ing.recipeId == r.id) {
@@ -137,8 +137,8 @@ namespace RachelsRosesWebPages.Models {
             return r.pricePerServing;
         }
         public List<Ingredient> ReturnRecipeIngredients(Recipe r) {
-            var db = new DatabaseAccess(); 
-            var dbIngredients = new DatabaseAccessIngredient(); 
+            var db = new DatabaseAccess();
+            var dbIngredients = new DatabaseAccessIngredient();
             var myIngredients = dbIngredients.queryIngredients();
             foreach (var ing in myIngredients) {
                 if (ing.recipeId == r.id) {
@@ -159,8 +159,8 @@ namespace RachelsRosesWebPages.Models {
             return aggregatedPrice;
         }
         public void DeleteRecipeAndRecipeIngredients(Recipe r) {
-            var db = new DatabaseAccess(); 
-            var dbIngredients = new DatabaseAccessIngredient(); 
+            var db = new DatabaseAccess();
+            var dbIngredients = new DatabaseAccessIngredient();
             r.name = r.name.Trim();
             var myRecipe = GetFullRecipe(r);
             var myIngredients = dbIngredients.queryIngredients();
@@ -176,7 +176,7 @@ namespace RachelsRosesWebPages.Models {
         }
         public void UpdateRecipeYield(Recipe r) {
             var db = new DatabaseAccess();
-            var dbDensities = new DatabaseAccessDensityInformation(); 
+            var dbDensities = new DatabaseAccessDensityInformation();
             var convert = new ConvertMeasurement();
             var myRecipeBox = MyRecipeBox();
             foreach (var recipe in myRecipeBox) {
@@ -210,6 +210,21 @@ namespace RachelsRosesWebPages.Models {
                 var currentRecipe = GetFullRecipe(recipe);
                 UpdateRecipeYield(recipe);
             }
+        }
+        public List<Ingredient> GetRecipeIngredients(Recipe r) {
+            var db = new DatabaseAccess();
+            var joinCommand = @"SELECT ingredients.name, ingredients.measurement, ingredients.price_measured_ingredient
+                                FROM recipes
+                                JOIN ingredients
+                                ON recipes.recipe_id=ingredients.recipe_id;";
+            var myRecipeIngredients = db.queryItems(joinCommand, reader => {
+                //var recipe = new Recipe(reader["recipes.name"].ToString());
+                var ingredient = new Ingredient(reader["name"].ToString());
+                ingredient.measurement = (string)reader["measurement"].ToString();
+                ingredient.priceOfMeasuredConsumption = (decimal)reader["price_measured_ingredient"];
+                return ingredient; 
+            });
+            return myRecipeIngredients; 
         }
     }
 }
