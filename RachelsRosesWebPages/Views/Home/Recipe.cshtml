@@ -75,12 +75,33 @@
     <input name="ingredient" placeholder="Name" />
     <select name="chooseingredient">
         @foreach (var ingredient in ViewBag.currentingredienttable) {
-            <option value="@ingredient.name">@ingredient.name</option>
+            <option value="@ingredient">@ingredient</option>
         }
     </select>
     <br />
     <h6><b>Ingredient Measurement: </b></h6>
     <input name="measurement" placeholder="Measurement" />
+    <br />
+    <h6><b>Ingredient Type:</b></h6>
+    <p>**the ingredient type is a single form of the ingredient (bread flour, cake flour, egg, milk, vanilla extract, etc.)</p>
+    <input name="type" placeholder="Type" />
+    <select name="chooseingredienttype">
+        @foreach (var type in ViewBag.currenttypes) {
+            <option value="@type">@type</option>
+        }
+    </select>
+    <h6><b>Ingredient Classification:</b></h6>
+    <p>**the ingredient classification is the ingredient family (dairy, eggs, flour, baking chocolate, etc.)</p>
+    <input name="classification" placeholder="Classification" />
+    <select name="chooseingredientclassification">
+        @foreach (var classification in ViewBag.currentclassifications) {
+            <option value="@classification">@classification</option>
+        }
+    </select>
+    <br />
+    <h6><b>Ingredient Expiration Date</b></h6>
+    <p>**if the ingredient expiration date is not entered for dairy or eggs, the ingredient will immediately be removed due to the expiration date being passed date</p>
+    <input name="expirationdate" placeholder="YYYY/MM/DD" />
     <br />
     <h6>Ingredient Selling Weight:</h6>
     <input name="sellingweight" placeholder="Selling Weight" />
@@ -95,21 +116,7 @@
     <h6><b>Ingredient Selling Price: (only mandatory if the product is not sold online such as dairy, eggs, etc.)</b></h6>
     <input name="sellingprice" placeholder="Selling Price" />
     <br />
-    <h6><b>Ingredient Type:</b></h6>
-    <input name="type" placeholder="Type (baking soda, milk, sour cream)" />
-    <select name="chooseingredienttype">
-        @foreach (var type in ViewBag.distinctingredienttypes) {
-            <option value="@type">@type</option>
-        }
-    </select>
     <br />
-    <h6><b>Ingredient Classification:</b></h6>
-    <input name="classification" placeholder="Classification (dairy, eggs, flour)" />
-    <select name="chooseingredientclassification">
-        @foreach (var ingredient in ViewBag.currentingredienttable) {
-            <option value="@ingredient.classification">@ingredient.classification</option>
-        }
-    </select>
     <input type="submit" value="Add" />
 </form>
 <br />
@@ -121,8 +128,8 @@
 <ul>
     @foreach (var itemresponse in ViewBag.itemresponselist) {
         <li>
-            <a href="/home/ReturnCurrentIngredientFromQueriedItemResponse?itemresponsename=@itemresponse.name&itemresponsesaleprice=@itemresponse.salePrice">@itemresponse.name : $ @itemresponse.salePrice</a>
-            @*@itemresponse.name : $ @itemresponse.salePrice*@
+            @*<a href="/home/ReturnCurrentIngredientFromQueriedItemResponse?itemresponsename=@itemresponse.name&itemresponsesaleprice=@itemresponse.salePrice">@itemresponse.name : $ @itemresponse.salePrice</a>*@
+            @itemresponse.name : $ @itemresponse.salePrice
         </li>
     }
 </ul>

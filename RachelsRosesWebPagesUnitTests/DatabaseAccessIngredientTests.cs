@@ -225,7 +225,7 @@ namespace RachelsRosesWebPagesUnitTests {
             };
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(i, r);
-            var myIngredient = t.queryAllTablesForIngredient(i);
+            var myIngredient = t.queryAllRelevantTablesSQL(i);
             var myIngredientsCost = dbCosts.queryCostTable();
             Assert.AreEqual(2.98m, myIngredient.sellingPrice);
             Assert.AreEqual(1.16m, myIngredient.priceOfMeasuredConsumption);
@@ -243,7 +243,7 @@ namespace RachelsRosesWebPagesUnitTests {
             dbD.insertDensityTextFileIntoDensityInfoDatabase();
             t.insertIngredientIntoAllTables(i, r);
             var mydensityDataInformation = dbD.queryDensityInfoTable();
-            var semiSweetMorsels = t.queryAllTablesForIngredient(i);
+            var semiSweetMorsels = t.queryAllRelevantTablesSQL(i);
             var myRecipes = dbR.MyRecipeBox();
             Assert.AreEqual("all purpose flour", mydensityDataInformation[0].name);
             Assert.AreEqual(1, myRecipes.Count());
@@ -325,7 +325,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.insertListOfIngredientsIntoAllTables(yellowCakeIngredients, yellowCake);
             var myIngredientsTable = dbI.queryIngredients();
             var myRecipeBox = dbR.MyRecipeBox();
-            var myDistictIngredientTable = dbI.getListOfDistintIngredientsSorted();
+            var myDistictIngredientTable = dbI.myDistinctIngredientNamesSorted();
             var myIngredientBoxFilled = t.queryAllTablesForAllIngredients(myIngredientBox);
             Assert.AreEqual(4, myIngredientsTable.Count());
             Assert.AreEqual(2, myDistictIngredientTable.Count());
@@ -434,15 +434,16 @@ namespace RachelsRosesWebPagesUnitTests {
             var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 12 };
             var chocolateChips = new Ingredient("Semi Sweet Chocolate Morsels") { ingredientId = 1, recipeId = 1, measurement = "2 cups", sellingWeight = "12 oz", typeOfIngredient = "chocolate chips", classification = "baking chocolate" };
             var bakingCocoa = new Ingredient("Unsweetened Cocoa") { ingredientId = 2, recipeId = 1, measurement = "1 cup", sellingWeight = "8 oz", typeOfIngredient = "baking cocoa", classification = "baking chocolate" };
-            var milk = new Ingredient("Whole Milk") { ingredientId = 3, recipeId = 1, measurement = "2 cups", sellingWeight = "1/2 gallon", sellingPrice = 1.79m, typeOfIngredient = "milk", classification = "dairy", expirationDate = new DateTime(2017, 2, 15)};
-            var eggs = new Ingredient("Eggs") { ingredientId = 4, recipeId = 1, measurement = "2 eggs", sellingWeight = "1 dozen", sellingPrice = 2.50m, typeOfIngredient = "egg", classification = "eggs", expirationDate = new DateTime(2017, 4, 4)};
+            var milk = new Ingredient("Whole Milk") { ingredientId = 3, recipeId = 1, measurement = "2 cups", sellingWeight = "1/2 gallon", sellingPrice = 1.79m, typeOfIngredient = "milk", classification = "dairy", expirationDate = new DateTime(2017, 2, 15) };
+            var eggs = new Ingredient("Eggs") { ingredientId = 4, recipeId = 1, measurement = "2 eggs", sellingWeight = "1 dozen", sellingPrice = 2.50m, typeOfIngredient = "egg", classification = "eggs", expirationDate = new DateTime(2017, 4, 4) };
             var salt = new Ingredient("Salt") { ingredientId = 5, recipeId = 1, measurement = "1 teapsoon", sellingWeight = "48 oz", typeOfIngredient = "salt", classification = "salt" };
             var bakingPowder = new Ingredient("Baking Powder") { ingredientId = 6, recipeId = 1, measurement = "2 teaspoons", sellingWeight = "10 oz", typeOfIngredient = "baking powder", classification = "rising agent" };
             //var chocolateCakeIngredients = new List<Ingredient>() { eggs, salt, bakingPowder, chocolateChips, bakingCocoa, milk };
-            var chocolateCakeIngredients = new List<Ingredient>() { chocolateChips, bakingCocoa, milk, eggs, salt, bakingPowder }; 
+            var chocolateCakeIngredients = new List<Ingredient>() { chocolateChips, bakingCocoa, milk, eggs, salt, bakingPowder };
             t.initializeDatabase();
             t.insertListOfIngredientsIntoAllTables(chocolateCakeIngredients, chocolateCake);
-            var uniqueIngredientNames = dbI.getListOfDistintIngredientsSorted(); 
+            t.insertListOfIngredientsIntoAllTables(chocolateCakeIngredients, chocolateCake);
+            var uniqueIngredientNames = dbI.myDistinctIngredientNamesSorted();
             Assert.AreEqual("Baking Powder", uniqueIngredientNames[0]);
             Assert.AreEqual("Eggs", uniqueIngredientNames[1]);
             Assert.AreEqual("Salt", uniqueIngredientNames[2]);
@@ -530,13 +531,74 @@ namespace RachelsRosesWebPagesUnitTests {
             var myIngredientTable = dbI.queryIngredients();
             Assert.AreEqual(0, myIngredientTable.Count());
         }
-        //write a test for the order by method for my ingredient names... 
-            //multipe ingredients of the same name and make sure they're in the right order
-
-        //need to figure out what's going on with the priceOfMeasuredConsumption for the other recipe tests... i was having trouble with this on my browser too... 
-            //it's not getting transfered somewhere... if I can get the query all tables for ingredients done with joins, either left or inner joins or even using the outter joins, then that
-                //would be benefical for tomorrow, plus muscle and brain memory
-
+        [Test]
+        public void TestDisctintOrderedIngredientClassifications() {
+            var t = new DatabaseAccess();
+            var dbI = new DatabaseAccessIngredient();
+            var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 12 };
+            var chocolateChips = new Ingredient("Semi Sweet Chocolate Morsels") { ingredientId = 1, recipeId = 1, measurement = "2 cups", sellingWeight = "12 oz", typeOfIngredient = "chocolate chips", classification = "baking chocolate" };
+            var bakingCocoa = new Ingredient("Unsweetened Cocoa") { ingredientId = 2, recipeId = 1, measurement = "1 cup", sellingWeight = "8 oz", typeOfIngredient = "baking cocoa", classification = "baking chocolate" };
+            var milk = new Ingredient("Whole Milk") { ingredientId = 3, recipeId = 1, measurement = "2 cups", sellingWeight = "1/2 gallon", sellingPrice = 1.79m, typeOfIngredient = "milk", classification = "dairy", expirationDate = new DateTime(2017, 2, 15) };
+            var eggs = new Ingredient("Eggs") { ingredientId = 4, recipeId = 1, measurement = "2 eggs", sellingWeight = "1 dozen", sellingPrice = 2.50m, typeOfIngredient = "egg", classification = "eggs", expirationDate = new DateTime(2017, 4, 4) };
+            var salt = new Ingredient("Salt") { ingredientId = 5, recipeId = 1, measurement = "1 teapsoon", sellingWeight = "48 oz", typeOfIngredient = "salt", classification = "salt" };
+            var salt2 = new Ingredient("Salt") { ingredientId = 5, recipeId = 1, measurement = "1 teapsoon", sellingWeight = "48 oz", typeOfIngredient = "salt", classification = "salt" };
+            var salt3 = new Ingredient("Salt") { ingredientId = 5, recipeId = 1, measurement = "1 teapsoon", sellingWeight = "48 oz", typeOfIngredient = "salt", classification = "salt" };
+            var bakingPowder = new Ingredient("Baking Powder") { ingredientId = 6, recipeId = 1, measurement = "2 teaspoons", sellingWeight = "10 oz", typeOfIngredient = "baking powder", classification = "rising agent" };
+            var chocolateCakeIngredients = new List<Ingredient>() { chocolateChips, bakingCocoa, milk, eggs, salt, salt2, salt3, bakingPowder };
+            t.initializeDatabase();
+            t.insertListOfIngredientsIntoAllTables(chocolateCakeIngredients, chocolateCake);
+            //t.insertListOfIngredientsIntoAllTables(chocolateCakeIngredients, chocolateCake);
+            var uniqueClassifications = dbI.myDistinctIngredientClassificationsSorted();
+            var uniqueTypes = dbI.myDistinctIngredientTypesSorted();
+            var orderIngredientsByPricePerOunce = dbI.orderIngredientsByPricePerOunce();
+            Assert.AreEqual("baking chocolate", uniqueClassifications[0]);
+            Assert.AreEqual("dairy", uniqueClassifications[1]);
+            Assert.AreEqual("eggs", uniqueClassifications[2]);
+            Assert.AreEqual("rising agent", uniqueClassifications[3]);
+            Assert.AreEqual("salt", uniqueClassifications[4]);
+            Assert.AreEqual("baking cocoa", uniqueTypes[0]);
+            Assert.AreEqual("baking powder", uniqueTypes[1]);
+            Assert.AreEqual("chocolate chips", uniqueTypes[2]);
+            Assert.AreEqual("egg", uniqueTypes[3]);
+            Assert.AreEqual("milk", uniqueTypes[4]);
+            Assert.AreEqual("salt", uniqueTypes[5]);
+            Assert.AreEqual("Unsweetened Cocoa", orderIngredientsByPricePerOunce[0].name);
+            Assert.AreEqual(.3975m, orderIngredientsByPricePerOunce[0].pricePerOunce);
+            Assert.AreEqual("Eggs", orderIngredientsByPricePerOunce[1].name);
+            Assert.AreEqual(.2083m, orderIngredientsByPricePerOunce[1].pricePerOunce);
+            Assert.AreEqual("Baking Powder", orderIngredientsByPricePerOunce[2].name);
+            Assert.AreEqual(.1820m, orderIngredientsByPricePerOunce[2].pricePerOunce);
+            Assert.AreEqual("Semi Sweet Chocolate Morsels", orderIngredientsByPricePerOunce[3].name);
+            Assert.AreEqual(.1642m, orderIngredientsByPricePerOunce[3].pricePerOunce);
+            Assert.AreEqual("Salt", orderIngredientsByPricePerOunce[4].name);
+            Assert.AreEqual(.0508m, orderIngredientsByPricePerOunce[4].pricePerOunce);
+            Assert.AreEqual("Whole Milk", orderIngredientsByPricePerOunce[5].name);
+            Assert.AreEqual(.0280m, orderIngredientsByPricePerOunce[5].pricePerOunce);
+        }
+        [Test]
+        public void TestAscendingExpirationDates() {
+            var t = new DatabaseAccess();
+            var dbI = new DatabaseAccessIngredient();
+            var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 12 };
+            var buttercreamIcing = new Recipe("Buttercream Icing") { id = 2, yield = 8 }; 
+            var milk = new Ingredient("Whole Milk") { ingredientId = 1, recipeId = 1, measurement = "2 cups", sellingWeight = "1/2 gallon", sellingPrice = 1.79m, typeOfIngredient = "milk", classification = "dairy", expirationDate = new DateTime(2017, 2, 15) };
+            var eggs = new Ingredient("Eggs") { ingredientId = 2, recipeId = 1, measurement = "2 eggs", sellingWeight = "1 dozen", sellingPrice = 2.50m, typeOfIngredient = "egg", classification = "eggs", expirationDate = new DateTime(2017, 4, 4) };
+            var buttermilk = new Ingredient("Buttermilk") { ingredientId = 3, recipeId = 1, measurement = "2 1/2 cups", sellingWeight = "1 quart", sellingPrice = 1.69m, typeOfIngredient = "buttermilk", classification = "dairy", expirationDate = new DateTime(2017, 3, 1) };
+            var heavyWhippingCream = new Ingredient("Heavy Whipping Cream") { ingredientId = 4, recipeId = 2, measurement = "1/4 cup", sellingWeight = "1 pint", sellingPrice = 1.38m, typeOfIngredient = "heavy whipping cream", classification = "dairy", expirationDate = new DateTime(2017, 2, 17) };
+            var firstRecipeDairy = new List<Ingredient> { milk, eggs, buttermilk }; 
+            t.initializeDatabase();
+            t.insertListOfIngredientsIntoAllTables(firstRecipeDairy, chocolateCake);
+            t.insertIngredientIntoAllTables(heavyWhippingCream, buttercreamIcing);
+            var expiringSoon = dbI.orderIngredientsByExpirationDateAsc();
+            Assert.AreEqual("Whole Milk", expiringSoon[0].name);
+            Assert.AreEqual(new DateTime(2017, 2, 15), expiringSoon[0].expirationDate); 
+            Assert.AreEqual("Heavy Whipping Cream", expiringSoon[1].name);
+            Assert.AreEqual(new DateTime(2017, 2, 17), expiringSoon[1].expirationDate); 
+            Assert.AreEqual("Buttermilk", expiringSoon[2].name);
+            Assert.AreEqual(new DateTime(2017, 3, 1), expiringSoon[2].expirationDate); 
+            Assert.AreEqual("Eggs", expiringSoon[3].name);
+            Assert.AreEqual(new DateTime(2017, 4, 4), expiringSoon[3].expirationDate); 
+        }
         //also do the order bys for selling weights, densities, types, and ingredients by both name and by object with LINQ and SQL
     }
 }

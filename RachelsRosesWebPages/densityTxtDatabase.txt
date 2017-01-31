@@ -29,7 +29,6 @@ cream cheese: 8.2
 sour cream: 8.6
 honey: 12
 yogurt: 8.6
-heavy whipping cream: 8.4
 water: 8
 raisins: 5
 coconut, dry, shredded: 2.5
@@ -45,3 +44,5 @@ zucchini, shredded: 8
 cranberries, dried: 4.2
 egg white: 1
 egg yolk: .67
+heavy whipping cream: 8.40
+heavy whipping cream, whipped: 4.20

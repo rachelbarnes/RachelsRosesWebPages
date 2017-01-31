@@ -57,7 +57,7 @@ namespace RachelsRosesWebPages.Models {
             var dbConsumptionOuncesConsumed = new DatabaseAccessConsumptionOuncesConsumed();
             var convertWeight = new ConvertWeight();
             var convert = new ConvertDensity();
-            var myIngredient = db.queryAllTablesForIngredient(i);
+            var myIngredient = db.queryAllRelevantTablesSQL(i);
             var myConsumptionTable = queryConsumptionTable();
             var temp = new Ingredient();
             bool alreadyContainsIngredient = new bool();
@@ -79,20 +79,19 @@ namespace RachelsRosesWebPages.Models {
                     cmd.Parameters.AddWithValue("@name", temp.name);
                     cmd.Parameters.AddWithValue("@density", i.density);
                     cmd.Parameters.AddWithValue("@ounces_consumed", i.ouncesConsumed);
-                    //when the time comes, i want to change any negative ouncesRemaining to be 0 so i can start fresh when i refill the ingredient in my consumption table
-                    //although, it would be nice to say "you need 2 tablespoons more granulated sugar to make this recipe"... maybe if you refill, then put at 0 first, if not, then leave negative?
                     cmd.Parameters.AddWithValue("@ounces_remaining", i.ouncesRemaining);
                     return cmd;
                 });
                 updateConsumptionTable(i);
             } else updateConsumptionTable(i);
             var myUpdatedIngredient = queryConsumptionTable();
+            var myConsumptionOuncesConsumedTable = dbConsumptionOuncesConsumed.queryConsumptionOuncesConsumed(); 
         }
         public void updateConsumptionTable(Ingredient i) {
             var db = new DatabaseAccess();
             var dbConsumptionOuncesConsumed = new DatabaseAccessConsumptionOuncesConsumed();
             var convert = new ConvertWeight();
-            var myIngredient = db.queryAllTablesForIngredient(i);
+            var myIngredient = db.queryAllRelevantTablesSQL(i);
             var myConsumptionTable = queryConsumptionTable();
             var temp = new Ingredient();
             foreach (var ingredient in myConsumptionTable) {
@@ -119,10 +118,11 @@ namespace RachelsRosesWebPages.Models {
                     }
                 }
             }
+            //dbConsumptionOuncesConsumed.insertIngredientIntoConsumptionOuncesConsumed(i); 
             if (string.IsNullOrEmpty(temp.name))
                 temp.name = i.name;
             //subtractOuncesRemainingIfExpirationDateIsPast(i);
-            //this is my problem, because i don't have an expiration date, it's saying that my ingredient is out of date, with 01/01/0001
+            // this needs to be fixed, maybe for hte moment having a condition for ig it is eggs or dairy... flour and sugar, etc. should be totally fine
             var commandText = "update consumption set ounces_consumed=@ounces_consumed, ounces_remaining=@ounces_remaining where name=@name;";
             db.executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@name", temp.name);
@@ -148,7 +148,7 @@ namespace RachelsRosesWebPages.Models {
             var db = new DatabaseAccess();
             var dbIngredients = new DatabaseAccessIngredient();
             var convert = new ConvertWeight();
-            var myIngredient = db.queryAllTablesForIngredient(i);
+            var myIngredient = db.queryAllRelevantTablesSQL(i);
             if (i.expirationDate < DateTime.Today && (dbIngredients.convertDateToStringMMDDYYYY(i.expirationDate) != "01/01/0001")) {
                 //i.expirationDate != new DateTime()) {
                 myIngredient.ouncesRemaining = myIngredient.ouncesRemaining - i.sellingWeightInOunces;

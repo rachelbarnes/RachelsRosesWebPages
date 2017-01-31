@@ -31,14 +31,22 @@ namespace RachelsRosesWebPages.Controllers {
             var db = new DatabaseAccess();
             var dbI = new DatabaseAccessIngredient();
             var dbD = new DatabaseAccessDensityInformation();
-            var dbC = new DatabaseAccessConsumption();  
+            var dbC = new DatabaseAccessConsumption();
             if (string.IsNullOrEmpty(name))
                 return Redirect("/home/RecipeBox");
             name = name.Trim();
+            var distinctIngredientNamesSorted = dbI.myDistinctIngredientNamesSorted();
+            var distinctIngredientClassifications = dbI.myDistinctIngredientClassificationsSorted();
+            var distinctIngredientTypes = dbI.myDistinctIngredientTypesSorted(); 
             myDatabaseRecipe = getRecipes().First(x => x.name == name);
             currentRecipe = myDatabaseRecipe;
             ViewBag.currentingredient = currentIngredient;
-            ViewBag.currentingredienttable = dbI.getListOfDistintIngredientsSorted();
+            if (distinctIngredientNamesSorted.Count() != 0)
+                ViewBag.currentingredienttable = distinctIngredientNamesSorted;
+            if (distinctIngredientClassifications.Count() != 0)
+                ViewBag.currentclassifications = distinctIngredientClassifications;
+            if (distinctIngredientTypes.Count() != 0)
+                ViewBag.currenttypes = distinctIngredientTypes; 
             ViewBag.distinctsellingweights = dbC.getListOfDistinctSellingWeights();
             ViewBag.currentrecipe = currentRecipe;
             ViewBag.recipeboxcount = getRecipes().Count();
@@ -54,14 +62,12 @@ namespace RachelsRosesWebPages.Controllers {
                 ViewBag.itemresponselist = new List<ItemResponse>();
                 ViewBag.itemresponselistNoWeight = new List<ItemResponse>();
             }
-            //ViewBag.currentingredient = rest.SplitItemResponseName(currentItemResponse); 
             return View();
             /*
             foreach of these item responses in the list of item responses i think it would be wise to have an 
             algorithm to filter out the top 2 prices (or put them at the end of the list and gray them out so they're visible but not prominent...
-            there's a product of 6 5 lb bags of king arthur organic unbleached flour, but in the itemr esponse name, it doesn't give any packs... 
-            
-            this is walmart's faulty naming system for this, but i would prefere to still be able to side step around this
+            there's a product of 6 5 lb bags of king arthur organic unbleached flour, but in the itemr esponse name, it doesn't give any specification of packs in it's name, so my algorithm wouldn't be able to do anything with it   
+            unless i took the largest price and divided it by the average of the other prices and compared them, seeing if it was a pack that way...  
             */
         }
         public ActionResult Ingredient(string name, string measurement) {
@@ -80,7 +86,8 @@ namespace RachelsRosesWebPages.Controllers {
             ViewBag.currentitemresponselistnoweight = rest.GetListItemResponseNoSellingWeights(currentIngredient);
             return View();
         }
-        public ActionResult EditIng(string updatedName, string updatedMeasurement, string updatedType, string updatedDensity, string updatedSellingWeight, string updatedSellingPrice, string updatedClassification) {
+        public ActionResult EditIng(string updatedName, string updatedMeasurement, string updatedType, string updatedDensity, string updatedSellingWeight, string updatedSellingPrice, string updatedClassification, string updatedExpirationDate) {
+            var dbI = new DatabaseAccessIngredient();
             var t = new DatabaseAccess();
             var updatedDensityDecimal = 0m;
             var updatedSellingPriceDecimal = 0m;
@@ -94,26 +101,37 @@ namespace RachelsRosesWebPages.Controllers {
                     if (ing.name != updatedName && !(string.IsNullOrEmpty(updatedName))) {
                         ing.name = updatedName;
                     } else { updatedName = ing.name; }
+
                     if (ing.measurement != updatedMeasurement && !(string.IsNullOrEmpty(updatedMeasurement))) {
                         ing.measurement = updatedMeasurement;
                     } else { updatedMeasurement = ing.measurement; }
+
                     if (ing.typeOfIngredient != updatedType && !(string.IsNullOrEmpty(updatedType))) {
                         ing.typeOfIngredient = updatedType;
                     } else { updatedType = ing.typeOfIngredient; }
+
                     if (ing.density != updatedDensityDecimal && !(string.IsNullOrEmpty(updatedDensity))) {
                         ing.density = updatedDensityDecimal;
                     } else { updatedDensityDecimal = ing.density; }
+
                     if (ing.sellingWeight != updatedSellingWeight && !(string.IsNullOrEmpty(updatedSellingWeight))) {
                         ing.sellingWeight = updatedSellingWeight;
                     } else { updatedSellingWeight = ing.sellingWeight; }
+
                     if (ing.sellingPrice != updatedSellingPriceDecimal && !(string.IsNullOrEmpty(updatedSellingPrice))) {
                         ing.sellingPrice = updatedSellingPriceDecimal;
                     } else { updatedSellingPriceDecimal = ing.sellingPrice; }
+
                     if (ing.classification != updatedClassification && !(string.IsNullOrEmpty(updatedClassification))) {
                         ing.classification = updatedClassification;
                     } else { updatedClassification = ing.classification; }
+
+                    if (ing.expirationDate != dbI.convertStringToDateYYYYMMDD(updatedExpirationDate) && !(string.IsNullOrEmpty(updatedExpirationDate))) {
+                        ing.expirationDate = dbI.convertStringToDateYYYYMMDD(updatedExpirationDate);
+                    } else { updatedExpirationDate = dbI.convertDateToStringMMDDYYYY(ing.expirationDate); }
+
                     t.updateAllTables(currentIngredient, currentRecipe);
-                    currentIngredient = t.queryAllTablesForIngredient(currentIngredient);
+                    currentIngredient = t.queryAllRelevantTablesSQL(currentIngredient);
                 }
             }
             return Redirect("/home/ingredient?name=" + currentIngredient.name + "&measurement=" + currentIngredient.measurement);
@@ -126,7 +144,8 @@ namespace RachelsRosesWebPages.Controllers {
             return Redirect("/home/ingredient?name=" + currentIngredient.name + "&measurement=" + currentIngredient.measurement);
         }
         //add selling weight to the recipes page
-        public ActionResult CreateIngredient(string ingredient, string measurement, string classification, string type, string sellingweight, string sellingprice) {
+        public ActionResult CreateIngredient(string ingredient, string measurement, string classification, string type, string sellingweight, string sellingprice, string expirationdate) {
+            var dbI = new DatabaseAccessIngredient(); 
             var db = new DatabaseAccess();
             ingredient = ingredient.Trim();
             measurement = measurement.Trim();
@@ -141,16 +160,17 @@ namespace RachelsRosesWebPages.Controllers {
                 sellingprice = sellingprice.Trim();
             var newIngredient = new Ingredient();
             if ((!(string.IsNullOrEmpty(ingredient)) && !(string.IsNullOrEmpty(measurement)))) {
+                newIngredient.recipeId = currentRecipe.id;
                 newIngredient.name = ingredient;
                 newIngredient.measurement = measurement;
                 newIngredient.classification = classification;
                 newIngredient.typeOfIngredient = type;
-                newIngredient.recipeId = currentRecipe.id;
                 newIngredient.sellingWeight = sellingweight;
+                newIngredient.expirationDate = dbI.convertStringToDateYYYYMMDD(expirationdate); 
                 currentRecipe.ingredients.Add(newIngredient);
                 currentIngredient = newIngredient;
                 db.insertIngredientIntoAllTables(currentIngredient, currentRecipe);
-                var newIngredientData = db.queryAllTablesForIngredient(currentIngredient); 
+                var newIngredientData = db.queryAllRelevantTablesSQL(currentIngredient);
             }
             return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
@@ -170,15 +190,15 @@ namespace RachelsRosesWebPages.Controllers {
             //i can give an attempt of guessing type by seeing if it matches any types... after all it's not final if i can put it as the placeholder or if
             //for now, we can just do placeholders... 
         }
-       
-        //so, if we're searching for something, it's not in our database... 
-            //it may share a type, but it's not in the database...
-            //so when i search for it, i can give the user what i think the name, the selling weigh, the selling price, type and classificatoin (i could provide a list of classifications too, similar to my density text database... 
-                //so, first give a list of the name, sellingweight, sellingprice, priceperounce, type, density, classification... 
-                //if the user confirms that the information is correct and gives the measurement, then i can add the ingredient (i should be able to call updatealltables... it should check to make sure i have if the ingredients table doesn't have this ingredient to insert the ingredient
-                //i should also have a form that allows hte user to create a short name for it (eg: instead of King Arthur Bread Flour, the short name can be Bread Flour that the user inputs...)
 
-            //let's get the other views working first...
+        //so, if we're searching for something, it's not in our database... 
+        //it may share a type, but it's not in the database...
+        //so when i search for it, i can give the user what i think the name, the selling weigh, the selling price, type and classificatoin (i could provide a list of classifications too, similar to my density text database... 
+        //so, first give a list of the name, sellingweight, sellingprice, priceperounce, type, density, classification... 
+        //if the user confirms that the information is correct and gives the measurement, then i can add the ingredient (i should be able to call updatealltables... it should check to make sure i have if the ingredients table doesn't have this ingredient to insert the ingredient
+        //i should also have a form that allows hte user to create a short name for it (eg: instead of King Arthur Bread Flour, the short name can be Bread Flour that the user inputs...)
+
+        //let's get the other views working first...
         public ActionResult CreateRecipe(string recipeTitle) {
             recipeTitle = recipeTitle.Trim();
             Recipe newrecipe = new Recipe(recipeTitle);
@@ -218,24 +238,22 @@ namespace RachelsRosesWebPages.Controllers {
             t.UpdateRecipe(currentRecipe);
             return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
-        public ActionResult DeleteIngredient(string name,string measurement) {
+        public ActionResult DeleteIngredient(string name, string measurement) {
             name = name.Trim();
             var dbI = new DatabaseAccessIngredient();
-            //foreach (var ingredient in myIngredientsTable) {
-            foreach (var ingredient in currentRecipe.ingredients) {  
+            foreach (var ingredient in currentRecipe.ingredients) {
                 if (ingredient.name == name && ingredient.measurement == measurement) {
                     dbI.DeleteIngredientFromIngredientTable(ingredient);
                     //i need to make sure this is deleting from the recipe too, otherwise i'll get an incorrect total price...
-                        //it should be, but i'd rather not be suprised by a bug 
+                    //it should be, but i'd rather not be suprised by a bug 
                     break;
                 }
             }
             //manual check:
             var countRecipeIngredients = currentRecipe.ingredients.Count();
             var myIngredientsTable = dbI.queryIngredients();
-            var countIngredientTable = myIngredientsTable.Count(); 
+            var countIngredientTable = myIngredientsTable.Count();
             return Redirect("/home/recipe?name=" + currentRecipe.name);
-            //ok... so the priceOfMeasuredConsumption isn't working, as well as ounces remaining and deleting the ingredient from the ingredient table...
         }
         public ActionResult InitializeDatabase() {
             var db = new DatabaseAccess();
@@ -244,7 +262,7 @@ namespace RachelsRosesWebPages.Controllers {
         }
         public ActionResult IngredientBox() {
             var db = new DatabaseAccess();
-            var dbI = new DatabaseAccessIngredient(); 
+            var dbI = new DatabaseAccessIngredient();
             var myIngredientBox = dbI.queryIngredients();
             ViewBag.ingredientbox = myIngredientBox;
             ViewBag.fullingredientbox = db.queryAllTablesForAllIngredients(myIngredientBox);

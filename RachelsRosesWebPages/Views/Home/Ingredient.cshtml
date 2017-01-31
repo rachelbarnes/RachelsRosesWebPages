@@ -27,6 +27,15 @@
     <h5>Density: @ViewBag.currentingredient.density</h5>
     <input name="updatedDensity" placeholder="@ViewBag.currentingredient.density"/>
     <input type="submit" value="Update Density" />
+    <h5>Type: @ViewBag.currentingredient.typeOfIngredient</h5>
+    <input name="updatedType" placeholder="@ViewBag.currentingredient.typeOfIngredient"/>
+    <input type="submit" value="Update Type" />
+    <h5>Classification: @ViewBag.currentingredient.classification</h5>
+    <input name="updatedClassification" placeholder="@ViewBag.currentingredient.classification" />
+    <input type="submit" value="Update Ingredient Classification" />
+    <h5>Expiration Date: @ViewBag.currentingredient.expirationdate</h5>
+    <input name="updatedExpirationDate" placeholder="@ViewBag.currentingredient.expirationdate" />
+    <input type="submit" value="Update Ingredient Expiration Date" />
     <h5>Selling Weight: @ViewBag.currentingredient.sellingWeight</h5>
     <input name="updateSellingWeight" placeholder="@ViewBag.currentingredient.sellingWeight"/>
     <input type="submit" value="Update Selling Weight" />
@@ -34,12 +43,6 @@
     <input name="updatedSellingPrice" placeholder="@ViewBag.currentingredient.sellingPrice" />
     <input type="submit" value="Update Selling Price" />
     @*<h5>Price Per Ounce $ @ViewBag.currentingredient.pricePerOunce</h5>*@
-    <h5>Type: @ViewBag.currentingredient.typeOfIngredient</h5>
-    <input name="updatedType" placeholder="@ViewBag.currentingredient.typeOfIngredient"/>
-    <input type="submit" value="Update Type" />
-    <h5>Classification: @ViewBag.currentingredient.classification</h5>
-    <input name="updatedClassification" placeholder="@ViewBag.currentingredient.classification" />
-    <input type="submit" value="Update Ingredient Classification" />
 </form>
 <form action="/home/ResetSellingPrice" method="post">
     @*<h5><b>Reset Selling Price: </b></h5>*@

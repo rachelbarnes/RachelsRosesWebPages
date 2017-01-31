@@ -38,13 +38,56 @@ namespace RachelsRosesWebPages.Models {
             sqlConnection1.Close();
             return items;
         }
-        public Ingredient queryAllTablesForIngredient(Ingredient i) {
+        public Ingredient queryAllRelevantTablesSQL(Ingredient i) {
+            var dbI = new DatabaseAccessIngredient();
+            var queriedIngredient = new Ingredient(); 
+            var commandTextQueryAllRelevantColumns = @"SELECT ingredients.ing_id, 
+			                                            ingredients.recipe_id,
+				                                        ingredients.name, 
+                                            			ingredients.measurement, 
+			                                            consumption_ounces_consumed.ounces_consumed, 
+			                                            ingredients.ingredient_classification, 
+			                                            ingredients.ingredient_type, 
+			                                            ingredients.price_measured_ingredient, 
+			                                            ingredients.expiration_date, 
+			                                            costs.selling_price, 
+			                                            costs.price_per_ounce, 
+			                                            densities.selling_weight, 
+			                                            densities.selling_weight_ounces
+	                                                FROM ingredients 
+	                                                INNER JOIN consumption_ounces_consumed
+		                                            ON ingredients.name=consumption_ounces_consumed.name
+	                                                INNER JOIN costs 
+		                                            ON ingredients.name=costs.name
+	                                                INNER JOIN densities
+		                                            ON ingredients.name=densities.name;";
+            queryItems(commandTextQueryAllRelevantColumns, reader => {
+                queriedIngredient.name = (string)(reader["name"]);
+                queriedIngredient.ingredientId = (int)(reader["ing_id"]);
+                queriedIngredient.recipeId = (int)(reader["recipe_id"]);
+                queriedIngredient.measurement = (string)(reader["measurement"]);
+                queriedIngredient.ouncesConsumed = (decimal)(reader["ounces_consumed"]);
+                //queriedIngredient.ouncesConsumed = (decimal)(reader["ounces_remaining"]); 
+                queriedIngredient.classification = (string)(reader["ingredient_classification"]);
+                queriedIngredient.typeOfIngredient = (string)(reader["ingredient_type"]);
+                queriedIngredient.pricePerOunce = (decimal)(reader["price_per_ounce"]);
+                queriedIngredient.priceOfMeasuredConsumption = (decimal)(reader["price_measured_ingredient"]);
+                queriedIngredient.sellingPrice = (decimal)(reader["selling_price"]);
+                queriedIngredient.sellingWeight = (string)(reader["selling_weight"]);
+                queriedIngredient.sellingWeightInOunces = (decimal)(reader["selling_weight_ounces"]);
+                var expirationDate = (string)(reader["expiration_date"]);
+                queriedIngredient.expirationDate = dbI.convertStringToDateYYYYMMDD(expirationDate);
+                return queriedIngredient;
+            });
+            return queriedIngredient; 
+        }
+        public Ingredient queryAllRelevantTables(Ingredient i) {
             var dbRecipes = new DatabaseAccessRecipe();
             var dbIngredients = new DatabaseAccessIngredient();
             var dbConsumptionOuncesConsumed = new DatabaseAccessConsumptionOuncesConsumed();
             var dbConsumption = new DatabaseAccessConsumption();
             var dbDensities = new DatabaseAccessDensities();
-            var dbCosts = new DatabaseAccessCosts(); 
+            var dbCosts = new DatabaseAccessCosts();
             var rest = new MakeRESTCalls();
             var myRecipes = dbRecipes.queryRecipes();
             var myIngredients = dbIngredients.queryIngredients();
@@ -53,7 +96,7 @@ namespace RachelsRosesWebPages.Models {
             var myIngredientDensity = dbDensities.queryDensitiesTable();
             var myIngredientCost = dbCosts.queryCostTable();
             //i'd be really interested in making these queries singletons in each of these classes... 
-                //if i'm accessing them all the time, it would save a lot of time... definitely worth checking out
+            //if i'm accessing them all the time, it would save a lot of time... definitely worth checking out
             var temp = new Recipe();
             foreach (var rec in myRecipes) {
                 if (rec.id == i.recipeId) {
@@ -119,7 +162,7 @@ namespace RachelsRosesWebPages.Models {
         public List<Ingredient> queryAllTablesForAllIngredients(List<Ingredient> ListOfIngredients) {
             var queriedListOfIngredients = new List<Ingredient>();
             foreach (var ingredient in ListOfIngredients)
-                queriedListOfIngredients.Add(queryAllTablesForIngredient(ingredient));
+                queriedListOfIngredients.Add(queryAllRelevantTablesSQL(ingredient));
             return queriedListOfIngredients;
         }
         public void insertIngredientIntoAllTables(Ingredient i, Recipe r) {
@@ -128,11 +171,11 @@ namespace RachelsRosesWebPages.Models {
             var dbConsumptionOuncesConsumed = new DatabaseAccessConsumptionOuncesConsumed();
             var dbConsumption = new DatabaseAccessConsumption();
             var dbDensities = new DatabaseAccessDensities();
-            var dbDensitiesInformation = new DatabaseAccessDensityInformation(); 
-            var dbCosts = new DatabaseAccessCosts(); 
+            var dbDensitiesInformation = new DatabaseAccessDensityInformation();
+            var dbCosts = new DatabaseAccessCosts();
             var myRecipes = dbRecipes.queryRecipes();
             var myIngredientBox = dbIngredients.queryIngredients();
-            var myIngredients = queryAllTablesForIngredient(i);
+            var myIngredients = queryAllRelevantTablesSQL(i);
             var count = 0;
             var countIngredients = 0;
             foreach (var recipe in myRecipes) {
@@ -149,7 +192,7 @@ namespace RachelsRosesWebPages.Models {
             }
             if (countIngredients == 0) {
                 dbIngredients.insertIngredient(i, r);
-                var myIng = queryAllTablesForIngredient(i);
+                var myIng = queryAllRelevantTablesSQL(i);
                 dbDensitiesInformation.insertIngredientIntoDensityInfoDatabase(i);
                 dbDensities.insertIngredientDensityData(i);
                 dbConsumption.insertIngredientConsumtionData(i);
@@ -157,7 +200,7 @@ namespace RachelsRosesWebPages.Models {
                 dbIngredients.UpdateIngredient(i);
             } else {
                 dbIngredients.UpdateIngredient(i);
-                var updatedIngredient = queryAllTablesForIngredient(i);
+                var updatedIngredient = queryAllRelevantTablesSQL(i);
                 dbDensitiesInformation.updateDensityInfoTable(i);
                 dbDensities.updateDensityTable(i);
                 dbCosts.updateCostDataTable(i);
@@ -166,7 +209,7 @@ namespace RachelsRosesWebPages.Models {
         }
         public void insertListOfIngredientsIntoAllTables(List<Ingredient> ListOfIngredients, Recipe r) {
             var dbRecipes = new DatabaseAccessRecipe();
-            var dbIngredients = new DatabaseAccessIngredient(); 
+            var dbIngredients = new DatabaseAccessIngredient();
             var myListOfIngredientIds = new List<int>();
             var myListOfRecipeIds = new List<int>();
             foreach (var ingredient in ListOfIngredients) {
@@ -198,8 +241,8 @@ namespace RachelsRosesWebPages.Models {
             var dbConsumptionOuncesConsumed = new DatabaseAccessConsumptionOuncesConsumed();
             var dbConsumption = new DatabaseAccessConsumption();
             var dbDensities = new DatabaseAccessDensities();
-            var dbDensityInformation = new DatabaseAccessDensityInformation(); 
-            var dbCosts = new DatabaseAccessCosts(); 
+            var dbDensityInformation = new DatabaseAccessDensityInformation();
+            var dbCosts = new DatabaseAccessCosts();
             var myCostTable = dbCosts.queryCostTable();
             foreach (var ingredient in myCostTable) {
                 if (ingredient.ingredientId == i.ingredientId) {
@@ -211,7 +254,7 @@ namespace RachelsRosesWebPages.Models {
             }
             dbRecipes.UpdateRecipe(r);
             dbIngredients.UpdateIngredient(i);
-            var updatedIngredient = queryAllTablesForIngredient(i);
+            var updatedIngredient = queryAllRelevantTablesSQL(i);
             dbDensityInformation.updateDensityInfoTable(i);
             dbDensities.updateDensityTable(i);
             dbCosts.updateCostDataTable(i);

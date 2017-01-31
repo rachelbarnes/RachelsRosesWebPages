@@ -19,7 +19,8 @@ namespace RachelsRosesWebPages.Models {
             dropIfConsumptionOuncesConsumptionTableExists("consumption_ounces_consumed");
             db.executeVoidQuery(@"create table consumption_ounces_consumed (
                         ingredient nvarchar(max),
-                        density decimal(4,2)
+                        density decimal(4,2),
+                        measurement nvarchar(250)
                         );", a => a);
         }
         public List<Ingredient> queryConsumptionOuncesConsumed() {
@@ -41,6 +42,8 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@measurement", i.measurement);
                 return cmd;
             });
+            //check: 
+            var myConsumptionOuncesConsumedTable = queryConsumptionOuncesConsumed(); 
         }
         public void insertListOfIngredientsIntoConsumptionOuncesConsumed(List<Ingredient> myIngredients) {
             foreach (var ingredient in myIngredients)

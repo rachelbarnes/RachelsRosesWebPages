@@ -100,7 +100,7 @@ namespace RachelsRosesWebPagesUnitTests {
             };
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(i, r);
-            var myIngredient = t.queryAllTablesForIngredient(i);
+            var myIngredient = t.queryAllRelevantTablesSQL(i);
             Assert.AreEqual(80m, myIngredient.sellingWeightInOunces);
             Assert.AreEqual(4.20m, myIngredient.sellingPrice);
             Assert.AreEqual(.0525m, myIngredient.pricePerOunce);
@@ -123,7 +123,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(i, r);
             dbI.getIngredientMeasuredPrice(i, r);
-            var myIngredient = t.queryAllTablesForIngredient(i);
+            var myIngredient = t.queryAllRelevantTablesSQL(i);
             Assert.AreEqual(3.34m, myIngredient.sellingPrice);
             Assert.AreEqual(.87m, myIngredient.priceOfMeasuredConsumption);
         }
@@ -222,7 +222,7 @@ namespace RachelsRosesWebPagesUnitTests {
             };
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(i, r);
-            var myIngredients = t.queryAllTablesForIngredient(i);
+            var myIngredients = t.queryAllRelevantTablesSQL(i);
             Assert.AreEqual(5m, myIngredients.density);
         }
         [Test]
@@ -259,6 +259,27 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(.11m, myIngredients[1].priceOfMeasuredConsumption);
             Assert.AreEqual(.0456m, myIngredients[1].pricePerOunce);
             Assert.AreEqual(5m, myIngredients[1].density);
+        }
+        [Test]
+        public void TestSQLQueryAllTalesForIngredients() {
+            var t = new DatabaseAccess();
+            var cake = new Recipe("Cake") { id = 1, yield = 14 };
+            var softasilk = new Ingredient("Softasilk Cake Flour") { ingredientId = 1, recipeId = 1, measurement = "2 cups", sellingWeight = "32 oz", typeOfIngredient = "cake flour", classification = "flour" , expirationDate = new DateTime(2017, 6, 5)};
+            t.initializeDatabase();
+            t.insertIngredientIntoAllTables(softasilk, cake);
+            var myIngredient = t.queryAllRelevantTablesSQL(softasilk);
+            Assert.AreEqual("Softasilk Cake Flour", myIngredient.name);
+            Assert.AreEqual(1, myIngredient.recipeId);
+            Assert.AreEqual(1, myIngredient.ingredientId);
+            Assert.AreEqual("2 cups", myIngredient.measurement);
+            Assert.AreEqual(9m, myIngredient.ouncesConsumed);
+            Assert.AreEqual("flour", myIngredient.classification);
+            Assert.AreEqual("cake flour", myIngredient.typeOfIngredient);
+            Assert.AreEqual(.84m, myIngredient.priceOfMeasuredConsumption);
+            Assert.AreEqual(2.98m, myIngredient.sellingPrice);
+            Assert.AreEqual("32 oz", myIngredient.sellingWeight);
+            Assert.AreEqual(32m, myIngredient.sellingWeightInOunces);
+            Assert.AreEqual(.0931m, myIngredient.pricePerOunce); 
         }
     }
 }

@@ -91,7 +91,8 @@ namespace RachelsRosesWebPages.Models {
             var expirationDateString = convertDateToStringMMDDYYYY(i.expirationDate);
             if ((i.classification.ToLower() == "dairy" || i.classification.ToLower() == "egg" || i.classification.ToLower() == "eggs") && expirationDateString == "01/01/0000")
                 throw new Exception("Please enter an expiration date for dairy and egg items");
-            var commandText = "Insert into ingredients(recipe_id, name, measurement, price_measured_ingredient, item_id, ingredient_type, ingredient_classification, item_response_name, expiration_date) values (@rid, @name, @measurement, @price_measured_ingredient, @item_id, @ingredient_type, @ingredient_classification, @item_response_name, @expiration_date);";
+            var commandText = @"Insert into ingredients(recipe_id, name, measurement, price_measured_ingredient, item_id, ingredient_type, ingredient_classification, item_response_name, expiration_date) 
+                                values (@rid, @name, @measurement, @price_measured_ingredient, @item_id, @ingredient_type, @ingredient_classification, @item_response_name, @expiration_date);";
             db.executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@rid", r.id);
                 cmd.Parameters.AddWithValue("@name", i.name);
@@ -105,7 +106,7 @@ namespace RachelsRosesWebPages.Models {
                 return cmd;
             });
             var myIngredients = queryIngredients();
-            var myIngredientFull = db.queryAllTablesForIngredient(i);
+            var myIngredientFull = db.queryAllRelevantTablesSQL(i);
         }
         public void UpdateIngredient(Ingredient i) {
             var db = new DatabaseAccess();
@@ -132,7 +133,16 @@ namespace RachelsRosesWebPages.Models {
             if (string.IsNullOrEmpty(i.classification))
                 i.classification = " ";
             var myIngredientId = i.ingredientId;
-            var commandText = "update ingredients set name=@name, measurement=@measurement, recipe_id=@recipeId, price_measured_ingredient=@price_measured_ingredient, item_id=@item_id, ingredient_type=@ingredient_type, ingredient_classification=@ingredient_classification, item_response_name=@item_response_name, expiration_date=@expiration_date where ing_id=@ing_id;";
+            var commandText = @"update ingredients set name=@name, 
+                                measurement=@measurement,
+                                recipe_id=@recipeId, 
+                                price_measured_ingredient=@price_measured_ingredient, 
+                                item_id=@item_id, 
+                                ingredient_type=@ingredient_type, 
+                                ingredient_classification=@ingredient_classification, 
+                                item_response_name=@item_response_name, 
+                                expiration_date=@expiration_date 
+                                where ing_id=@ing_id;";
             db.executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@name", i.name);
                 cmd.Parameters.AddWithValue("@measurement", i.measurement);
@@ -201,14 +211,14 @@ namespace RachelsRosesWebPages.Models {
         }
         //there's something off here, i may not have the right classification or something... 
         //look at the pattern and see what's off here
-        public List<string> getListOfDistintIngredientsSorted() {
+        public List<string> myDistinctIngredientNamesSorted() {
             var db = new DatabaseAccess();
             var uniqueIngredientNames = new List<string>();
-            var orderIngredientsByName = @"SELECT name
+            var orderIngredientsByName = @"SELECT DISTINCT name
                                            FROM ingredients
                                            ORDER BY name ASC;";
             db.queryItems(orderIngredientsByName, reader => {
-                var ingredient = new Ingredient((string)reader["name"].ToString());
+                var ingredient = new Ingredient(reader["name"].ToString());
                 if (!uniqueIngredientNames.Contains(ingredient.name))
                     uniqueIngredientNames.Add(ingredient.name);
                 return ingredient;
@@ -217,12 +227,12 @@ namespace RachelsRosesWebPages.Models {
         }
         public decimal returnIngredientMeasuredPrice(Ingredient i) {
             var db = new DatabaseAccess();
-            db.queryAllTablesForIngredient(i);
+            db.queryAllRelevantTablesSQL(i);
             return MeasuredIngredientPrice(i);
         }
         public void getIngredientMeasuredPrice(Ingredient i, Recipe r) {
             var db = new DatabaseAccess();
-            db.queryAllTablesForIngredient(i);
+            db.queryAllRelevantTablesSQL(i);
             i.priceOfMeasuredConsumption = MeasuredIngredientPrice(i);
             UpdateIngredient(i);
         }
@@ -280,8 +290,69 @@ namespace RachelsRosesWebPages.Models {
             var ingredientBox = new List<Ingredient>();
             var queriedIngredients = queryIngredients();
             foreach (var ingredient in queriedIngredients)
-                ingredientBox.Add(db.queryAllTablesForIngredient(ingredient));
+                ingredientBox.Add(db.queryAllRelevantTablesSQL(ingredient));
             return ingredientBox;
+        }
+        public List<string> myDistinctIngredientClassificationsSorted() {
+            var db = new DatabaseAccess();
+            var distinctClassifications = new List<string>();
+            var commandTextDistinctClassifications = @"SELECT DISTINCT ingredient_classification 
+                                                        FROM ingredients
+                                                        ORDER BY ingredient_classification ASC";
+            db.queryItems(commandTextDistinctClassifications, reader => {
+                string classification = (string)(reader["ingredient_classification"]);
+                //if (!distinctClassifications.Contains(classification))
+                distinctClassifications.Add(classification);
+                return classification;
+            });
+            return distinctClassifications;
+
+        }
+        public List<string> myDistinctIngredientTypesSorted() {
+            var db = new DatabaseAccess();
+            var distinctTypes = new List<string>();
+            var commandTextDistinctTypes = @"SELECT DISTINCT ingredient_type 
+                                            FROM ingredients
+                                            ORDER BY ingredient_type ASC;";
+            db.queryItems(commandTextDistinctTypes, reader => {
+                string type = (string)(reader["ingredient_type"]);
+                //if (!commandTextDistinctTypes.Contains(type))
+                distinctTypes.Add(type);
+                return type;
+            });
+            return distinctTypes;
+        }
+        public List<Ingredient> orderIngredientsByPricePerOunce() {
+            var db = new DatabaseAccess();
+            var orderedIngredients = new List<Ingredient>();
+            var commandTextOrderIngredientsPricePerOunce = @"SELECT DISTINCT ingredients.name, price_per_ounce
+                                                FROM ingredients
+                                                JOIN costs
+                                                ON ingredients.name=costs.name
+                                                ORDER BY costs.price_per_ounce DESC;";
+            db.queryItems(commandTextOrderIngredientsPricePerOunce, reader => {
+                var ingredient = new Ingredient((string)(reader["name"]));
+                ingredient.pricePerOunce = (decimal)(reader["price_per_ounce"]);
+                orderedIngredients.Add(ingredient);
+                return ingredient;
+            });
+            return orderedIngredients; 
+        }
+        public List<Ingredient> orderIngredientsByExpirationDateAsc() {
+            var db = new DatabaseAccess();
+            var ExpiringIngredients = new List<Ingredient>();
+            var commandTextOrderIngredientsByExpirationDate = @"SELECT name, expiration_date 
+                                                                FROM ingredients
+                                                                ORDER BY expiration_date ASC";
+            db.queryItems(commandTextOrderIngredientsByExpirationDate, reader => {
+                var ingredient = new Ingredient((string)(reader["name"]));
+                var expirationDate = (string)(reader["expiration_date"]);
+                ingredient.expirationDate = convertStringToDateYYYYMMDD(expirationDate); 
+                //ingredient.expirationDate = (DateTime)(reader["expiration_date"]);
+                ExpiringIngredients.Add(ingredient);
+                return ingredient;
+            });
+            return ExpiringIngredients; 
         }
     }
 }

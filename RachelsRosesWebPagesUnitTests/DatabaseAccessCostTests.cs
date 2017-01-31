@@ -24,7 +24,7 @@ namespace RachelsRosesWebPagesUnitTests {
             };
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(i, r);
-            var myIngredient = t.queryAllTablesForIngredient(i);
+            var myIngredient = t.queryAllRelevantTablesSQL(i);
             Assert.AreEqual(2.98m, myIngredient.sellingPrice);
             Assert.AreEqual(.0931m, myIngredient.pricePerOunce);
         }
@@ -37,12 +37,12 @@ namespace RachelsRosesWebPagesUnitTests {
             var milk = new Ingredient("Whole Milk") { ingredientId = 1, recipeId = 1, measurement = "1 cup", sellingWeight = "1 gallon", typeOfIngredient = "milk", classification = "dairy" };
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(milk, yellowCake);
-            var myIngredient = t.queryAllTablesForIngredient(milk);
+            var myIngredient = t.queryAllRelevantTablesSQL(milk);
             milk.sellingPrice = 2.98m;
             dbC.updateCostDataTable(milk);
             var myCostIngredient = dbC.queryCostTable();
             t.updateAllTables(milk, yellowCake);
-            var myUpdatedIngredient = t.queryAllTablesForIngredient(milk);
+            var myUpdatedIngredient = t.queryAllRelevantTablesSQL(milk);
             var myRecipeBox = dbR.MyRecipeBox();
             Assert.AreEqual(1, myRecipeBox[0].ingredients.Count());
             Assert.AreEqual(2.98m, myUpdatedIngredient.sellingPrice);
@@ -108,11 +108,11 @@ namespace RachelsRosesWebPagesUnitTests {
             var softasilk = new Ingredient("Softasilk Flour") { recipeId = 1, ingredientId = 1, sellingWeight = "32 oz", measurement = "3 cups", typeOfIngredient = "cake flour", classification = "flour" };
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(softasilk, chocolateCake);
-            var myIngredient = t.queryAllTablesForIngredient(softasilk);
+            var myIngredient = t.queryAllRelevantTablesSQL(softasilk);
             softasilk.sellingPrice = 5m;
             var costTable = dbC.queryCostTable();
             t.updateAllTables(softasilk, chocolateCake);
-            var myUpdatedIngredient = t.queryAllTablesForIngredient(softasilk);
+            var myUpdatedIngredient = t.queryAllRelevantTablesSQL(softasilk);
             var myRecipeBox = dbR.MyRecipeBox();
             Assert.AreEqual(1.26m, myIngredient.priceOfMeasuredConsumption);
             Assert.AreEqual(2.11m, myUpdatedIngredient.priceOfMeasuredConsumption);
@@ -128,7 +128,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(honey, bread);
             var myRecipes = dbR.MyRecipeBox();
-            var myIngredients = t.queryAllTablesForIngredient(honey);
+            var myIngredients = t.queryAllRelevantTablesSQL(honey);
             dbC.DeleteIngredientFromCostTable(honey);
             var myCostIngredients = dbC.queryCostTable();
             Assert.AreEqual(1, myRecipes.Count());
