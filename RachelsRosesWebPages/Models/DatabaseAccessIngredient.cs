@@ -41,7 +41,7 @@ namespace RachelsRosesWebPages.Models {
         }
 
         //something ins't happening right for the priceOfMeasuredConsumption to be operating correctly...
-            //what isn't happening? 
+        //what isn't happening? 
         public void DeleteIngredientFromIngredientTableIngIds(Ingredient i) {
             var db = new DatabaseAccess();
             i.name = i.name.Trim();
@@ -126,9 +126,9 @@ namespace RachelsRosesWebPages.Models {
                     i.classification = " ";
                 if (i.expirationDate == null)
                     i.expirationDate = new DateTime();
-                if (i.priceOfMeasuredConsumption == 0)
-                    i.priceOfMeasuredConsumption = returnIngredientMeasuredPrice(i);
             }
+            if (i.priceOfMeasuredConsumption == 0)
+                i.priceOfMeasuredConsumption = returnIngredientMeasuredPrice(i);
             if (string.IsNullOrEmpty(i.classification))
                 i.classification = " ";
             var myIngredientId = i.ingredientId;
@@ -163,7 +163,7 @@ namespace RachelsRosesWebPages.Models {
             var myIngredients = queryIngredients();
             var myDensityData = dbDensities.queryDensitiesTable();
             var myConsumptionData = dbConsumption.queryConsumptionTable();
-            var myDensityDataInformation = dbDensitiesInformation.queryDensityInfoTable(); 
+            var myDensityDataInformation = dbDensitiesInformation.queryDensityInfoTable();
             var temp = new Ingredient();
             var measuredIngredientPrice = 0m;
             foreach (var ingredient in myConsumptionData) {
@@ -174,7 +174,7 @@ namespace RachelsRosesWebPages.Models {
             }
             foreach (var ingredient in myDensityData) {
                 if (ingredient.name == i.name) {
-                    temp.density = ingredient.density; 
+                    temp.density = ingredient.density;
                     temp.sellingWeightInOunces = ingredient.sellingWeightInOunces;
                     break;
                 }
@@ -200,17 +200,17 @@ namespace RachelsRosesWebPages.Models {
             return measuredIngredientPrice;
         }
         //there's something off here, i may not have the right classification or something... 
-            //look at the pattern and see what's off here
+        //look at the pattern and see what's off here
         public List<string> getListOfDistintIngredientsSorted() {
             var db = new DatabaseAccess();
-            var uniqueIngredientNames = new List<string>(); 
+            var uniqueIngredientNames = new List<string>();
             var orderIngredientsByName = @"SELECT name
                                            FROM ingredients
-                                           ORDER BY name ASC;"; 
+                                           ORDER BY name ASC;";
             db.queryItems(orderIngredientsByName, reader => {
                 var ingredient = new Ingredient((string)reader["name"].ToString());
                 if (!uniqueIngredientNames.Contains(ingredient.name))
-                    uniqueIngredientNames.Add(ingredient.name); 
+                    uniqueIngredientNames.Add(ingredient.name);
                 return ingredient;
             });
             return uniqueIngredientNames;

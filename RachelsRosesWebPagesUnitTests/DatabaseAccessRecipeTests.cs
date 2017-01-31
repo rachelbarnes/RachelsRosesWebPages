@@ -1148,8 +1148,11 @@ namespace RachelsRosesWebPagesUnitTests {
             var softasilk = new Ingredient("Softasilk Cake Flour") { ingredientId = 2, recipeId = 1, measurement = "2 cups 2 tablespoons", typeOfIngredient = "cake flour", sellingWeight = "32 oz", classification = "flour" };
             var bakingPowder = new Ingredient("Baking Powder") { ingredientId = 3, recipeId = 1, measurement = "2 teaspoons", typeOfIngredient = "baking powder", sellingWeight = "10 oz", classification = "baking powder" };
             t.initializeDatabase();
-            var fluffyWhiteCakeIngredients = new List<Ingredient> { eggs, softasilk, bakingPowder };
-            t.insertListOfIngredientsIntoAllTables(fluffyWhiteCakeIngredients, fluffyWhiteCake);
+            //var fluffyWhiteCakeIngredients = new List<Ingredient> { eggs, softasilk, bakingPowder };
+            //t.insertListOfIngredientsIntoAllTables(fluffyWhiteCakeIngredients, fluffyWhiteCake);
+            t.insertIngredientIntoAllTables(eggs, fluffyWhiteCake);
+            t.insertIngredientIntoAllTables(softasilk, fluffyWhiteCake);
+            t.insertIngredientIntoAllTables(bakingPowder, fluffyWhiteCake); 
             var myRecipeIngredients = dbR.GetRecipeIngredients(fluffyWhiteCake); 
             Assert.AreEqual(3, myRecipeIngredients.Count());
             Assert.AreEqual("Eggs, Meringued", myRecipeIngredients[0].name);
@@ -1157,10 +1160,10 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(.66m, myRecipeIngredients[0].priceOfMeasuredConsumption); 
             Assert.AreEqual("Softasilk Cake Flour", myRecipeIngredients[1].name);
             Assert.AreEqual("2 cups 2 tablespoons", myRecipeIngredients[1].measurement);
-            Assert.AreEqual(.89m, myRecipeIngredients[1].measurement); 
+            Assert.AreEqual(.89m, myRecipeIngredients[1].priceOfMeasuredConsumption); 
             Assert.AreEqual("Baking Powder", myRecipeIngredients[2].name);
             Assert.AreEqual("2 teaspoons", myRecipeIngredients[2].measurement);
-            Assert.AreEqual(.07m, myRecipeIngredients[2].priceOfMeasuredConsumption); 
+            Assert.AreEqual(.06m, myRecipeIngredients[2].priceOfMeasuredConsumption); 
         }
     }
 }

@@ -52,6 +52,8 @@ namespace RachelsRosesWebPages.Models {
             var myIngredientConsumption = dbConsumption.queryConsumptionTable();
             var myIngredientDensity = dbDensities.queryDensitiesTable();
             var myIngredientCost = dbCosts.queryCostTable();
+            //i'd be really interested in making these queries singletons in each of these classes... 
+                //if i'm accessing them all the time, it would save a lot of time... definitely worth checking out
             var temp = new Recipe();
             foreach (var rec in myRecipes) {
                 if (rec.id == i.recipeId) {
