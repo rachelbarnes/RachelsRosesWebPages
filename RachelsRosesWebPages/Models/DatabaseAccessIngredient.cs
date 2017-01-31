@@ -26,15 +26,6 @@ namespace RachelsRosesWebPages.Models {
         public ItemResponse returnItemResponse(Ingredient i) {
             var rest = new MakeRESTCalls();
             return rest.GetItemResponse(i);
-            //i wasn't able to finish my thought process because the internet crapped out...
-                //so play around with it more, but i don't know if i can have duplicate names, like recipes.name and ingredient.name... the reader can't take the multipart sql column, so it'll take the first name, which is recipes
-                //but play around with this more
-
-            //call Sarah! see if she got my stuff... if i haven't gotten an email from her by 945
-            //need to fix website, price per ounce is being funky again
-
-            //need to continue studying!!!
-                //do notecards!!!
         }
         public static ItemResponse myItemResponse = new ItemResponse();
         public void DeleteIngredientFromIngredientTable(Ingredient i) {
@@ -48,6 +39,9 @@ namespace RachelsRosesWebPages.Models {
                 return cmd;
             });
         }
+
+        //something ins't happening right for the priceOfMeasuredConsumption to be operating correctly...
+            //what isn't happening? 
         public void DeleteIngredientFromIngredientTableIngIds(Ingredient i) {
             var db = new DatabaseAccess();
             i.name = i.name.Trim();
@@ -132,12 +126,6 @@ namespace RachelsRosesWebPages.Models {
                     i.classification = " ";
                 if (i.expirationDate == null)
                     i.expirationDate = new DateTime();
-            } else {
-                //myItemResponse = returnItemResponse(i);
-                //if (i.itemId == 0)
-                //    i.itemId = myItemResponse.itemId;
-                //if (string.IsNullOrEmpty(i.itemResponseName))
-                //    i.itemResponseName = myItemResponse.name;
                 if (i.priceOfMeasuredConsumption == 0)
                     i.priceOfMeasuredConsumption = returnIngredientMeasuredPrice(i);
             }
@@ -175,6 +163,7 @@ namespace RachelsRosesWebPages.Models {
             var myIngredients = queryIngredients();
             var myDensityData = dbDensities.queryDensitiesTable();
             var myConsumptionData = dbConsumption.queryConsumptionTable();
+            var myDensityDataInformation = dbDensitiesInformation.queryDensityInfoTable(); 
             var temp = new Ingredient();
             var measuredIngredientPrice = 0m;
             foreach (var ingredient in myConsumptionData) {
@@ -185,7 +174,7 @@ namespace RachelsRosesWebPages.Models {
             }
             foreach (var ingredient in myDensityData) {
                 if (ingredient.name == i.name) {
-                    temp.density = ingredient.density;
+                    temp.density = ingredient.density; 
                     temp.sellingWeightInOunces = ingredient.sellingWeightInOunces;
                     break;
                 }
@@ -212,19 +201,19 @@ namespace RachelsRosesWebPages.Models {
         }
         //there's something off here, i may not have the right classification or something... 
             //look at the pattern and see what's off here
-        public List<Ingredient> getListOfDistintIngredients() {
+        public List<string> getListOfDistintIngredientsSorted() {
             var db = new DatabaseAccess();
-            var myIngredientsTable = queryIngredients();
-            var myUniqueIngredientNames = new List<string>();
-            var myUniqueIngredients = new List<Ingredient>();
-            foreach (var ingredient in myIngredientsTable) {
-                if (!myUniqueIngredientNames.Contains(ingredient.name)) {
-                    myUniqueIngredientNames.Add(ingredient.name);
-                    myUniqueIngredients.Add(db.queryAllTablesForIngredient(ingredient));
-                }
-            }
-            //myUniqueIngredients.Sort(); 
-            return myUniqueIngredients;
+            var uniqueIngredientNames = new List<string>(); 
+            var orderIngredientsByName = @"SELECT name
+                                           FROM ingredients
+                                           ORDER BY name ASC;"; 
+            db.queryItems(orderIngredientsByName, reader => {
+                var ingredient = new Ingredient((string)reader["name"].ToString());
+                if (!uniqueIngredientNames.Contains(ingredient.name))
+                    uniqueIngredientNames.Add(ingredient.name); 
+                return ingredient;
+            });
+            return uniqueIngredientNames;
         }
         public decimal returnIngredientMeasuredPrice(Ingredient i) {
             var db = new DatabaseAccess();

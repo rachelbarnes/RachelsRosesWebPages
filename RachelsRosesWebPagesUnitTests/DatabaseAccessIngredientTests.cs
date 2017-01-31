@@ -325,12 +325,12 @@ namespace RachelsRosesWebPagesUnitTests {
             t.insertListOfIngredientsIntoAllTables(yellowCakeIngredients, yellowCake);
             var myIngredientsTable = dbI.queryIngredients();
             var myRecipeBox = dbR.MyRecipeBox();
-            var myDistictIngredientTable = dbI.getListOfDistintIngredients();
+            var myDistictIngredientTable = dbI.getListOfDistintIngredientsSorted();
             var myIngredientBoxFilled = t.queryAllTablesForAllIngredients(myIngredientBox);
             Assert.AreEqual(4, myIngredientsTable.Count());
             Assert.AreEqual(2, myDistictIngredientTable.Count());
-            Assert.AreEqual("Softasilk Cake Flour", myDistictIngredientTable[0].name);
-            Assert.AreEqual("Baking Powder", myDistictIngredientTable[1].name);
+            Assert.AreEqual("Softasilk Cake Flour", myDistictIngredientTable[0]);
+            Assert.AreEqual("Baking Powder", myDistictIngredientTable[1]);
             Assert.AreEqual(.89m, softasilk.priceOfMeasuredConsumption);
             Assert.AreEqual(1.26m, softasilk2.priceOfMeasuredConsumption);
             Assert.AreEqual(.63m, softasilk3.priceOfMeasuredConsumption);
@@ -421,28 +421,6 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual("Whole Milk", myIngredientBox[2].name);
         }
         [Test]
-        public void TestSortingListOfINgredients2() {
-            var t = new DatabaseAccess();
-            var dbI = new DatabaseAccessIngredient();
-            var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 12 };
-            var chocolateChips = new Ingredient("Semi Sweet Chocolate Chips") { ingredientId = 1, recipeId = 1, measurement = "2 cups", sellingWeight = "12 oz", typeOfIngredient = "chocolate chips", classification = "baking chocolate" };
-            var bakingCocoa = new Ingredient("Unsweetened Cocoa") { ingredientId = 2, recipeId = 1, measurement = "1 cup", sellingWeight = "16 oz", typeOfIngredient = "baking cocoa", classification = "baking chocolate" };
-            var milk = new Ingredient("Whole Milk") { ingredientId = 3, recipeId = 1, measurement = "2 cups", sellingWeight = "1/2 gallon", sellingPrice = 1.79m, typeOfIngredient = "milk", classification = "dairy" };
-            var eggs = new Ingredient("Eggs") { ingredientId = 4, recipeId = 1, measurement = "2 eggs", sellingWeight = "1 dozen", sellingPrice = 2.50m, typeOfIngredient = "eggs", classification = "eggs" };
-            var salt = new Ingredient("Salt") { ingredientId = 5, recipeId = 1, measurement = "1 teapsoon", sellingWeight = "48 oz", typeOfIngredient = "salt", classification = "salt" };
-            var bakingPowder = new Ingredient("Baking Powder") { ingredientId = 6, recipeId = 1, measurement = "2 teaspoons", sellingWeight = "10 oz", typeOfIngredient = "baking powder", classification = "rising agent" };
-            var chocolateCakeIngredients = new List<Ingredient>() { chocolateChips, bakingCocoa, milk, eggs, salt, bakingPowder };
-            t.initializeDatabase();
-            t.insertListOfIngredientsIntoAllTables(chocolateCakeIngredients, chocolateCake);
-            var myIngredientBox = dbI.myIngredientBox(); //need to do this sorted... it wont' pass like this... create another method with OrderBy(x => x.name).ToList() or something similar
-            Assert.AreEqual("Baking Powder", myIngredientBox[0].name);
-            Assert.AreEqual("Eggs", myIngredientBox[1].name);
-            Assert.AreEqual("Salt", myIngredientBox[2].name);
-            Assert.AreEqual("Semi Sweet Chocolate Chips", myIngredientBox[3].name);
-            Assert.AreEqual("Unsweetened Cocoa", myIngredientBox[4].name);
-            Assert.AreEqual("Whole Milk", myIngredientBox[5].name);
-        }
-        [Test]
         public void TestSortingListOfStrings() {
             var expected = new List<string> { "b", "g", "c", "f", "a", "r" };
             var actual = new List<string> { "a", "b", "c", "f", "g", "r" };
@@ -463,14 +441,13 @@ namespace RachelsRosesWebPagesUnitTests {
             var chocolateCakeIngredients = new List<Ingredient>() { eggs, salt, bakingPowder, chocolateChips, bakingCocoa, milk };
             t.initializeDatabase();
             t.insertListOfIngredientsIntoAllTables(chocolateCakeIngredients, chocolateCake);
-            var myIngredientBox = dbI.myIngredientBox();
-            myIngredientBox.OrderBy(x => x.name);
-            Assert.AreEqual("Baking Powder", myIngredientBox[0].name);
-            Assert.AreEqual("Eggs", myIngredientBox[1].name);
-            Assert.AreEqual("Salt", myIngredientBox[2].name);
-            Assert.AreEqual("Semi Sweet Chocolate Chips", myIngredientBox[3].name);
-            Assert.AreEqual("Unsweetened Cocoa", myIngredientBox[4].name);
-            Assert.AreEqual("Whole Milk", myIngredientBox[5].name);
+            var uniqueIngredientNames = dbI.getListOfDistintIngredientsSorted(); 
+            Assert.AreEqual("Baking Powder", uniqueIngredientNames[0]);
+            Assert.AreEqual("Eggs", uniqueIngredientNames[1]);
+            Assert.AreEqual("Salt", uniqueIngredientNames[2]);
+            Assert.AreEqual("Semi Sweet Chocolate Chips", uniqueIngredientNames[3]);
+            Assert.AreEqual("Unsweetened Cocoa", uniqueIngredientNames[4]);
+            Assert.AreEqual("Whole Milk", uniqueIngredientNames[5]);
         }
         [Test]
         public void TestSimilarNamesInDatabase() {
@@ -552,5 +529,13 @@ namespace RachelsRosesWebPagesUnitTests {
             var myIngredientTable = dbI.queryIngredients();
             Assert.AreEqual(0, myIngredientTable.Count());
         }
+        //write a test for the order by method for my ingredient names... 
+            //multipe ingredients of the same name and make sure they're in the right order
+
+        //need to figure out what's going on with the priceOfMeasuredConsumption for the other recipe tests... i was having trouble with this on my browser too... 
+            //it's not getting transfered somewhere... if I can get the query all tables for ingredients done with joins, either left or inner joins or even using the outter joins, then that
+                //would be benefical for tomorrow, plus muscle and brain memory
+
+        //also do the order bys for selling weights, densities, types, and ingredients by both name and by object with LINQ and SQL
     }
 }

@@ -1124,7 +1124,6 @@ namespace RachelsRosesWebPagesUnitTests {
             var eggs = new Ingredient("Eggs, Meringued") { ingredientId = 1, recipeId = 1, measurement = "4 eggs", typeOfIngredient = "egg whtie", sellingWeight = "1 dozen", sellingPrice = 1.99m, classification = "eggs" };
             var softasilk = new Ingredient("Softasilk Cake Flour") { ingredientId = 2, recipeId = 1, measurement = "2 cups 2 tablespoons", typeOfIngredient = "cake flour", sellingWeight = "32 oz", classification = "flour" };
             var bakingPowder = new Ingredient("Baking Powder") { ingredientId = 3, recipeId = 1, measurement = "2 teaspoons", typeOfIngredient = "baking powder", sellingWeight = "10 oz", classification = "baking powder" };
-            //var fluffyWhiteCakeIngredients = new List<Ingredient> { eggs, softasilk, bakingPowder }; 
             t.initializeDatabase();
             dbR.InsertRecipe(fluffyWhiteCake);
             dbI.insertIngredient(eggs, fluffyWhiteCake);
@@ -1133,9 +1132,35 @@ namespace RachelsRosesWebPagesUnitTests {
             var myRecipeIngredients = dbR.GetRecipeIngredients(fluffyWhiteCake);
             Assert.AreEqual(3, myRecipeIngredients.Count());
             Assert.AreEqual("Eggs, Meringued", myRecipeIngredients[0].name);
-            Assert.AreEqual("4 egs", myRecipeIngredients[0].measurement); 
+            Assert.AreEqual("4 eggs", myRecipeIngredients[0].measurement); 
             Assert.AreEqual("Softasilk Cake Flour", myRecipeIngredients[1].name);
-            Assert.AreEqual("Baking Powder", myRecipeIngredients[2].name);     
+            Assert.AreEqual("2 cups 2 tablespoons", myRecipeIngredients[1].measurement); 
+            Assert.AreEqual("Baking Powder", myRecipeIngredients[2].name);
+            Assert.AreEqual("2 teaspoons", myRecipeIngredients[2].measurement); 
+        }
+        [Test]
+        public void GetRecipeIngredientsWithJoin2() {
+            var t = new DatabaseAccess();
+            var dbR = new DatabaseAccessRecipe();
+            var dbI = new DatabaseAccessIngredient();
+            var fluffyWhiteCake = new Recipe("Fluffy White Cake") { id = 1, yield = 16 }; 
+            var eggs = new Ingredient("Eggs, Meringued") { ingredientId = 1, recipeId = 1, measurement = "4 eggs", typeOfIngredient = "egg white", sellingWeight = "1 dozen", sellingPrice = 1.99m, classification = "eggs", expirationDate = new DateTime(2017, 4, 4)};
+            var softasilk = new Ingredient("Softasilk Cake Flour") { ingredientId = 2, recipeId = 1, measurement = "2 cups 2 tablespoons", typeOfIngredient = "cake flour", sellingWeight = "32 oz", classification = "flour" };
+            var bakingPowder = new Ingredient("Baking Powder") { ingredientId = 3, recipeId = 1, measurement = "2 teaspoons", typeOfIngredient = "baking powder", sellingWeight = "10 oz", classification = "baking powder" };
+            t.initializeDatabase();
+            var fluffyWhiteCakeIngredients = new List<Ingredient> { eggs, softasilk, bakingPowder };
+            t.insertListOfIngredientsIntoAllTables(fluffyWhiteCakeIngredients, fluffyWhiteCake);
+            var myRecipeIngredients = dbR.GetRecipeIngredients(fluffyWhiteCake); 
+            Assert.AreEqual(3, myRecipeIngredients.Count());
+            Assert.AreEqual("Eggs, Meringued", myRecipeIngredients[0].name);
+            Assert.AreEqual("4 eggs", myRecipeIngredients[0].measurement);
+            Assert.AreEqual(.66m, myRecipeIngredients[0].priceOfMeasuredConsumption); 
+            Assert.AreEqual("Softasilk Cake Flour", myRecipeIngredients[1].name);
+            Assert.AreEqual("2 cups 2 tablespoons", myRecipeIngredients[1].measurement);
+            Assert.AreEqual(.89m, myRecipeIngredients[1].measurement); 
+            Assert.AreEqual("Baking Powder", myRecipeIngredients[2].name);
+            Assert.AreEqual("2 teaspoons", myRecipeIngredients[2].measurement);
+            Assert.AreEqual(.07m, myRecipeIngredients[2].priceOfMeasuredConsumption); 
         }
     }
 }

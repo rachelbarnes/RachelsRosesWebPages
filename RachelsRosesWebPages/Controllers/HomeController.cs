@@ -38,7 +38,7 @@ namespace RachelsRosesWebPages.Controllers {
             myDatabaseRecipe = getRecipes().First(x => x.name == name);
             currentRecipe = myDatabaseRecipe;
             ViewBag.currentingredient = currentIngredient;
-            ViewBag.currentingredienttable = dbI.getListOfDistintIngredients();
+            ViewBag.currentingredienttable = dbI.getListOfDistintIngredientsSorted();
             ViewBag.distinctsellingweights = dbC.getListOfDistinctSellingWeights();
             ViewBag.currentrecipe = currentRecipe;
             ViewBag.recipeboxcount = getRecipes().Count();
