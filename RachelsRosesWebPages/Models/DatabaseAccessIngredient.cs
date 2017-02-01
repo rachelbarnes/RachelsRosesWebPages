@@ -53,7 +53,7 @@ namespace RachelsRosesWebPages.Models {
                 return cmd;
             });
         }
-        public List<Ingredient> queryIngredients() {
+        public List<Ingredient> queryAllIngredientsFromIngredientTable() {
             var db = new DatabaseAccess();
             var count = 1;
             var myIngredientBox = db.queryItems("select * from ingredients", reader => {
@@ -64,7 +64,7 @@ namespace RachelsRosesWebPages.Models {
                 ingredient.itemId = (int)reader["item_id"];
                 ingredient.typeOfIngredient = (string)reader["ingredient_type"];
                 ingredient.classification = (string)reader["ingredient_classification"];
-                ingredient.expirationDate = convertStringToDateYYYYMMDD((string)reader["expiration_date"]);
+                ingredient.expirationDate = convertStringMMDDYYYYToDateYYYYMMDD((string)reader["expiration_date"]);
                 return ingredient;
             });
             foreach (var ingredient in myIngredientBox)
@@ -105,12 +105,12 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@expiration_date", convertDateToStringMMDDYYYY(i.expirationDate));
                 return cmd;
             });
-            var myIngredients = queryIngredients();
-            var myIngredientFull = db.queryAllRelevantTablesSQL(i);
+            var myIngredients = queryAllIngredientsFromIngredientTable();
+            //var myIngredientFull = db.queryAllRelevantTablesSQL(i);
         }
         public void UpdateIngredient(Ingredient i) {
             var db = new DatabaseAccess();
-            var myIngredients = queryIngredients();
+            var myIngredients = queryAllIngredientsFromIngredientTable();
             if (i.sellingPrice == 0m && (!i.classification.ToLower().Contains("dairy")) || (!i.classification.ToLower().Contains("egg"))) {
                 if (i.itemId == 0) {
                     myItemResponse = returnItemResponse(i);
@@ -170,7 +170,7 @@ namespace RachelsRosesWebPages.Models {
             var convertWeight = new ConvertWeight();
             var convert = new ConvertMeasurement();
             var myCostData = dbCosts.queryCostTable();
-            var myIngredients = queryIngredients();
+            var myIngredients = queryAllIngredientsFromIngredientTable();
             var myDensityData = dbDensities.queryDensitiesTable();
             var myConsumptionData = dbConsumption.queryConsumptionTable();
             var myDensityDataInformation = dbDensitiesInformation.queryDensityInfoTable();
@@ -246,7 +246,7 @@ namespace RachelsRosesWebPages.Models {
             var day = dateString.Substring(6, 2);
             return new DateTime(int.Parse(year), int.Parse(month), int.Parse(day));
         }
-        public DateTime convertStringToDateYYYYMMDD(string dateString) {
+        public DateTime convertStringMMDDYYYYToDateYYYYMMDD(string dateString) {
             if (dateString.Length < 8)
                 return new DateTime();
             var dateStringArray = new string[] { };
@@ -275,7 +275,7 @@ namespace RachelsRosesWebPages.Models {
             return string.Format("{0}/{1}/{2}", month, day, year);
         }
         public DateTime getExpirationDateFromIngredientsTable(Ingredient i) {
-            var myIngredients = queryIngredients();
+            var myIngredients = queryAllIngredientsFromIngredientTable();
             var myIngredientExpirationDate = new DateTime();
             foreach (var ingredient in myIngredients) {
                 if (ingredient.ingredientId == i.ingredientId) {
@@ -288,7 +288,7 @@ namespace RachelsRosesWebPages.Models {
         public List<Ingredient> myIngredientBox() {
             var db = new DatabaseAccess();
             var ingredientBox = new List<Ingredient>();
-            var queriedIngredients = queryIngredients();
+            var queriedIngredients = queryAllIngredientsFromIngredientTable();
             foreach (var ingredient in queriedIngredients)
                 ingredientBox.Add(db.queryAllRelevantTablesSQL(ingredient));
             return ingredientBox;
@@ -336,7 +336,7 @@ namespace RachelsRosesWebPages.Models {
                 orderedIngredients.Add(ingredient);
                 return ingredient;
             });
-            return orderedIngredients; 
+            return orderedIngredients;
         }
         public List<Ingredient> orderIngredientsByExpirationDateAsc() {
             var db = new DatabaseAccess();
@@ -347,12 +347,31 @@ namespace RachelsRosesWebPages.Models {
             db.queryItems(commandTextOrderIngredientsByExpirationDate, reader => {
                 var ingredient = new Ingredient((string)(reader["name"]));
                 var expirationDate = (string)(reader["expiration_date"]);
-                ingredient.expirationDate = convertStringToDateYYYYMMDD(expirationDate); 
+                ingredient.expirationDate = convertStringMMDDYYYYToDateYYYYMMDD(expirationDate);
                 //ingredient.expirationDate = (DateTime)(reader["expiration_date"]);
                 ExpiringIngredients.Add(ingredient);
                 return ingredient;
             });
-            return ExpiringIngredients; 
+            return ExpiringIngredients;
+        }
+        public Ingredient queryIngredientFromIngredientsTable(Ingredient i) {
+            var db = new DatabaseAccess();
+            var queriedIngredient = new Ingredient();
+            var commandTextQueryIngredient = string.Format(@"SELECT * FROM ingredients where name='{0}';", i.name);
+            db.queryItems(commandTextQueryIngredient, reader => {
+                queriedIngredient.name = (string)(reader["name"]);
+                queriedIngredient.measurement = (string)(reader["measurement"]);
+                queriedIngredient.recipeId = (int)(reader["recipe_id"]);
+                queriedIngredient.ingredientId = (int)(reader["ing_id"]);
+                queriedIngredient.classification = (string)(reader["ingredient_classification"]);
+                queriedIngredient.typeOfIngredient = (string)(reader["ingredient_type"]);
+                queriedIngredient.priceOfMeasuredConsumption = (decimal)(reader["price_measured_ingredient"]);
+                queriedIngredient.itemResponseName = (string)(reader["item_response_name"]);
+                var expirationDate = (string)(reader["expiration_date"]);
+                queriedIngredient.expirationDate = convertStringMMDDYYYYToDateYYYYMMDD(expirationDate);
+                return queriedIngredient;
+            });
+            return queriedIngredient; 
         }
     }
 }

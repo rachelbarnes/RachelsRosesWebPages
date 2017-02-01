@@ -30,7 +30,7 @@ namespace RachelsRosesWebPagesUnitTests {
             };
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(i, r);
-            var myIngInfo = dbI.queryIngredients();
+            var myIngInfo = dbI.queryAllIngredientsFromIngredientTable();
             var myIngCons = dbC.queryConsumptionTable();
             var myIngDens = dbD.queryDensitiesTable();
             var myIngCost = dbCosts.queryCostTable();
@@ -56,7 +56,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(i, r);
             dbI.getIngredientMeasuredPrice(i, r);
-            var myIngInfo = dbI.queryIngredients();
+            var myIngInfo = dbI.queryAllIngredientsFromIngredientTable();
             Assert.AreEqual(1, myIngInfo.Count());
             Assert.AreEqual(1.7m, myIngInfo[0].priceOfMeasuredConsumption);
         }
@@ -78,7 +78,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(i, r);
             dbI.getIngredientMeasuredPrice(i, r);
-            var myIngInfo = dbI.queryIngredients();
+            var myIngInfo = dbI.queryAllIngredientsFromIngredientTable();
             var myInfoCostInfo = dbCosts.queryCostTable();
             Assert.AreEqual(1, myIngInfo.Count());
             Assert.AreEqual(3.34m, myInfoCostInfo[0].sellingPrice);

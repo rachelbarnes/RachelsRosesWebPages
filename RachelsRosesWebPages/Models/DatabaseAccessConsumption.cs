@@ -54,10 +54,20 @@ namespace RachelsRosesWebPages.Models {
         }
         public void insertIngredientConsumtionData(Ingredient i) {
             var db = new DatabaseAccess();
+            var dbI = new DatabaseAccessIngredient(); 
             var dbConsumptionOuncesConsumed = new DatabaseAccessConsumptionOuncesConsumed();
             var convertWeight = new ConvertWeight();
             var convert = new ConvertDensity();
             var myIngredient = db.queryAllRelevantTablesSQL(i);
+            //if the ingredients.name isn't there, there's no inner join...
+            //if one of the tables isn't filled yet w the current ingredient, does throw off the chain of joins? 
+
+
+
+            //var myIngredientFromIngredients = dbI.querying
+
+
+
             var myConsumptionTable = queryConsumptionTable();
             var temp = new Ingredient();
             bool alreadyContainsIngredient = new bool();
@@ -188,7 +198,7 @@ namespace RachelsRosesWebPages.Models {
             var dbIngredients = new DatabaseAccessIngredient();
             var convert = new ConvertWeight();
             var myConsumptionTable = queryConsumptionTable();
-            var myIngredientTable = dbIngredients.queryIngredients();
+            var myIngredientTable = dbIngredients.queryAllIngredientsFromIngredientTable();
             var sellingWeightToRefillOunces = convert.ConvertWeightToOunces(sellingWeightToRefill);
             foreach (var ingredient in myConsumptionTable) {
                 if (ingredient.name.ToLower() == i.name.ToLower()) {
@@ -206,7 +216,7 @@ namespace RachelsRosesWebPages.Models {
             }
             foreach (var ingredient in myIngredientTable) {
                 if (ingredient.ingredientId == i.ingredientId && ingredient.name.ToLower() == i.name.ToLower()) {
-                    ingredient.expirationDate = dbIngredients.convertStringToDateYYYYMMDD(newExpirationDate);
+                    ingredient.expirationDate = dbIngredients.convertStringMMDDYYYYToDateYYYYMMDD(newExpirationDate);
                     var commandText = "update ingredients set expiration_date=@expiration_date where ing_id=@ing_id";
                     db.executeVoidQuery(commandText, cmd => {
                         cmd.Parameters.AddWithValue("@expiration_date", dbIngredients.convertDateToStringMMDDYYYY(ingredient.expirationDate));

@@ -212,7 +212,7 @@ namespace RachelsRosesWebPagesUnitTests {
             dbI.insertIngredient(i, r);
             dbI.insertIngredient(i2, r);
             var myRecipeBox = dbR.queryRecipes();
-            var myIngredientBox = dbI.queryIngredients();
+            var myIngredientBox = dbI.queryAllIngredientsFromIngredientTable();
             var myRecipe = dbR.GetFullRecipe(r);
             Assert.AreEqual(2, myIngredientBox.Count());
             Assert.AreEqual(2, myRecipe.ingredients.Count());
@@ -280,7 +280,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.insertIngredientIntoAllTables(i, r);
             t.insertIngredientIntoAllTables(i2, r);
             dbR.GetFullRecipePrice(r);
-            var myIngInfo = dbI.queryIngredients();
+            var myIngInfo = dbI.queryAllIngredientsFromIngredientTable();
             var myRecipesInfo = dbR.queryRecipes();
             Assert.AreEqual(2, myIngInfo.Count());
             Assert.AreEqual(1, myRecipesInfo.Count());
@@ -589,7 +589,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.insertListOfIngredientsIntoAllTables(cakeIngredients, cake);
             dbR.GetFullRecipePrice(brownies);
             dbR.GetFullRecipePrice(cake);
-            var myIngredients = dbI.queryIngredients();
+            var myIngredients = dbI.queryAllIngredientsFromIngredientTable();
             var myRecipeBox = dbR.MyRecipeBox();
             Assert.AreEqual(2, myRecipeBox.Count());
             Assert.AreEqual(1.74m, myRecipeBox[0].ingredients[0].priceOfMeasuredConsumption);
@@ -718,7 +718,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.insertListOfIngredientsIntoAllTables(buttermilkBreadIngredients, honeyButtermilkBread);
             t.insertListOfIngredientsIntoAllTables(wholeWheatBreadIngredients, wholeWheatBread);
             var myRecipeBox = dbR.MyRecipeBox();
-            var myIngredients = dbI.queryIngredients();
+            var myIngredients = dbI.queryAllIngredientsFromIngredientTable();
             Assert.AreEqual(3, myRecipeBox.Count());
             Assert.AreEqual(14, myIngredients.Count());
             Assert.AreEqual(1.70m, myIngredients[0].priceOfMeasuredConsumption);
@@ -771,7 +771,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.insertListOfIngredientsIntoAllTables(cakeIngredients, cake);
             dbR.GetFullRecipePrice(brownies);
             dbR.GetFullRecipePrice(cake);
-            var myIngredients = dbI.queryIngredients();
+            var myIngredients = dbI.queryAllIngredientsFromIngredientTable();
             var myRecipeBox = dbR.MyRecipeBox();
             Assert.AreEqual(2, myRecipeBox.Count());
             Assert.AreEqual(1.74m, myRecipeBox[0].ingredients[0].priceOfMeasuredConsumption);
@@ -859,11 +859,11 @@ namespace RachelsRosesWebPagesUnitTests {
             var i = new Ingredient("All Purpose Flour") { recipeId = 1, ingredientId = 1, measurement = "6 cups", sellingWeight = "5 lb" };
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(i, r);
-            var myIngredients = dbI.queryIngredients();
+            var myIngredients = dbI.queryAllIngredientsFromIngredientTable();
             var myRecipeBox = dbR.MyRecipeBox();
             r.yield = 48;
             t.updateAllTables(i, r);
-            var myNewIngredients = dbI.queryIngredients();
+            var myNewIngredients = dbI.queryAllIngredientsFromIngredientTable();
             var myNewRecipeBox = dbR.MyRecipeBox();
             Assert.AreEqual(24, myRecipeBox[0].yield);
             Assert.AreEqual(48, myNewRecipeBox[0].yield);
@@ -879,11 +879,11 @@ namespace RachelsRosesWebPagesUnitTests {
             var i = new Ingredient("bread flour") { recipeId = 1, ingredientId = 1, measurement = "6 cups", sellingWeight = "5 lb" };
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(i, r);
-            var myIngredients = dbI.queryIngredients();
+            var myIngredients = dbI.queryAllIngredientsFromIngredientTable();
             var myRecipeBox = dbR.MyRecipeBox();
             r.yield = 36;
             dbR.UpdateRecipeYield(r);
-            var myUpdatedIngredients = dbI.queryIngredients();
+            var myUpdatedIngredients = dbI.queryAllIngredientsFromIngredientTable();
             var myUpdatedRecipeBox = dbR.MyRecipeBox();
             Assert.AreEqual(18, myRecipeBox[0].yield);
             Assert.AreEqual(1, myIngredients.Count());
@@ -907,11 +907,11 @@ namespace RachelsRosesWebPagesUnitTests {
             var honeyButtermilkBreadIngredients = new List<Ingredient> { honey, salt, granulatedSugar, activeDryYeast };
             t.initializeDatabase();
             t.insertListOfIngredientsIntoAllTables(honeyButtermilkBreadIngredients, honeyButtermilkBread);
-            var myIngredients = dbI.queryIngredients();
+            var myIngredients = dbI.queryAllIngredientsFromIngredientTable();
             var myRecipeBox = dbR.MyRecipeBox();
             honeyButtermilkBread.yield = 120;
             dbR.UpdateRecipeYield(honeyButtermilkBread);
-            var myUpdatedIngredients = dbI.queryIngredients();
+            var myUpdatedIngredients = dbI.queryAllIngredientsFromIngredientTable();
             var myUpdatedRecipeBox = dbR.MyRecipeBox();
             Assert.AreEqual(1, myRecipeBox.Count());
             Assert.AreEqual(4, myIngredients.Count());
@@ -952,13 +952,13 @@ namespace RachelsRosesWebPagesUnitTests {
             t.initializeDatabase();
             t.insertListOfIngredientsIntoAllTables(honeyButtemrilkBreadIngredients, honeyButtermilkBread);
             t.insertListOfIngredientsIntoAllTables(cinnamonSwirlBreadIngredients, cinnamonSwirlBread);
-            var myIngredients = dbI.queryIngredients();
+            var myIngredients = dbI.queryAllIngredientsFromIngredientTable();
             var myRecipeBox = dbR.MyRecipeBox();
             honeyButtermilkBread.yield = 48; //*2
             cinnamonSwirlBread.yield = 54; //*3
             dbR.UpdateRecipeYield(honeyButtermilkBread);
             dbR.UpdateRecipeYield(cinnamonSwirlBread);
-            var myUpdatedIngredients = dbI.queryIngredients();
+            var myUpdatedIngredients = dbI.queryAllIngredientsFromIngredientTable();
             var myUpdatedRecipBox = dbR.MyRecipeBox();
             Assert.AreEqual(2, myRecipeBox.Count());
             Assert.AreEqual(4, myIngredients.Count());
@@ -1000,12 +1000,12 @@ namespace RachelsRosesWebPagesUnitTests {
             t.initializeDatabase();
             t.insertListOfIngredientsIntoAllTables(honeyButtemrilkBreadIngredients, honeyButtermilkBread);
             t.insertListOfIngredientsIntoAllTables(cinnamonSwirlBreadIngredients, cinnamonSwirlBread);
-            var myIngredients = dbI.queryIngredients();
+            var myIngredients = dbI.queryAllIngredientsFromIngredientTable();
             var myRecipeBox = dbR.MyRecipeBox();
             honeyButtermilkBread.yield = 48; //*2
             cinnamonSwirlBread.yield = 54; //*3
             dbR.UpdateListOfRecipeYields(myRecipes);
-            var myUpdatedIngredients = dbI.queryIngredients();
+            var myUpdatedIngredients = dbI.queryAllIngredientsFromIngredientTable();
             var myUpdatedRecipBox = dbR.MyRecipeBox();
             Assert.AreEqual(2, myRecipeBox.Count());
             Assert.AreEqual(4, myIngredients.Count());
@@ -1053,7 +1053,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.insertListOfIngredientsIntoAllTables(yellowCakeIngredients, yellowCake);
             t.insertListOfIngredientsIntoAllTables(marbleCakeIngredients, marbleCake);
             t.insertListOfIngredientsIntoAllTables(chocolateCakeIngredients, chocolateCake);
-            var myIngredients = dbI.queryIngredients();
+            var myIngredients = dbI.queryAllIngredientsFromIngredientTable();
             var myCakeRecipeBox = dbR.MyRecipeBox();
             yellowCake.yield = 150; //  12.5
             marbleCake.yield = 128; //  8
@@ -1088,7 +1088,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var myRecipes = dbR.MyRecipeBox();
             var myIngredient = t.queryAllRelevantTablesSQL(honey);
             dbR.DeleteRecipeAndRecipeIngredients(bread);
-            var myUpdatedIngredients = dbI.queryIngredients();
+            var myUpdatedIngredients = dbI.queryAllIngredientsFromIngredientTable();
             var myUpdatedRecipeBox = dbR.MyRecipeBox();
             Assert.AreEqual(1, myRecipes.Count());
             Assert.AreEqual(1, myRecipes[0].ingredients.Count());
@@ -1164,6 +1164,21 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual("Baking Powder", myRecipeIngredients[2].name);
             Assert.AreEqual("2 teaspoons", myRecipeIngredients[2].measurement);
             Assert.AreEqual(.06m, myRecipeIngredients[2].priceOfMeasuredConsumption); 
+        }
+        [Test]
+        public void TestQueryRecipeWithSQL() {
+            var t = new DatabaseAccess(); 
+            var dbR = new DatabaseAccessRecipe();
+            var fluffyWhiteCake = new Recipe("Fluffy White Cake") { id = 1, yield = 24, aggregatedPrice = 12m, pricePerServing = .5m };
+            t.initializeDatabase();
+            dbR.InsertRecipe(fluffyWhiteCake);
+            var myRecipe = dbR.queryRecipeFromRecipesTable(fluffyWhiteCake);
+            Assert.AreEqual("Fluffy White Cake", myRecipe.name);
+            Assert.AreEqual(1, myRecipe.id);
+            Assert.AreEqual(24, myRecipe.yield);
+            Assert.AreEqual(12m, myRecipe.aggregatedPrice);
+            Assert.AreEqual(.5m, myRecipe.pricePerServing); 
+
         }
     }
 }

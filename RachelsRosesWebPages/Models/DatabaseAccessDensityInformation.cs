@@ -156,7 +156,7 @@ namespace RachelsRosesWebPages.Models {
         public decimal returnIngredientDensityFromDensityTable(Ingredient i) {
             var rest = new MakeRESTCalls();
             var dbIngredient = new DatabaseAccessIngredient(); 
-            var myIngredients = dbIngredient.queryIngredients();
+            var myIngredients = dbIngredient.queryAllIngredientsFromIngredientTable();
             var myDensityIngredients = queryDensityInfoTable();
             var myIngredientDensity = 0m;
             foreach (var ingredient in myDensityIngredients) {

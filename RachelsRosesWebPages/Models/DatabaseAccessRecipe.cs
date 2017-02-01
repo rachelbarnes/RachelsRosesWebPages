@@ -34,7 +34,9 @@ namespace RachelsRosesWebPages.Models {
             var MyRecipeBox = db.queryItems("select * from recipes", reader => {
                 var recipe = new Recipe(reader["name"].ToString());
                 recipe.yield = (int)reader["yield"];
+                recipe.id = (int)reader["recipe_id"]; 
                 recipe.aggregatedPrice = (decimal)reader["aggregated_price"];
+                recipe.pricePerServing = (decimal)reader["price_per_serving"]; 
                 return recipe;
             });
             foreach (var recipe in MyRecipeBox) {
@@ -58,16 +60,18 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@rid", r.id);
                 cmd.Parameters.AddWithValue("@yield", r.yield);
                 cmd.Parameters.AddWithValue("@aggregated_price", r.aggregatedPrice);
+                cmd.Parameters.AddWithValue("@price_per_serving", r.pricePerServing); 
                 return cmd;
             });
         }
         public void InsertRecipe(Recipe r) {
             var db = new DatabaseAccess();
-            var commandText = "Insert into recipes (name, yield, aggregated_price) values (@name, @yield, @aggregated_price);";
+            var commandText = "Insert into recipes (name, yield, aggregated_price, price_per_serving) values (@name, @yield, @aggregated_price, @price_per_serving);";
             db.executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@name", r.name);
                 cmd.Parameters.AddWithValue("@yield", r.yield);
                 cmd.Parameters.AddWithValue("@aggregated_price", r.aggregatedPrice);
+                cmd.Parameters.AddWithValue("@price_per_serving", r.pricePerServing); 
                 return cmd;
             });
         }
@@ -76,7 +80,7 @@ namespace RachelsRosesWebPages.Models {
             var dbIngredients = new DatabaseAccessIngredient();
             var aggregatedPrice = 0m;
             var myRecipeBox = queryRecipes();
-            var myIngredients = dbIngredients.queryIngredients();
+            var myIngredients = dbIngredients.queryAllIngredientsFromIngredientTable();
             var myRecipeIngredients = new List<Ingredient>();
             var myRecipe = new Recipe();
             foreach (var recipe in myRecipeBox) {
@@ -139,7 +143,7 @@ namespace RachelsRosesWebPages.Models {
         public List<Ingredient> ReturnRecipeIngredients(Recipe r) {
             var db = new DatabaseAccess();
             var dbIngredients = new DatabaseAccessIngredient();
-            var myIngredients = dbIngredients.queryIngredients();
+            var myIngredients = dbIngredients.queryAllIngredientsFromIngredientTable();
             foreach (var ing in myIngredients) {
                 if (ing.recipeId == r.id) {
                     db.queryAllRelevantTablesSQL(ing);
@@ -163,7 +167,7 @@ namespace RachelsRosesWebPages.Models {
             var dbIngredients = new DatabaseAccessIngredient();
             r.name = r.name.Trim();
             var myRecipe = GetFullRecipe(r);
-            var myIngredients = dbIngredients.queryIngredients();
+            var myIngredients = dbIngredients.queryAllIngredientsFromIngredientTable();
             foreach (var ingredient in myRecipe.ingredients) {
                 dbIngredients.DeleteIngredientFromIngredientTable(ingredient);
             }
@@ -213,7 +217,9 @@ namespace RachelsRosesWebPages.Models {
         }
         public List<Ingredient> GetRecipeIngredients(Recipe r) {
             var db = new DatabaseAccess();
-            var joinCommand = @"SELECT ingredients.name, ingredients.measurement, ingredients.price_measured_ingredient
+            var joinCommand = @"SELECT ingredients.name, 
+                                    ingredients.measurement, 
+                                    ingredients.price_measured_ingredient
                                 FROM recipes
                                 JOIN ingredients
                                 ON recipes.recipe_id=ingredients.recipe_id;";
@@ -225,6 +231,20 @@ namespace RachelsRosesWebPages.Models {
                 return ingredient; 
             });
             return myRecipeIngredients; 
+        }
+        public Recipe queryRecipeFromRecipesTable(Recipe r) {
+            var db = new DatabaseAccess();
+            var myRecipe = new Recipe(); 
+            var commandTextQueryRecipeByName = string.Format(@"SELECT * FROM recipes where name='{0}';", r.name);
+            db.queryItems(commandTextQueryRecipeByName, reader => {
+                myRecipe.name = (string)(reader["name"]);
+                myRecipe.id = (int)(reader["recipe_id"]);
+                myRecipe.yield = (int)(reader["yield"]);
+                myRecipe.aggregatedPrice = (decimal)(reader["aggregated_price"]);
+                myRecipe.pricePerServing = (decimal)(reader["price_per_serving"]); 
+                return myRecipe;
+            });
+            return myRecipe; 
         }
     }
 }

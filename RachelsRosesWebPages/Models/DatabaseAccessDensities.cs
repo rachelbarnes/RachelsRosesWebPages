@@ -101,6 +101,13 @@ namespace RachelsRosesWebPages.Models {
                 return cmd;
             });
         }
-      
+      //public Ingredient queryIngredientFromDensityTableByName(Ingredient i) {
+      //      var db = new DatabaseAccess();
+      //      var ingredientDensities = new Ingredient(); 
+      //      var commandTextQueryDensityByName = string.Format(@"SELECT * FROM densities WHERE name='{0}';", i.name); 
+      //      db.queryItems(commandTextQueryDensityByName, reader => {
+
+      //      })
+      //  }
     }
 }

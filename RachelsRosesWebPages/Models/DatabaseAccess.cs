@@ -76,89 +76,92 @@ namespace RachelsRosesWebPages.Models {
                 queriedIngredient.sellingWeight = (string)(reader["selling_weight"]);
                 queriedIngredient.sellingWeightInOunces = (decimal)(reader["selling_weight_ounces"]);
                 var expirationDate = (string)(reader["expiration_date"]);
-                queriedIngredient.expirationDate = dbI.convertStringToDateYYYYMMDD(expirationDate);
+                queriedIngredient.expirationDate = dbI.convertStringMMDDYYYYToDateYYYYMMDD(expirationDate);
                 return queriedIngredient;
             });
             return queriedIngredient; 
+            //the problem im facing is there ins't information in my query... i have to find a way to appropriately enter the information or update tables as needed in that method... 
+                //maybe do indivudal queryies to all the tables, and if hte tables are blank, then i need to update hte infromation?
+                    //unfortunately, this is pretty close to a revamp of my system. 
         }
-        public Ingredient queryAllRelevantTables(Ingredient i) {
-            var dbRecipes = new DatabaseAccessRecipe();
-            var dbIngredients = new DatabaseAccessIngredient();
-            var dbConsumptionOuncesConsumed = new DatabaseAccessConsumptionOuncesConsumed();
-            var dbConsumption = new DatabaseAccessConsumption();
-            var dbDensities = new DatabaseAccessDensities();
-            var dbCosts = new DatabaseAccessCosts();
-            var rest = new MakeRESTCalls();
-            var myRecipes = dbRecipes.queryRecipes();
-            var myIngredients = dbIngredients.queryIngredients();
-            var myIngredientConsumptionOuncesConsumed = dbConsumptionOuncesConsumed.queryConsumptionOuncesConsumed();
-            var myIngredientConsumption = dbConsumption.queryConsumptionTable();
-            var myIngredientDensity = dbDensities.queryDensitiesTable();
-            var myIngredientCost = dbCosts.queryCostTable();
-            //i'd be really interested in making these queries singletons in each of these classes... 
-            //if i'm accessing them all the time, it would save a lot of time... definitely worth checking out
-            var temp = new Recipe();
-            foreach (var rec in myRecipes) {
-                if (rec.id == i.recipeId) {
-                    temp = rec;
-                    break;
-                }
-            }
-            foreach (var ing in myIngredients) {
-                if (ing.ingredientId == i.ingredientId) {
-                    i.recipeId = ing.recipeId;
-                    i.measurement = ing.measurement;
-                    i.typeOfIngredient = ing.typeOfIngredient;
-                    if (i.itemId == 0 && !i.classification.ToLower().Contains("egg") && !i.classification.ToLower().Contains("dairy") && !string.IsNullOrEmpty(i.classification))
-                        i.itemId = myItemResponse.itemId;
-                    else i.itemId = ing.itemId;
-                    i.expirationDate = ing.expirationDate;
-                    break;
-                }
-            }
-            foreach (var ing in myIngredientConsumptionOuncesConsumed) {
-                if (ing.name == i.name && ing.measurement == i.measurement) {
-                    i.ouncesConsumed = ing.ouncesConsumed;
-                    break;
-                }
-            }
-            foreach (var ing in myIngredientConsumption) {
-                if (ing.name == i.name) {
-                    i.density = ing.density;
-                    i.ouncesRemaining = ing.ouncesRemaining;
-                    break;
-                }
-            }
-            foreach (var ing in myIngredientDensity) {
-                if (ing.ingredientId == i.ingredientId) {
-                    i.sellingWeight = ing.sellingWeight;
-                    i.sellingWeightInOunces = ing.sellingWeightInOunces;
-                    i.itemId = ing.itemId;
-                    break;
-                }
-            }
-            foreach (var ing in myIngredientCost) {
-                if (ing.ingredientId == i.ingredientId) {
-                    if (ing.sellingPrice == 0m && !i.classification.ToLower().Contains("egg") && !i.classification.ToLower().Contains("dairy"))
-                        i.sellingPrice = myItemResponse.salePrice;
-                    else i.sellingPrice = ing.sellingPrice;
-                    if (ing.pricePerOunce == 0m)
-                        i.pricePerOunce = (i.sellingPrice / i.sellingWeightInOunces);
-                    else i.pricePerOunce = ing.pricePerOunce;
-                    i.itemId = ing.itemId;
-                    break;
-                }
-            }
-            if (i.ouncesConsumed != 0m && i.ouncesRemaining != 0m && i.priceOfMeasuredConsumption == 0m) {
-                foreach (var ing in myIngredients) {
-                    if (ing.ingredientId == i.ingredientId) {
-                        i.priceOfMeasuredConsumption = dbIngredients.MeasuredIngredientPrice(i);
-                        break;
-                    }
-                }
-            }
-            return i;
-        }
+        //public Ingredient queryAllRelevantTables(Ingredient i) {
+        //    var dbRecipes = new DatabaseAccessRecipe();
+        //    var dbIngredients = new DatabaseAccessIngredient();
+        //    var dbConsumptionOuncesConsumed = new DatabaseAccessConsumptionOuncesConsumed();
+        //    var dbConsumption = new DatabaseAccessConsumption();
+        //    var dbDensities = new DatabaseAccessDensities();
+        //    var dbCosts = new DatabaseAccessCosts();
+        //    var rest = new MakeRESTCalls();
+        //    var myRecipes = dbRecipes.queryRecipes();
+        //    var myIngredients = dbIngredients.queryIngredients();
+        //    var myIngredientConsumptionOuncesConsumed = dbConsumptionOuncesConsumed.queryConsumptionOuncesConsumed();
+        //    var myIngredientConsumption = dbConsumption.queryConsumptionTable();
+        //    var myIngredientDensity = dbDensities.queryDensitiesTable();
+        //    var myIngredientCost = dbCosts.queryCostTable();
+        //    //i'd be really interested in making these queries singletons in each of these classes... 
+        //    //if i'm accessing them all the time, it would save a lot of time... definitely worth checking out
+        //    var temp = new Recipe();
+        //    foreach (var rec in myRecipes) {
+        //        if (rec.id == i.recipeId) {
+        //            temp = rec;
+        //            break;
+        //        }
+        //    }
+        //    foreach (var ing in myIngredients) {
+        //        if (ing.ingredientId == i.ingredientId) {
+        //            i.recipeId = ing.recipeId;
+        //            i.measurement = ing.measurement;
+        //            i.typeOfIngredient = ing.typeOfIngredient;
+        //            if (i.itemId == 0 && !i.classification.ToLower().Contains("egg") && !i.classification.ToLower().Contains("dairy") && !string.IsNullOrEmpty(i.classification))
+        //                i.itemId = myItemResponse.itemId;
+        //            else i.itemId = ing.itemId;
+        //            i.expirationDate = ing.expirationDate;
+        //            break;
+        //        }
+        //    }
+        //    foreach (var ing in myIngredientConsumptionOuncesConsumed) {
+        //        if (ing.name == i.name && ing.measurement == i.measurement) {
+        //            i.ouncesConsumed = ing.ouncesConsumed;
+        //            break;
+        //        }
+        //    }
+        //    foreach (var ing in myIngredientConsumption) {
+        //        if (ing.name == i.name) {
+        //            i.density = ing.density;
+        //            i.ouncesRemaining = ing.ouncesRemaining;
+        //            break;
+        //        }
+        //    }
+        //    foreach (var ing in myIngredientDensity) {
+        //        if (ing.ingredientId == i.ingredientId) {
+        //            i.sellingWeight = ing.sellingWeight;
+        //            i.sellingWeightInOunces = ing.sellingWeightInOunces;
+        //            i.itemId = ing.itemId;
+        //            break;
+        //        }
+        //    }
+        //    foreach (var ing in myIngredientCost) {
+        //        if (ing.ingredientId == i.ingredientId) {
+        //            if (ing.sellingPrice == 0m && !i.classification.ToLower().Contains("egg") && !i.classification.ToLower().Contains("dairy"))
+        //                i.sellingPrice = myItemResponse.salePrice;
+        //            else i.sellingPrice = ing.sellingPrice;
+        //            if (ing.pricePerOunce == 0m)
+        //                i.pricePerOunce = (i.sellingPrice / i.sellingWeightInOunces);
+        //            else i.pricePerOunce = ing.pricePerOunce;
+        //            i.itemId = ing.itemId;
+        //            break;
+        //        }
+        //    }
+        //    if (i.ouncesConsumed != 0m && i.ouncesRemaining != 0m && i.priceOfMeasuredConsumption == 0m) {
+        //        foreach (var ing in myIngredients) {
+        //            if (ing.ingredientId == i.ingredientId) {
+        //                i.priceOfMeasuredConsumption = dbIngredients.MeasuredIngredientPrice(i);
+        //                break;
+        //            }
+        //        }
+        //    }
+        //    return i;
+        //}
         public List<Ingredient> queryAllTablesForAllIngredients(List<Ingredient> ListOfIngredients) {
             var queriedListOfIngredients = new List<Ingredient>();
             foreach (var ingredient in ListOfIngredients)
@@ -174,7 +177,7 @@ namespace RachelsRosesWebPages.Models {
             var dbDensitiesInformation = new DatabaseAccessDensityInformation();
             var dbCosts = new DatabaseAccessCosts();
             var myRecipes = dbRecipes.queryRecipes();
-            var myIngredientBox = dbIngredients.queryIngredients();
+            var myIngredientBox = dbIngredients.queryAllIngredientsFromIngredientTable();
             var myIngredients = queryAllRelevantTablesSQL(i);
             var count = 0;
             var countIngredients = 0;
@@ -198,6 +201,7 @@ namespace RachelsRosesWebPages.Models {
                 dbConsumption.insertIngredientConsumtionData(i);
                 dbCosts.insertIngredientCostDataCostTable(i);
                 dbIngredients.UpdateIngredient(i);
+                var myIngUpdated = queryAllRelevantTablesSQL(i);
             } else {
                 dbIngredients.UpdateIngredient(i);
                 var updatedIngredient = queryAllRelevantTablesSQL(i);
@@ -219,7 +223,7 @@ namespace RachelsRosesWebPages.Models {
                 }
             }
             var myRecipes = dbRecipes.queryRecipes();
-            var myIngredients = dbIngredients.queryIngredients();
+            var myIngredients = dbIngredients.queryAllIngredientsFromIngredientTable();
             foreach (var recipe in myRecipes)
                 myListOfRecipeIds.Add(recipe.id);
             if (!myListOfRecipeIds.Contains(r.id))
@@ -281,7 +285,8 @@ namespace RachelsRosesWebPages.Models {
                         recipe_id INT NOT NULL IDENTITY(1,1) PRIMARY KEY, 
                         name nvarchar(max), 
                         yield int,
-                        aggregated_price decimal(5, 2)
+                        aggregated_price decimal(5, 2), 
+                        price_per_serving decimal (5,2)
                      );", a => a);
 
             dropAllTablesIfTheyExist("ingredients");

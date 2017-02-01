@@ -41,16 +41,20 @@ namespace RachelsRosesWebPages.Controllers {
             myDatabaseRecipe = getRecipes().First(x => x.name == name);
             currentRecipe = myDatabaseRecipe;
             ViewBag.currentingredient = currentIngredient;
-            if (distinctIngredientNamesSorted.Count() != 0)
-                ViewBag.currentingredienttable = distinctIngredientNamesSorted;
-            if (distinctIngredientClassifications.Count() != 0)
-                ViewBag.currentclassifications = distinctIngredientClassifications;
-            if (distinctIngredientTypes.Count() != 0)
-                ViewBag.currenttypes = distinctIngredientTypes; 
+            if (distinctIngredientNamesSorted.Count() == 0 || distinctIngredientNamesSorted == null) //i presume these 2 things are the same... 
+                ViewBag.ingredientnames = new List<string>();
+            else ViewBag.ingredientnames = distinctIngredientNamesSorted;
+            if (distinctIngredientTypes.Count() == 0 || distinctIngredientTypes == null)
+                ViewBag.types = new List<string>();
+            else ViewBag.types = distinctIngredientTypes;
+            if (distinctIngredientClassifications.Count() == 0 || distinctIngredientClassifications == null)
+                ViewBag.classifications = new List<string>();
+            else ViewBag.classifications = distinctIngredientClassifications; 
+
             ViewBag.distinctsellingweights = dbC.getListOfDistinctSellingWeights();
             ViewBag.currentrecipe = currentRecipe;
             ViewBag.recipeboxcount = getRecipes().Count();
-            ViewBag.distinctingredienttypes = dbD.getListOfIngredientTypesFromDensityTable();
+            //ViewBag.distinctingredienttypes = dbD.getListOfIngredientTypesFromDensityTable();
             if (!string.IsNullOrEmpty(currentIngredient.name)) {
                 if (string.IsNullOrEmpty(currentIngredient.measurement))
                     ViewBag.itemresponselist = rest.GetListItemResponseNoSellingWeights(currentIngredient);
@@ -126,8 +130,8 @@ namespace RachelsRosesWebPages.Controllers {
                         ing.classification = updatedClassification;
                     } else { updatedClassification = ing.classification; }
 
-                    if (ing.expirationDate != dbI.convertStringToDateYYYYMMDD(updatedExpirationDate) && !(string.IsNullOrEmpty(updatedExpirationDate))) {
-                        ing.expirationDate = dbI.convertStringToDateYYYYMMDD(updatedExpirationDate);
+                    if (ing.expirationDate != dbI.convertStringMMDDYYYYToDateYYYYMMDD(updatedExpirationDate) && !(string.IsNullOrEmpty(updatedExpirationDate))) {
+                        ing.expirationDate = dbI.convertStringMMDDYYYYToDateYYYYMMDD(updatedExpirationDate);
                     } else { updatedExpirationDate = dbI.convertDateToStringMMDDYYYY(ing.expirationDate); }
 
                     t.updateAllTables(currentIngredient, currentRecipe);
@@ -166,7 +170,7 @@ namespace RachelsRosesWebPages.Controllers {
                 newIngredient.classification = classification;
                 newIngredient.typeOfIngredient = type;
                 newIngredient.sellingWeight = sellingweight;
-                newIngredient.expirationDate = dbI.convertStringToDateYYYYMMDD(expirationdate); 
+                newIngredient.expirationDate = dbI.convertStringMMDDYYYYToDateYYYYMMDD(expirationdate); 
                 currentRecipe.ingredients.Add(newIngredient);
                 currentIngredient = newIngredient;
                 db.insertIngredientIntoAllTables(currentIngredient, currentRecipe);
@@ -244,14 +248,12 @@ namespace RachelsRosesWebPages.Controllers {
             foreach (var ingredient in currentRecipe.ingredients) {
                 if (ingredient.name == name && ingredient.measurement == measurement) {
                     dbI.DeleteIngredientFromIngredientTable(ingredient);
-                    //i need to make sure this is deleting from the recipe too, otherwise i'll get an incorrect total price...
-                    //it should be, but i'd rather not be suprised by a bug 
                     break;
                 }
             }
             //manual check:
             var countRecipeIngredients = currentRecipe.ingredients.Count();
-            var myIngredientsTable = dbI.queryIngredients();
+            var myIngredientsTable = dbI.queryAllIngredientsFromIngredientTable();
             var countIngredientTable = myIngredientsTable.Count();
             return Redirect("/home/recipe?name=" + currentRecipe.name);
         }
@@ -263,7 +265,7 @@ namespace RachelsRosesWebPages.Controllers {
         public ActionResult IngredientBox() {
             var db = new DatabaseAccess();
             var dbI = new DatabaseAccessIngredient();
-            var myIngredientBox = dbI.queryIngredients();
+            var myIngredientBox = dbI.queryAllIngredientsFromIngredientTable();
             ViewBag.ingredientbox = myIngredientBox;
             ViewBag.fullingredientbox = db.queryAllTablesForAllIngredients(myIngredientBox);
             return View();

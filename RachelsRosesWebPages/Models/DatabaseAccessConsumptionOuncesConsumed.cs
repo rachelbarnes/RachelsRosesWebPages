@@ -66,7 +66,7 @@ namespace RachelsRosesWebPages.Models {
             var convertWeight = new ConvertWeight();
             var convert = new ConvertDensity();
             var myIngredientConsumptionData = dbConsumption.queryConsumptionTable();
-            var myIngredients = dbIngredients.queryIngredients();
+            var myIngredients = dbIngredients.queryAllIngredientsFromIngredientTable();
             var myConsumedOunces = 0m;
             var temp = new Ingredient();
             foreach (var ingredient in myIngredients) {

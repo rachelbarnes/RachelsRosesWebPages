@@ -74,7 +74,7 @@
     <h6><b>Ingredient Name:</b></h6>
     <input name="ingredient" placeholder="Name" />
     <select name="chooseingredient">
-        @foreach (var ingredient in ViewBag.currentingredienttable) {
+        @foreach (var ingredient in ViewBag.ingredientnames) {
             <option value="@ingredient">@ingredient</option>
         }
     </select>
@@ -86,7 +86,7 @@
     <p>**the ingredient type is a single form of the ingredient (bread flour, cake flour, egg, milk, vanilla extract, etc.)</p>
     <input name="type" placeholder="Type" />
     <select name="chooseingredienttype">
-        @foreach (var type in ViewBag.currenttypes) {
+        @foreach (var type in ViewBag.types) {
             <option value="@type">@type</option>
         }
     </select>
@@ -94,7 +94,7 @@
     <p>**the ingredient classification is the ingredient family (dairy, eggs, flour, baking chocolate, etc.)</p>
     <input name="classification" placeholder="Classification" />
     <select name="chooseingredientclassification">
-        @foreach (var classification in ViewBag.currentclassifications) {
+        @foreach (var classification in ViewBag.classifications) {
             <option value="@classification">@classification</option>
         }
     </select>

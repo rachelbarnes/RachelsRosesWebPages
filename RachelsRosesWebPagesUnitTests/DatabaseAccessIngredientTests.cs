@@ -28,8 +28,8 @@ namespace RachelsRosesWebPagesUnitTests {
             dbI.insertIngredient(i, r);
             dbI.insertIngredient(i2, r);
             var recipes = dbR.queryRecipes();
-            var ingredients = dbI.queryIngredients();
-            var myIngredientBox = dbI.queryIngredients();
+            var ingredients = dbI.queryAllIngredientsFromIngredientTable();
+            var myIngredientBox = dbI.queryAllIngredientsFromIngredientTable();
             Assert.AreEqual("all-purpose flour", ingredients[0].name);
             Assert.AreEqual("butter", ingredients[1].name);
         }
@@ -48,7 +48,7 @@ namespace RachelsRosesWebPagesUnitTests {
             dbR.InsertRecipe(r);
             dbI.insertIngredient(i, r);
             var myRecipeBox = dbR.queryRecipes();
-            var myIngredientBox = dbI.queryIngredients();
+            var myIngredientBox = dbI.queryAllIngredientsFromIngredientTable();
             var myRecipe = dbR.GetFullRecipe(r);
             Assert.AreEqual(r.name, myRecipeBox[0].name);
             Assert.AreEqual(i.name, myIngredientBox[0].name);
@@ -75,7 +75,7 @@ namespace RachelsRosesWebPagesUnitTests {
             dbR.InsertRecipe(r);
             dbI.insertIngredient(i, r);
             dbI.UpdateIngredient(i);
-            var myIngredientBox = dbI.queryIngredients();
+            var myIngredientBox = dbI.queryAllIngredientsFromIngredientTable();
             Assert.AreEqual(i2.name, myIngredientBox[0].name);
             Assert.AreEqual(i2.measurement, myIngredientBox[0].measurement);
         }
@@ -204,7 +204,7 @@ namespace RachelsRosesWebPagesUnitTests {
             dbR.InsertRecipe(r);
             t.insertIngredientIntoAllTables(i, r);
             dbI.getIngredientMeasuredPrice(i, r);
-            var myIngInfo = dbI.queryIngredients();
+            var myIngInfo = dbI.queryAllIngredientsFromIngredientTable();
             var myRecipesInfo = dbR.queryRecipes();
             Assert.AreEqual(1, myRecipesInfo.Count());
             Assert.AreEqual(.87m, myIngInfo[0].priceOfMeasuredConsumption);
@@ -271,7 +271,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var i = new Ingredient("bread flour") { recipeId = 1, ingredientId = 1, measurement = "3 cups", sellingWeight = "5 lb" };
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(i, r);
-            var myIngredients = dbI.queryIngredients();
+            var myIngredients = dbI.queryAllIngredientsFromIngredientTable();
             var expected = 10308169;
             var actual = myIngredients[0].itemId;
             Assert.AreEqual(expected, actual);
@@ -284,7 +284,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var i = new Ingredient("baking soda") { recipeId = 1, ingredientId = 1, sellingWeight = "4 lb", measurement = "1/2 teaspoon" };
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(i, r);
-            var myIngredients = dbI.queryIngredients();
+            var myIngredients = dbI.queryAllIngredientsFromIngredientTable();
             var expected = 11027507;
             var actual = myIngredients[0].itemId;
             Assert.AreEqual(expected, actual);
@@ -298,7 +298,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var i = new Ingredient("bread flour") { ingredientId = 1, recipeId = 1, measurement = "6 cups", sellingWeight = "5 lb" };
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(i, r);
-            var myIngredients = dbI.queryIngredients();
+            var myIngredients = dbI.queryAllIngredientsFromIngredientTable();
             var listOfItemResponses = rest.GetListItemResponses(i);
             Assert.AreEqual(4, listOfItemResponses.Count());
             Assert.AreEqual(10308169, myIngredients[0].itemId);
@@ -323,7 +323,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.insertIngredientIntoAllTables(softasilk, fluffyWhiteCake);
             t.insertIngredientIntoAllTables(softasilk2, chocolateCake);
             t.insertListOfIngredientsIntoAllTables(yellowCakeIngredients, yellowCake);
-            var myIngredientsTable = dbI.queryIngredients();
+            var myIngredientsTable = dbI.queryAllIngredientsFromIngredientTable();
             var myRecipeBox = dbR.MyRecipeBox();
             var myDistictIngredientTable = dbI.myDistinctIngredientNamesSorted();
             var myIngredientBoxFilled = t.queryAllTablesForAllIngredients(myIngredientBox);
@@ -347,28 +347,28 @@ namespace RachelsRosesWebPagesUnitTests {
         public void TestConvertStringToDate() {
             var t = new DatabaseAccessIngredient();
             var expected = new DateTime(2017, 04, 16);
-            var actual = t.convertStringToDateYYYYMMDD("2017.04.16");
+            var actual = t.convertStringMMDDYYYYToDateYYYYMMDD("04/16/2017");
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestConvertStringToDate2() {
             var t = new DatabaseAccessIngredient();
             var expected = new DateTime(2017, 04, 16);
-            var actual = t.convertStringToDateYYYYMMDD("2017-04-16");
+            var actual = t.convertStringMMDDYYYYToDateYYYYMMDD("04.16.2017");
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestConvertStringToDate3() {
             var t = new DatabaseAccessIngredient();
             var expected = new DateTime(2017, 04, 16);
-            var actual = t.convertStringToDateYYYYMMDD("2017/04/16");
+            var actual = t.convertStringMMDDYYYYToDateYYYYMMDD("04-16-2017");
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void TestCovnertStringtoDate4() {
             var t = new DatabaseAccessIngredient();
             var expected = new DateTime(2017, 04, 16);
-            var actual = t.convertStringToDateYYYYMMDD("20170416");
+            var actual = t.convertStringMMDDYYYYToDateYYYYMMDD("04162017");
             Assert.AreEqual(expected, actual);
         }
         [Test]
@@ -479,7 +479,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.insertIngredientIntoAllTables(breadFlour, HoneyButtermilkBread);
             var myIngredientBox = dbI.myIngredientBox();
             dbI.DeleteIngredientFromIngredientTable(breadFlour);
-            var myIngredientTableCount = dbI.queryIngredients().Count();
+            var myIngredientTableCount = dbI.queryAllIngredientsFromIngredientTable().Count();
             var myIngredientBoxCount = dbI.myIngredientBox().Count();
             var myCostTableCount = dbCosts.queryCostTable().Count();
             var myDensitiesTableCount = dbD.queryDensitiesTable().Count();
@@ -509,7 +509,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var myIngredientBox = dbI.myIngredientBox();
             dbI.DeleteIngredientFromIngredientTable(breadFlour1);
             dbI.DeleteIngredientFromIngredientTable(breadFlour2);
-            var myIngredientTable = dbI.queryIngredients();
+            var myIngredientTable = dbI.queryAllIngredientsFromIngredientTable();
             var myCostTable = dbCosts.queryCostTable();
             var myDensitiesTable = dbD.queryDensitiesTable();
             var myConsumptionTable = dbC.queryConsumptionTable();
@@ -528,7 +528,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(breadFlour, honeyButtermilkBread);
             dbI.DeleteIngredientFromIngredientTable(breadFlour);
-            var myIngredientTable = dbI.queryIngredients();
+            var myIngredientTable = dbI.queryAllIngredientsFromIngredientTable();
             Assert.AreEqual(0, myIngredientTable.Count());
         }
         [Test]
@@ -598,6 +598,22 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(new DateTime(2017, 3, 1), expiringSoon[2].expirationDate); 
             Assert.AreEqual("Eggs", expiringSoon[3].name);
             Assert.AreEqual(new DateTime(2017, 4, 4), expiringSoon[3].expirationDate); 
+        }
+        [Test]
+        public void TestQueryIngredientsTableIngredient() {
+            var t = new DatabaseAccess();
+            var dbI = new DatabaseAccessIngredient(); 
+            var buttercreamIcing = new Recipe("Buttercream Icing") { id = 2, yield = 8 }; 
+            var heavyWhippingCream = new Ingredient("Heavy Whipping Cream") { ingredientId = 1, recipeId = 2, measurement = "1/4 cup", sellingWeight = "1 pint", sellingPrice = 1.38m, typeOfIngredient = "heavy whipping cream", classification = "dairy", expirationDate = new DateTime(2017, 2, 17) };
+            t.initializeDatabase(); 
+            dbI.insertIngredient(heavyWhippingCream, buttercreamIcing);
+            var myIngredient = dbI.queryIngredientFromIngredientsTable(heavyWhippingCream);
+            Assert.AreEqual(1, myIngredient.ingredientId);
+            Assert.AreEqual(2, myIngredient.recipeId);
+            Assert.AreEqual("Heavy Whipping Cream", myIngredient.name);
+            Assert.AreEqual("1/4 cup", myIngredient.measurement);
+            Assert.AreEqual("heavy whipping cream", myIngredient.typeOfIngredient);
+            Assert.AreEqual("dairy", myIngredient.classification); 
         }
         //also do the order bys for selling weights, densities, types, and ingredients by both name and by object with LINQ and SQL
     }

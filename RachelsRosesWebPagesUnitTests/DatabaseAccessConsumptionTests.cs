@@ -654,7 +654,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(sourCream, chocolateCake);
             var myIngredient = t.queryAllRelevantTablesSQL(sourCream);
-            var myIngredients = dbI.queryIngredients();
+            var myIngredients = dbI.queryAllIngredientsFromIngredientTable();
             var myUpdatedIngredient = t.queryAllRelevantTablesSQL(sourCream);
             var myUpdatedIngredients = dbC.queryConsumptionTable();
             var exDate = new DateTime(2017, 1, 16);
@@ -674,7 +674,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(wholeMilk, yellowCake);
             var myIngredient = t.queryAllRelevantTablesSQL(wholeMilk);
-            var myIngredientBox = dbI.queryIngredients();
+            var myIngredientBox = dbI.queryAllIngredientsFromIngredientTable();
             var myConsumptionTable = dbC.queryConsumptionTable();
             var exDate = new DateTime(2017, 1, 18);
             Assert.AreEqual(12.3m, myIngredient.ouncesConsumed);
