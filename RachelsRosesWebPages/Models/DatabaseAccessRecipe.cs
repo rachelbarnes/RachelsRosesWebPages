@@ -190,7 +190,7 @@ namespace RachelsRosesWebPages.Models {
                     foreach (var ingredient in recipe.ingredients) {
                         tempIngredient = ingredient;
                         if (tempIngredient.density == 0)
-                            tempIngredient.density = dbDensities.returnIngredientDensityFromDensityTable(ingredient);
+                            tempIngredient.density = dbDensities.queryDensityTableRowDensityValueByName(ingredient);
                         tempIngredient.measurement = convert.AdjustIngredientMeasurement(ingredient.measurement, recipe.yield, r.yield);
                         tempIngredient.ouncesConsumed = ingredient.ouncesConsumed * (HomeController.currentRecipe.yield / r.yield);
                         db.updateAllTables(tempIngredient, r);

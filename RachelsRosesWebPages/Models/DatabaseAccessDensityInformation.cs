@@ -7,16 +7,16 @@ using System.Linq;
 using System.Web;
 
 namespace RachelsRosesWebPages.Models {
-    public class DatabaseAccessDensityInformation{
+    public class DatabaseAccessDensityInformation {
         const string connString = "Data Source=(LocalDb)\\MSSQLLocalDB;User Id=RACHELSLAPTOP\\Rachel;Initial Catalog=RachelsRosesWebPagesDB;Integrated Security=True; MultipleActiveResultSets=True";
         public void dropDensityInformationTableIfExists(string table) {
-            var db = new DatabaseAccess(); 
+            var db = new DatabaseAccess();
             var drop = @"IF OBJECT_ID('dbo." + table + " ', 'U') IS NOT NULL DROP TABLE dbo." + table + ";";
             db.executeVoidQuery(drop, a => a);
         }
         public void InitializeDensityInformationTable() {
             var db = new DatabaseAccess();
-            dropDensityInformationTableIfExists("densityInfo"); 
+            dropDensityInformationTableIfExists("densityInfo");
             db.executeVoidQuery(@"create table densityInfo (
                         ingredient nvarchar(max),
                         density decimal(4,2)
@@ -26,18 +26,8 @@ namespace RachelsRosesWebPages.Models {
             var rest = new MakeRESTCalls();
             return rest.GetItemResponse(i);
         }
-        //public List<string> getListOfIngredientTypesFromDensityTable() {
-        //    var myDensityTable = queryDensityInfoTable();
-        //    var myIngredientTypes = new List<string>();
-        //    foreach (var ingredient in myDensityTable) {
-        //        if (!myIngredientTypes.Contains(ingredient.name))
-        //            myIngredientTypes.Add(ingredient.name);
-        //    }
-        //    myIngredientTypes.Sort();
-        //    return myIngredientTypes;
-        //}
         public List<Ingredient> queryDensityInfoTable() {
-            var db = new DatabaseAccess(); 
+            var db = new DatabaseAccess();
             var DensityInfo = db.queryItems("select * from densityInfo", reader => {
                 var densityIngredientInformation = new Ingredient(reader["ingredient"].ToString());
                 densityIngredientInformation.density = (decimal)reader["density"];
@@ -47,10 +37,8 @@ namespace RachelsRosesWebPages.Models {
         }
         public void insertIngredientIntoDensityInfoDatabase(Ingredient i) {
             var rest = new MakeRESTCalls();
-            var db = new DatabaseAccess(); 
-            var myDensityInfoTable = queryDensityInfoTable();
-            if (myDensityInfoTable.Count() == 0)
-                insertDensityTextFileIntoDensityInfoDatabase();
+            var db = new DatabaseAccess();
+            insertDensityTextFileIntoDensityInfoDatabase();
             var myUpdatedDensityInfoTable = queryDensityInfoTable();
             var myMilkAndEggDensityInfoIngredients = new List<Ingredient>();
             foreach (var ingredient in myUpdatedDensityInfoTable) {
@@ -85,26 +73,26 @@ namespace RachelsRosesWebPages.Models {
             //all this is doing is determining if the density table already has an ingredient with said name, if so, then it won't add it, if the table doesn't have that name, it will insert it with the density
             var myDensityInfoDatabase = queryDensityInfoTable();
         }
-        public List<Ingredient> assignIngredientDensityDictionaryValuesToListIngredients(Dictionary<string, decimal> myDensityIngredientDictionary) {
-            var myIngredients = new List<Ingredient>();
-            foreach (var pair in myDensityIngredientDictionary) {
-                var currentIngredient = new Ingredient(pair.Key) {
-                    density = pair.Value
-                };
-                myIngredients.Add(currentIngredient);
-            }
-            return myIngredients;
-        }
+        //public List<Ingredient> assignIngredientDensityDictionaryValuesToListIngredients(Dictionary<string, decimal> myDensityIngredientDictionary) {
+        //    var myIngredients = new List<Ingredient>();
+        //    foreach (var pair in myDensityIngredientDictionary) {
+        //        var currentIngredient = new Ingredient(pair.Key) {
+        //            density = pair.Value
+        //        };
+        //        myIngredients.Add(currentIngredient);
+        //    }
+        //    return myIngredients;
+        //}
+        //this is going to need to allow for user error and grace in the name... need to have a similaries check, or make sure the name.tolower contains the ingredient's name, as opposed to == it
+        //i may have fixed this with the type of ingredient.... but i'll have to do more tests around that to see if it's intuitive
         public void insertDensityTextFileIntoDensityInfoDatabase() {
             var read = new Reader(); //the filename below for the moment is hardcoded... 
-            var db = new DatabaseAccess(); 
+            var db = new DatabaseAccess();
             var DensityTextDatabaseDictionary = read.ReadDensityTextFile(@"C: \Users\Rachel\Documents\Visual Studio 2015\Projects\RachelsRosesWebPages\RachelsRosesWebPages\densityTxtDatabase.txt");
             var myDensityTable = queryDensityInfoTable();
             var myDensityTableNames = new List<string>();
             foreach (var ingredient in myDensityTable)
                 myDensityTableNames.Add(ingredient.name);
-            //this is going to need to allow for user error and grace in the name... need to have a similaries check, or make sure the name.tolower contains the ingredient's name, as opposed to == it
-            //i may have fixed this with the type of ingredient.... but i'll have to do more tests around that to see if it's intuitive
             foreach (var ingredient in DensityTextDatabaseDictionary) {
                 if (!myDensityTableNames.Contains(ingredient.Key)) {
                     var commandText = @"Insert into densityInfo (ingredient, density) values (@ingredient, @density);";
@@ -119,7 +107,7 @@ namespace RachelsRosesWebPages.Models {
         }
         public void insertListIntoDensityInfoDatabase(List<Ingredient> MyIngredients) {
             var read = new Reader(); //the filename below for the moment is hardcoded... but i would prefer to not keep it that way... bad business
-            var db = new DatabaseAccess(); 
+            var db = new DatabaseAccess();
             var myDensityTable = queryDensityInfoTable();
             var myDensityInfoTableIngredients = new List<string>();
             foreach (var ingredient in myDensityTable)
@@ -137,7 +125,7 @@ namespace RachelsRosesWebPages.Models {
             var myDensityInfoTable = queryDensityInfoTable();
         }
         public void updateDensityInfoTable(Ingredient myIngredient) {
-            var db = new DatabaseAccess(); 
+            var db = new DatabaseAccess();
             var myDensityTableInfo = queryDensityInfoTable();
             var myDensityTableInfoNames = new List<string>();
             foreach (var ingredient in myDensityTableInfo)
@@ -153,19 +141,17 @@ namespace RachelsRosesWebPages.Models {
                 });
             }
         }
-        public decimal returnIngredientDensityFromDensityTable(Ingredient i) {
+        public decimal queryDensityTableRowDensityValueByName(Ingredient i) {
             var rest = new MakeRESTCalls();
-            var dbIngredient = new DatabaseAccessIngredient(); 
-            var myIngredients = dbIngredient.queryAllIngredientsFromIngredientTable();
-            var myDensityIngredients = queryDensityInfoTable();
-            var myIngredientDensity = 0m;
-            foreach (var ingredient in myDensityIngredients) {
-                if (rest.SimilaritesInStrings(i.typeOfIngredient, ingredient.name)) {
-                    myIngredientDensity = ingredient.density;
-                    break;
-                }
-            }
-            return myIngredientDensity;
+            var db = new DatabaseAccess(); 
+            var myIngredient = new Ingredient(); 
+            var commandTextQueryTableRowByName = string.Format(@"SELECT * FROM densityInfo WHERE ingredient='{0}';", i.name);
+            db.queryItems(commandTextQueryTableRowByName, reader => {
+                myIngredient.name = (string)reader["ingredient"];
+                myIngredient.density = (decimal)reader["density"];
+                return myIngredient; 
+            });
+            return myIngredient.density;
         }
         public void updateListOfIngredientsInDensityInfoTable(List<Ingredient> MyIngredients) {
             var myDensityTableInfo = queryDensityInfoTable();

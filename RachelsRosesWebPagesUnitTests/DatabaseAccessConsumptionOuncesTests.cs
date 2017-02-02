@@ -73,5 +73,25 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(40m, myIngredientBox[3].ouncesConsumed);
             Assert.AreEqual(50m, myIngredientBox[4].ouncesConsumed);
         }
+        [Test]
+        public void TestConsumptionOuncesConsumedTableQueryByName() {
+            var t = new DatabaseAccess();
+            var DOC = new DatabaseAccessConsumptionOuncesConsumed();
+            var dbI = new DatabaseAccessIngredient();
+            var dbC = new DatabaseAccessConsumption();
+            var dbDI = new DatabaseAccessDensityInformation(); 
+            var cake = new Recipe("Cake") { id = 1, yield = 12 }; 
+            var SoftasilkCakeFlour = new Ingredient("Softasilk Cake Flour") { ingredientId = 1, recipeId = 1, sellingWeight = "32 oz", measurement = "1 cup", density = 4.5m, ouncesConsumed = 4.5m, ouncesRemaining = 27.5m, typeOfIngredient = "cake flour", classification = "flour"};
+            t.initializeDatabase();
+            dbDI.insertDensityTextFileIntoDensityInfoDatabase(); 
+            dbI.insertIngredient(SoftasilkCakeFlour, cake);
+            dbC.insertIngredientConsumtionData(SoftasilkCakeFlour); 
+            DOC.insertIngredientIntoConsumptionOuncesConsumed(SoftasilkCakeFlour);
+            var COCTableIngredient = DOC.queryConsumptionOuncesConsumedTableByName(SoftasilkCakeFlour);
+            Assert.AreEqual("Softasilk Cake Flour", COCTableIngredient.name);
+            Assert.AreEqual("1 cup", COCTableIngredient.measurement);
+            Assert.AreEqual(4.5m, COCTableIngredient.ouncesConsumed);
+            Assert.AreEqual(27.5m, COCTableIngredient.ouncesRemaining); 
+        }
     }
 }

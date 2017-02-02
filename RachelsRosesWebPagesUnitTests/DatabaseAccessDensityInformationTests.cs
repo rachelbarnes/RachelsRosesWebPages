@@ -14,7 +14,6 @@ namespace RachelsRosesWebPagesUnitTests {
             var t = new DatabaseAccess();
             var dbDI = new DatabaseAccessDensityInformation();
             var read = new Reader();
-            //var filename = @"C:\Users\Rachel\Documents\Visual Studio 2015\Projects\RachelsRosesWebPages\RachelsRosesWebPages\densityTxtDatabase.txt";
             t.initializeDatabase();
             dbDI.insertDensityTextFileIntoDensityInfoDatabase();
             var myDensityInformationIngredients = dbDI.queryDensityInfoTable();
@@ -25,21 +24,9 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(12m, myDensityInformationIngredients[39].density);
         }
         [Test]
-        public void TestAssignDictionaryValuesToIngredientObjects() {
-            var t = new DatabaseAccess();
-            var dbDI = new DatabaseAccessDensityInformation();
-            var read = new Reader();
-            var filename = @"C:\Users\Rachel\Documents\Visual Studio 2015\Projects\RachelsRosesWebPages\RachelsRosesWebPages\densityTxtDatabase.txt";
-            t.initializeDatabase();
-            var myDensityDict = read.ReadDensityTextFile(filename);
-            var myDensityUpdatedIngredients = new List<Ingredient>();
-            myDensityUpdatedIngredients = dbDI.assignIngredientDensityDictionaryValuesToListIngredients(myDensityDict);
-            Assert.AreEqual(myDensityUpdatedIngredients.Count(), myDensityDict.Count());
-            Assert.AreEqual(myDensityUpdatedIngredients[0].density, myDensityDict["all purpose flour"]);
-        } [Test]
         public void TestInsertListOfIngredientsIntoDensityInfo() {
             var t = new DatabaseAccess();
-            var dbDI = new DatabaseAccessDensityInformation(); 
+            var dbDI = new DatabaseAccessDensityInformation();
             var i = new Ingredient("all purpose flour") { density = 5m };
             var i2 = new Ingredient("pastry flour") { density = 4.25m };
             var i3 = new Ingredient("vanilla extract") { density = 6.86m };
@@ -54,14 +41,15 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(i2.density, myDensityInfoTable[1].density);
             Assert.AreEqual(i3.name, myDensityInfoTable[2].name);
             Assert.AreEqual(i3.density, myDensityInfoTable[2].density);
-        }  [Test]
+        }
+        [Test]
         public void TestUpdateDensityInfoTable() {
             var t = new DatabaseAccess();
             var dbD = new DatabaseAccessDensityInformation();
             var i = new Ingredient("all purpose flour");
             t.initializeDatabase();
             dbD.insertIngredientIntoDensityInfoDatabase(i);
-            var BeforeDensityTableInfo =dbD.queryDensityInfoTable();
+            var BeforeDensityTableInfo = dbD.queryDensityInfoTable();
             i.density = 5m;
             dbD.updateDensityInfoTable(i);
             var AfterDensityTableInfo = dbD.queryDensityInfoTable();
@@ -94,7 +82,8 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(5m, AfterMyDensityInfoTable[0].density);
             Assert.AreEqual(4.25m, AfterMyDensityInfoTable[1].density);
             Assert.AreEqual(6.86m, AfterMyDensityInfoTable[2].density);
-        }  [Test]
+        }
+        [Test]
         public void TestInsertIngredientIntoDensityInfoDatabase() {
             var t = new DatabaseAccess();
             var dbD = new DatabaseAccessDensityInformation();
@@ -112,7 +101,8 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(4.5m, myIngredientBoxDensities[2].density);
             Assert.AreEqual(4.5m, myIngredientBox[0].density);
             Assert.AreEqual(2.93m, myIngredientBox[1].density);
-        } [Test]
+        }
+        [Test]
         public void TestMultipleIngredientsWithTheSameName() {
             var t = new DatabaseAccess();
             var dbD = new DatabaseAccessDensityInformation();
@@ -157,7 +147,8 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(.94m, myIngredientBox[6].priceOfMeasuredConsumption);
             Assert.AreEqual(.03m, myIngredientBox[7].priceOfMeasuredConsumption);
             Assert.AreEqual(.04m, myIngredientBox[8].priceOfMeasuredConsumption);
-        }   [Test]
+        }
+        [Test]
         public void TestGetListOfIngredientTypes() {
             var t = new DatabaseAccess();
             var dbD = new DatabaseAccessDensityInformation();
@@ -172,28 +163,40 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(secondType, actual[1]);
             Assert.AreEqual(thirdType, actual[2]);
             Assert.AreEqual(lastType, actual[46]);
-        }        [Test]
+        }
+        [Test]
         public void TestReturnDensityFromDensityTable3() {
             var t = new DatabaseAccess();
-            var dbD = new DatabaseAccessDensityInformation(); 
+            var dbD = new DatabaseAccessDensityInformation();
             var r = new Recipe("bread") { id = 1 };
             var i = new Ingredient("All Purpose Flour") { recipeId = 1, ingredientId = 1, measurement = "3 cups", sellingWeight = "5 lb" };
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(i, r);
             var expected = 5m;
-            var actual =dbD.returnIngredientDensityFromDensityTable(i);
+            var actual = dbD.queryDensityTableRowDensityValueByName(i);
             Assert.AreEqual(expected, actual);
-        }        [Test]
+        }
+        [Test]
         public void TestReturnDensityFromDensityTable2() {
             var t = new DatabaseAccess();
-            var dbD = new DatabaseAccessDensityInformation(); 
+            var dbD = new DatabaseAccessDensityInformation();
             var r = new Recipe("bread") { id = 1 };
             var i = new Ingredient("Salt") { recipeId = 1, ingredientId = 1, measurement = "1/2 teaspoon", sellingWeight = "48 oz" };
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(i, r);
             var expected = 10.72m;
-            var actual = dbD.returnIngredientDensityFromDensityTable(i);
+            var actual = dbD.queryDensityTableRowDensityValueByName(i);
             Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        public void TestQueryDensityTableDensityByName() {
+            var db = new DatabaseAccess();
+            var dbDI = new DatabaseAccessDensityInformation();
+            var flour = new Ingredient("All Purpose Flour") { density = 5m };
+            db.initializeDatabase();
+            dbDI.insertDensityTextFileIntoDensityInfoDatabase();
+            var myIngredientDensityInfo = dbDI.queryDensityTableRowDensityValueByName(flour);
+            Assert.AreEqual(5m, myIngredientDensityInfo); 
         }
     }
 }

@@ -100,6 +100,20 @@ namespace RachelsRosesWebPages.Models {
                 return cmd;
             });
         }
-       
+        public Ingredient queryCostsTableByName(Ingredient i) {
+            var db = new DatabaseAccess();
+            var myIngredient = new Ingredient(); 
+            var commandTextQueryCostTableIngredient = string.Format(@"SELECT * FROM costs WHERE name='{0}';", i.name);
+            db.queryItems(commandTextQueryCostTableIngredient, reader => {
+                myIngredient.name = (string)reader["name"];
+                myIngredient.ingredientId = (int)reader["ing_id"];
+                myIngredient.sellingWeight = (string)reader["selling_weight"];
+                //myIngredient.sellingWeightInOunces = (decimal)reader["selling_weight_ounces"];
+                myIngredient.pricePerOunce = (decimal)reader["price_per_ounce"];
+                myIngredient.itemId = (int)reader["item_id"];
+                return myIngredient;
+            });
+            return myIngredient; 
+        } 
     }
 }

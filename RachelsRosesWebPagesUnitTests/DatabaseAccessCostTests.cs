@@ -135,5 +135,26 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(1, myRecipes[0].ingredients.Count());
             Assert.AreEqual(0, myCostIngredients.Count());
         }
+        [Test]
+        public void TestQueryCostTableRowByName() {
+            var db = new DatabaseAccess();
+            var dbI = new DatabaseAccessIngredient();
+            var dbC = new DatabaseAccessConsumption();
+            var dbDI = new DatabaseAccessDensityInformation();
+            var dbD = new DatabaseAccessDensities();
+            var dbCosts = new DatabaseAccessCosts();
+            var cake = new Recipe("Cake") { id = 1, yield = 12 };
+            var softasilkCakeFlour = new Ingredient("Softasilk Cake Flour") { ingredientId = 1, recipeId = 1, sellingWeight = "32 oz", measurement = "1 1/2 cups", typeOfIngredient = "cake flour", classification = "flour" }; 
+            db.initializeDatabase();
+            dbDI.insertDensityTextFileIntoDensityInfoDatabase();
+            dbI.insertIngredient(softasilkCakeFlour, cake);
+            dbC.insertIngredientConsumtionData(softasilkCakeFlour);
+            dbCosts.insertIngredientCostDataCostTable(softasilkCakeFlour);
+            var myCostIngredientInformation = dbCosts.queryCostsTableByName(softasilkCakeFlour);
+            Assert.AreEqual("Softasilk Cake Flour", myCostIngredientInformation.name);
+            Assert.AreEqual(2.98m, myCostIngredientInformation.sellingPrice);
+            Assert.AreEqual(.0931m, myCostIngredientInformation.pricePerOunce);
+            Assert.AreEqual("32 oz", myCostIngredientInformation.sellingWeight);
+        }
     }
 }

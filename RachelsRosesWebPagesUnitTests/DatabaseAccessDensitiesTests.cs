@@ -22,7 +22,7 @@ namespace RachelsRosesWebPagesUnitTests {
             };
             t.initializeDatabase();
             dbD.insertIngredientDensityData(i);
-            var myIngredientInformation = dbD.queryDensitiesTable();
+            var myIngredientInformation = dbD.queryDensitiesTableAllRows();
             Assert.AreEqual(1, myIngredientInformation.Count());
             Assert.AreEqual(i.name, myIngredientInformation[0].name);
             Assert.AreEqual(i.density, (decimal)myIngredientInformation[0].density);
@@ -43,7 +43,7 @@ namespace RachelsRosesWebPagesUnitTests {
             i.pricePerOunce = i.sellingPrice / i.sellingWeightInOunces;
             t.initializeDatabase();
             dbD.insertIngredientDensityData(i);
-            var myIngredientInformation = dbD.queryDensitiesTable();
+            var myIngredientInformation = dbD.queryDensitiesTableAllRows();
             Assert.AreEqual(1, myIngredientInformation.Count());
             Assert.AreEqual(i.density, (decimal)myIngredientInformation[0].density);
             Assert.AreEqual(i.sellingWeight, (string)myIngredientInformation[0].sellingWeight);
@@ -64,7 +64,7 @@ namespace RachelsRosesWebPagesUnitTests {
             dbD.insertIngredientDensityData(i);
             i.density = 12m;
             dbD.updateDensityTable(i);
-            var myIngredientInformation = dbD.queryDensitiesTable();
+            var myIngredientInformation = dbD.queryDensitiesTableAllRows();
             Assert.AreEqual(1, myIngredientInformation.Count());
             Assert.AreEqual(1, myIngredientInformation[0].ingredientId);
             Assert.AreEqual(i.density, myIngredientInformation[0].density);
@@ -81,7 +81,7 @@ namespace RachelsRosesWebPagesUnitTests {
             };
             t.initializeDatabase();
             dbD.insertIngredientDensityData(i);
-            var myIngInfo = dbD.queryDensitiesTable();
+            var myIngInfo = dbD.queryDensitiesTableAllRows();
             Assert.AreEqual(1, myIngInfo.Count());
             Assert.AreEqual(1, myIngInfo[0].ingredientId);
             Assert.AreEqual(i.density, myIngInfo[0].density);
@@ -99,7 +99,7 @@ namespace RachelsRosesWebPagesUnitTests {
             };
             t.initializeDatabase();
             dbD.insertIngredientDensityData(i);
-            var myIngInfo = dbD.queryDensitiesTable();
+            var myIngInfo = dbD.queryDensitiesTableAllRows();
             Assert.AreEqual(1, myIngInfo.Count());
             Assert.AreEqual(i.sellingWeight, myIngInfo[0].sellingWeight);
             Assert.AreEqual(i.sellingWeightInOunces, myIngInfo[0].sellingWeightInOunces);
@@ -115,7 +115,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var iSWO = 80;
             t.initializeDatabase();
             dbD.insertIngredientDensityData(i);
-            var myIngInfo = dbD.queryDensitiesTable();
+            var myIngInfo = dbD.queryDensitiesTableAllRows();
             Assert.AreEqual(1, myIngInfo.Count());
             Assert.AreEqual(iSWO, myIngInfo[0].sellingWeightInOunces);
         }   [Test]
@@ -128,7 +128,7 @@ namespace RachelsRosesWebPagesUnitTests {
             };
             t.initializeDatabase();
             dbD.insertIngredientDensityData(i);
-            var myIngInfo = dbD.queryDensitiesTable();
+            var myIngInfo = dbD.queryDensitiesTableAllRows();
             Assert.AreEqual(1, myIngInfo.Count());
             Assert.AreEqual(i.sellingWeight, myIngInfo[0].sellingWeight);
             Assert.AreEqual(80, myIngInfo[0].sellingWeightInOunces);
@@ -152,7 +152,7 @@ namespace RachelsRosesWebPagesUnitTests {
             dbD.insertIngredientDensityData(i);
             dbD.insertIngredientDensityData(i2);
             dbD.insertIngredientDensityData(i3);
-            var myIngInfo = dbD.queryDensitiesTable();
+            var myIngInfo = dbD.queryDensitiesTableAllRows();
             Assert.AreEqual(3, myIngInfo.Count());
             Assert.AreEqual(32, myIngInfo[0].sellingWeightInOunces);
             Assert.AreEqual(32, myIngInfo[1].sellingWeightInOunces);
@@ -167,7 +167,7 @@ namespace RachelsRosesWebPagesUnitTests {
             };
             t.initializeDatabase();
             dbD.insertIngredientDensityData(i);
-            var myIngInfo = dbD.queryDensitiesTable();
+            var myIngInfo = dbD.queryDensitiesTableAllRows();
             Assert.AreEqual(1, myIngInfo.Count());
             Assert.AreEqual(2.62m, myIngInfo[0].sellingPrice);
         }  [Test]
@@ -184,7 +184,7 @@ namespace RachelsRosesWebPagesUnitTests {
             };
             t.initializeDatabase();
             dbD.insertIngredientDensityData(i);
-            var myIngInfo = dbD.queryDensitiesTable();
+            var myIngInfo = dbD.queryDensitiesTableAllRows();
             Assert.AreEqual(.0525m, myIngInfo[0].pricePerOunce);
         }  [Test]
         public void TestUpdatingSellingPrice2() {
@@ -224,7 +224,7 @@ namespace RachelsRosesWebPagesUnitTests {
             dbD.insertIngredientDensityData(i2);
             dbD.insertIngredientDensityData(i3);
             dbD.insertIngredientDensityData(i4);
-            var myIngInfo = dbD.queryDensitiesTable();
+            var myIngInfo = dbD.queryDensitiesTableAllRows();
             Assert.AreEqual(4, myIngInfo.Count());
             Assert.AreEqual(rest.GetItemResponse(i), myIngInfo[0].sellingPrice);
             Assert.AreEqual(rest.GetItemResponse(i2), myIngInfo[1].sellingPrice);
@@ -245,7 +245,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(i, r);
             var expected = 5m;
-            var actual = dbD.returnIngredientDensityFromDensityTable(i);
+            var actual = dbD.queryDensityTableRowDensityValueByName(i);
             Assert.AreEqual(expected, actual);
         }
 
@@ -289,5 +289,23 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(salt.sellingWeight, myListOfSellingWeights[3]);
             Assert.AreEqual(cocoaPowder.sellingWeight, myListOfSellingWeights[4]);
         } 
+        [Test]
+        public void TestGetDensityTableInformationFromDensityTable() {
+            var t = new DatabaseAccess();
+            var dbD = new DatabaseAccessDensities();
+            var dbDI = new DatabaseAccessDensityInformation(); 
+            var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 20 };
+            var cakeFlour = new Ingredient("Softasilk Cake Flour") { ingredientId = 1, recipeId = 1, sellingWeight = "32 oz", classification = "flour", typeOfIngredient = "cake flour", measurement = "2 cups 2 tablespoons", density = 4.5m, pricePerOunce = .0931m};
+            t.initializeDatabase();
+            dbDI.insertDensityTextFileIntoDensityInfoDatabase(); 
+            dbD.insertIngredientDensityData(cakeFlour);
+            var myIngrededientTableInformation = dbD.queryIngredientFromDensityTableByName(cakeFlour);
+            Assert.AreEqual(1, myIngrededientTableInformation.ingredientId);
+            Assert.AreEqual("32 oz", myIngrededientTableInformation.sellingWeight);
+            Assert.AreEqual(32m, myIngrededientTableInformation.sellingWeightInOunces);
+            Assert.AreEqual(2.98m, myIngrededientTableInformation.sellingPrice);
+            Assert.AreEqual(4.5m, myIngrededientTableInformation.density);
+            Assert.AreEqual(.0931m, myIngrededientTableInformation.pricePerOunce); 
+        }
     }
 }

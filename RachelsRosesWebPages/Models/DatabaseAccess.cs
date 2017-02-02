@@ -316,10 +316,11 @@ namespace RachelsRosesWebPages.Models {
             executeVoidQuery(@"create table consumption (
                         id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
                         name varchar(max),
+                        measurement nvarchar(250),
                         density decimal (4,2),
                         ounces_consumed decimal (5,2),
                         ounces_remaining decimal(6,2),
-                        refill int default 0
+                        refill int default 0,
                      );", a => a);
             dropAllTablesIfTheyExist("costs");
             executeVoidQuery(@"create table costs (
@@ -341,7 +342,8 @@ namespace RachelsRosesWebPages.Models {
                         ing_id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
                         name nvarchar(max), 
                         measurement nvarchar(max),
-                        ounces_consumed decimal(5,2)
+                        ounces_consumed decimal(5,2),
+                        ounces_remaining decimal (6,2)
                         );", a => a);
             //this ingredient name is to represent the ingredient.typeOfIngredient
             executeVoidQuery("SET IDENTITY_INSERT densities ON", cmd => cmd);

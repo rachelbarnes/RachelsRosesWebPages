@@ -105,7 +105,7 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@expiration_date", convertDateToStringMMDDYYYY(i.expirationDate));
                 return cmd;
             });
-            var myIngredients = queryAllIngredientsFromIngredientTable();
+            //var myIngredients = queryAllIngredientsFromIngredientTable();
             //var myIngredientFull = db.queryAllRelevantTablesSQL(i);
         }
         public void UpdateIngredient(Ingredient i) {
@@ -171,7 +171,7 @@ namespace RachelsRosesWebPages.Models {
             var convert = new ConvertMeasurement();
             var myCostData = dbCosts.queryCostTable();
             var myIngredients = queryAllIngredientsFromIngredientTable();
-            var myDensityData = dbDensities.queryDensitiesTable();
+            var myDensityData = dbDensities.queryDensitiesTableAllRows();
             var myConsumptionData = dbConsumption.queryConsumptionTable();
             var myDensityDataInformation = dbDensitiesInformation.queryDensityInfoTable();
             var temp = new Ingredient();
@@ -354,7 +354,7 @@ namespace RachelsRosesWebPages.Models {
             });
             return ExpiringIngredients;
         }
-        public Ingredient queryIngredientFromIngredientsTable(Ingredient i) {
+        public Ingredient queryIngredientFromIngredientsTableByName(Ingredient i) {
             var db = new DatabaseAccess();
             var queriedIngredient = new Ingredient();
             var commandTextQueryIngredient = string.Format(@"SELECT * FROM ingredients where name='{0}';", i.name);

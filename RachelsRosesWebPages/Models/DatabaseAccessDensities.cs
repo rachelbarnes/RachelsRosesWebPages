@@ -28,7 +28,7 @@ namespace RachelsRosesWebPages.Models {
             return rest.GetItemResponse(i);
         }
         public List<string> getListOfDistinctSellingWeights() {
-            var myDensiitiesTable = queryDensitiesTable();
+            var myDensiitiesTable = queryDensitiesTableAllRows();
             var myUniqueSellingWeights = new List<string>();
             foreach (var ingredient in myDensiitiesTable) {
                 if (!myUniqueSellingWeights.Contains(ingredient.sellingWeight))
@@ -36,7 +36,7 @@ namespace RachelsRosesWebPages.Models {
             }
             myUniqueSellingWeights.Sort(); return myUniqueSellingWeights;
         }
-        public List<Ingredient> queryDensitiesTable() {
+        public List<Ingredient> queryDensitiesTableAllRows() {
             var db = new DatabaseAccess();
             var ingredientInformation = db.queryItems("select * from densities", reader => {
                 var ingredient = new Ingredient(reader["name"].ToString());
@@ -55,7 +55,7 @@ namespace RachelsRosesWebPages.Models {
             var db = new DatabaseAccess(); 
             var dbDensityInformation = new DatabaseAccessDensityInformation(); 
             myItemResponse = returnItemResponse(i);
-            i.density = dbDensityInformation.returnIngredientDensityFromDensityTable(i);
+            i.density = dbDensityInformation.queryDensityTableRowDensityValueByName(i);
             if (i.sellingPrice == 0m)
                 i.sellingPrice = myItemResponse.salePrice;
             if (i.classification.ToLower() == "egg" || i.classification.ToLower() == "eggs") {
@@ -101,13 +101,22 @@ namespace RachelsRosesWebPages.Models {
                 return cmd;
             });
         }
-      //public Ingredient queryIngredientFromDensityTableByName(Ingredient i) {
-      //      var db = new DatabaseAccess();
-      //      var ingredientDensities = new Ingredient(); 
-      //      var commandTextQueryDensityByName = string.Format(@"SELECT * FROM densities WHERE name='{0}';", i.name); 
-      //      db.queryItems(commandTextQueryDensityByName, reader => {
-
-      //      })
-      //  }
+        public Ingredient queryIngredientFromDensityTableByName(Ingredient i) {
+            var db = new DatabaseAccess();
+            var ingredientDensityTableInformation = new Ingredient();
+            var commandTextQueryDensityByName = string.Format(@"SELECT * FROM densities WHERE name='{0}';", i.name);
+            db.queryItems(commandTextQueryDensityByName, reader => {
+                ingredientDensityTableInformation.name = (string)reader["name"];
+                ingredientDensityTableInformation.ingredientId = (int)reader["ing_id"];
+                ingredientDensityTableInformation.density = (decimal)reader["density"];
+                ingredientDensityTableInformation.sellingWeight = (string)reader["selling_weight"];
+                ingredientDensityTableInformation.sellingWeightInOunces = (decimal)reader["selling_weight_ounces"];
+                ingredientDensityTableInformation.sellingPrice = (decimal)reader["selling_price"];
+                ingredientDensityTableInformation.pricePerOunce = (decimal)reader["price_per_ounce"];
+                return ingredientDensityTableInformation;
+            });
+            return ingredientDensityTableInformation; 
+          }
     }
+   
 }

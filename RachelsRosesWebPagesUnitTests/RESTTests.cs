@@ -395,7 +395,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var dbD = new DatabaseAccessDensityInformation(); 
             var cakeFlour = new Ingredient("Softasilk") { ingredientId = 1, typeOfIngredient = "cake flour" }; 
             var expected = 4.5m;
-            var actual = dbD.returnIngredientDensityFromDensityTable(cakeFlour);
+            var actual = dbD.queryDensityTableRowDensityValueByName(cakeFlour);
             Assert.AreEqual(expected, actual); 
         }
         [Test]
@@ -404,7 +404,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var dbD = new DatabaseAccessDensityInformation(); 
             var breadFlour = new Ingredient("Pillsbury Bread Flour") { ingredientId = 1, typeOfIngredient = "bread flour" };
             var expected = 5.4m;
-            var actual =dbD.returnIngredientDensityFromDensityTable(breadFlour);
+            var actual =dbD.queryDensityTableRowDensityValueByName(breadFlour);
             Assert.AreEqual(expected, actual); 
         }
         [Test]

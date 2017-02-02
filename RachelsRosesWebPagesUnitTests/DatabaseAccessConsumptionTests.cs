@@ -747,5 +747,39 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(3m, myIngredient.ouncesConsumed);
             Assert.AreEqual(9m, myIngredient.ouncesRemaining);
         }
+        [Test]
+        public void TestQueryConsumptionTableRowByName() {
+            var t = new DatabaseAccess();
+            var dbC = new DatabaseAccessConsumption();
+            var dbI = new DatabaseAccessIngredient(); 
+            var dbDI = new DatabaseAccessDensityInformation();
+            var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 12 };
+            var SoftasilkFlour = new Ingredient("Softasilk Cake Flour") { ingredientId = 1, recipeId = 1, sellingWeight = "32 oz", measurement = "1/2 cup", ouncesConsumed = 2.25m, ouncesRemaining = 29.75m, restock = 0, density = 4.5m, typeOfIngredient = "cake flour", classification = "flour" };
+            var milk = new Ingredient("Whole Milk") { ingredientId = 1, recipeId = 1, measurement = "2 cups", sellingWeight = "1/2 gallon", sellingPrice = 1.79m, typeOfIngredient = "milk", classification = "dairy", expirationDate = new DateTime(2017, 2, 15) };
+            var eggs = new Ingredient("Eggs") { ingredientId = 2, recipeId = 1, measurement = "2 eggs", sellingWeight = "1 dozen", sellingPrice = 2.50m, typeOfIngredient = "egg", classification = "eggs", expirationDate = new DateTime(2017, 4, 4) };
+            var buttermilk = new Ingredient("Buttermilk") { ingredientId = 3, recipeId = 1, measurement = "2 1/2 cups", sellingWeight = "1 quart", sellingPrice = 1.69m, typeOfIngredient = "buttermilk", classification = "dairy", expirationDate = new DateTime(2017, 3, 1) };
+            var heavyWhippingCream = new Ingredient("Heavy Whipping Cream") { ingredientId = 4, recipeId = 1, measurement = "1/4 cup", sellingWeight = "1 pint", sellingPrice = 1.38m, typeOfIngredient = "heavy whipping cream", classification = "dairy", expirationDate = new DateTime(2017, 2, 17) };
+            t.initializeDatabase();
+            dbDI.insertDensityTextFileIntoDensityInfoDatabase();
+            dbI.insertIngredient(SoftasilkFlour, chocolateCake);
+            dbI.insertIngredient(milk, chocolateCake);
+            dbI.insertIngredient(eggs, chocolateCake);
+            dbI.insertIngredient(buttermilk, chocolateCake);
+            dbI.insertIngredient(heavyWhippingCream, chocolateCake); 
+            dbC.insertIngredientConsumtionData(SoftasilkFlour);
+            dbC.insertIngredientConsumtionData(milk);
+            dbC.insertIngredientConsumtionData(eggs); 
+            dbC.insertIngredientConsumtionData(buttermilk); 
+            dbC.insertIngredientConsumtionData(heavyWhippingCream);
+            var myConsumptionTableRow = dbC.queryConsumptionTableRowByName(SoftasilkFlour);
+            Assert.AreEqual("Softasilk Cake Flour", myConsumptionTableRow.name);
+            Assert.AreEqual(1, myConsumptionTableRow.ingredientId);
+            Assert.AreEqual(4.5m, myConsumptionTableRow.density);
+            Assert.AreEqual(2.25m, myConsumptionTableRow.ouncesConsumed);
+            Assert.AreEqual(29.75m, myConsumptionTableRow.ouncesRemaining);
+            Assert.AreEqual(0, myConsumptionTableRow.restock);
+
+
+        }
     }
 }

@@ -32,7 +32,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.insertIngredientIntoAllTables(i, r);
             var myIngInfo = dbI.queryAllIngredientsFromIngredientTable();
             var myIngCons = dbC.queryConsumptionTable();
-            var myIngDens = dbD.queryDensitiesTable();
+            var myIngDens = dbD.queryDensitiesTableAllRows();
             var myIngCost = dbCosts.queryCostTable();
             Assert.AreEqual(1, myIngInfo.Count());
             Assert.AreEqual(1, myIngCons.Count());

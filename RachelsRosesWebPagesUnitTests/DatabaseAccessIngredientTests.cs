@@ -482,7 +482,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var myIngredientTableCount = dbI.queryAllIngredientsFromIngredientTable().Count();
             var myIngredientBoxCount = dbI.myIngredientBox().Count();
             var myCostTableCount = dbCosts.queryCostTable().Count();
-            var myDensitiesTableCount = dbD.queryDensitiesTable().Count();
+            var myDensitiesTableCount = dbD.queryDensitiesTableAllRows().Count();
             var myDensityInformationTableCount = dbDI.queryDensityInfoTable().Count();
             var myConsumptionTable = dbC.queryConsumptionTable().Count();
             Assert.AreEqual(0, myIngredientTableCount);
@@ -511,7 +511,7 @@ namespace RachelsRosesWebPagesUnitTests {
             dbI.DeleteIngredientFromIngredientTable(breadFlour2);
             var myIngredientTable = dbI.queryAllIngredientsFromIngredientTable();
             var myCostTable = dbCosts.queryCostTable();
-            var myDensitiesTable = dbD.queryDensitiesTable();
+            var myDensitiesTable = dbD.queryDensitiesTableAllRows();
             var myConsumptionTable = dbC.queryConsumptionTable();
             Assert.AreEqual(1, myIngredientTable.Count());
             Assert.AreEqual("Salt", myIngredientTable[0].name);
@@ -607,7 +607,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var heavyWhippingCream = new Ingredient("Heavy Whipping Cream") { ingredientId = 1, recipeId = 2, measurement = "1/4 cup", sellingWeight = "1 pint", sellingPrice = 1.38m, typeOfIngredient = "heavy whipping cream", classification = "dairy", expirationDate = new DateTime(2017, 2, 17) };
             t.initializeDatabase(); 
             dbI.insertIngredient(heavyWhippingCream, buttercreamIcing);
-            var myIngredient = dbI.queryIngredientFromIngredientsTable(heavyWhippingCream);
+            var myIngredient = dbI.queryIngredientFromIngredientsTableByName(heavyWhippingCream);
             Assert.AreEqual(1, myIngredient.ingredientId);
             Assert.AreEqual(2, myIngredient.recipeId);
             Assert.AreEqual("Heavy Whipping Cream", myIngredient.name);
