@@ -72,8 +72,8 @@ namespace RachelsRosesWebPages.Models {
                 temp.name = "eggs";
                 i.ouncesConsumed = convertWeight.EggsConsumedFromIngredientMeasurement(myIngredientIngredientTable.measurement);
             } else i.ouncesConsumed = dbConsumptionOuncesConsumed.CalculateOuncesConsumedFromMeasurement(i);
+            //there's another way to do this w a sql query... do a query of searching for ingredient by name and if it returns null, then it's not in the table, if it returns w a name/measurement/ouncesconsumed,then we know it's in the table
             foreach (var ingredient in myConsumptionTable) {
-                //should be able to do a sql query of if the ingredient is in the table... would be quicker than doing a loop i presume
                 if (ingredient.name.ToLower() == i.name.ToLower() || (ingredient.name.ToLower().Contains(i.classification.ToLower()) && i.classification != " ")) {
                     alreadyContainsIngredient = true;
                     break;
@@ -119,8 +119,11 @@ namespace RachelsRosesWebPages.Models {
             var dbI = new DatabaseAccessIngredient();
             var dbConsumptionOuncesConsumed = new DatabaseAccessConsumptionOuncesConsumed();
             var convert = new ConvertWeight();
+            var dbD = new DatabaseAccessDensities();
             var myIngredient = dbI.queryIngredientFromIngredientsTableByName(i);
             var myConsumptionTableIngredient = queryConsumptionTableRowByName(i);
+            var myDensityTableIngredient = dbD.queryIngredientFromDensityTableByName(i);
+            //var myDensityTableIngredient = dbD.queryIngredientFromDensityTableByName(i); 
             var temp = new Ingredient();
             //this handles egg classifications, calculates ounces consumed and ounces remaining
             if (myIngredient.classification.ToLower().Contains("egg")) {
@@ -132,24 +135,21 @@ namespace RachelsRosesWebPages.Models {
                     i.ouncesRemaining = i.sellingWeightInOunces - i.ouncesConsumed;
                 else i.ouncesRemaining = myConsumptionTableIngredient.ouncesRemaining - myConsumptionTableIngredient.ouncesConsumed;
             }
-            //this handles all other ingredients, calculates ounces consumed and ounces remaining
+            //this handles other ingredients; eggs have to be calculated by usage of egg, not by an actual measurement
              else {
-                myConsumptionTableIngredient.ouncesConsumed = dbConsumptionOuncesConsumed.CalculateOuncesConsumedFromMeasurement(i);
+                if (i.ouncesConsumed == 0m)
+                    myConsumptionTableIngredient.ouncesConsumed = dbConsumptionOuncesConsumed.CalculateOuncesConsumedFromMeasurement(i);
                 i.ouncesConsumed = myConsumptionTableIngredient.ouncesConsumed;
-                //i need the density table's selling weight in ounces... i got that from querying all the tables, so i'm not able to do any measureents for the costs...
                 if (myConsumptionTableIngredient.ouncesRemaining == 0m) {
-                    myConsumptionTableIngredient.ouncesRemaining = myConsumptionTableIngredient.sellingWeightInOunces - myConsumptionTableIngredient.ouncesConsumed;
+                    myConsumptionTableIngredient.ouncesRemaining = myDensityTableIngredient.sellingWeightInOunces - myConsumptionTableIngredient.ouncesConsumed;
                 } else
                     myConsumptionTableIngredient.ouncesRemaining = myConsumptionTableIngredient.ouncesRemaining - myConsumptionTableIngredient.ouncesConsumed;
                 i.ouncesRemaining = myConsumptionTableIngredient.ouncesRemaining;
             }
             dbConsumptionOuncesConsumed.insertIngredientIntoConsumptionOuncesConsumed(i);
-            var consumptionOuncesConsumed = dbConsumptionOuncesConsumed.queryConsumptionOuncesConsumed(); 
+            var consumptionOuncesConsumed = dbConsumptionOuncesConsumed.queryConsumptionOuncesConsumed();
             if (string.IsNullOrEmpty(temp.name))
                 temp.name = i.name;
-            if (doesIngredientNeedRestocking(i))
-                i.restock = 0;
-            else i.restock = 1;
             //subtractOuncesRemainingIfExpirationDateIsPast(i);
             // this needs to be fixed, maybe for hte moment having a condition for ig it is eggs or dairy... flour and sugar, etc. should be totally fine
             var commandText = "update consumption set ounces_consumed=@ounces_consumed, ounces_remaining=@ounces_remaining, refill=@refill where name=@name;";
@@ -160,12 +160,6 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@refill", i.restock);
                 return cmd;
             });
-            //i.ouncesRemaining = getOuncesRemainingFromConsumptionTableFromIngredient(i);
-            //var refillCommandText = "update consumption set refill=@refill where name=@name;";
-            //db.executeVoidQuery(refillCommandText, cmd => {
-            //    cmd.Parameters.AddWithValue("@name", i.name);
-            //    return cmd;
-            //});
             var myUpdatedIngredient = queryConsumptionTableRowByName(i);
             var myUpdatedConsumptionOuncesConsumedTable = dbConsumptionOuncesConsumed.queryConsumptionOuncesConsumed();
         }
@@ -175,7 +169,6 @@ namespace RachelsRosesWebPages.Models {
             var convert = new ConvertWeight();
             var myIngredient = db.queryAllRelevantTablesSQL(i);
             if (i.expirationDate < DateTime.Today && (dbIngredients.convertDateToStringMMDDYYYY(i.expirationDate) != "01/01/0001")) {
-                //i.expirationDate != new DateTime()) {
                 myIngredient.ouncesRemaining = myIngredient.ouncesRemaining - i.sellingWeightInOunces;
                 if (myIngredient.ouncesRemaining < 0m)
                     myIngredient.ouncesRemaining = 0m;
@@ -252,10 +245,17 @@ namespace RachelsRosesWebPages.Models {
             }
             return i.ouncesRemaining;
         }
-        public bool doesIngredientNeedRestocking(Ingredient i) {
+        public void doesIngredientNeedRestocking(Ingredient i) {
+            var db = new DatabaseAccess();
             var ingredientOuncesRemaining = getOuncesRemainingFromConsumptionTableFromIngredient(i);
             var doubleOunces = doubleAverageOuncesConsumed(i);
-            return ingredientOuncesRemaining <= doubleOunces ? true : false;
+            var intBool = ingredientOuncesRemaining <= doubleOunces ? 1 : 0;
+            var commandTextEnterRestockValue = @"UPDATE consumption set refill=@refill where name=@name";
+            db.executeVoidQuery(commandTextEnterRestockValue, cmd => {
+                cmd.Parameters.AddWithValue("@refill", intBool);
+                cmd.Parameters.AddWithValue("@name", i.name);
+                return cmd;
+            });
         }
         public void DeleteIngredientFromConsumptionTable(Ingredient i) {
             var db = new DatabaseAccess();

@@ -198,5 +198,15 @@ namespace RachelsRosesWebPagesUnitTests {
             var myIngredientDensityInfo = dbDI.queryDensityTableRowDensityValueByName(flour);
             Assert.AreEqual(5m, myIngredientDensityInfo); 
         }
+        [Test]
+        public void TestQueryDensityTableDensityByName2() {
+            var db = new DatabaseAccess();
+            var dbDI = new DatabaseAccessDensityInformation();
+            var softasilkCakeFlour = new Ingredient("Softasilk Cake Flour") { typeOfIngredient = "cake flour"}; 
+            db.initializeDatabase();
+            dbDI.insertDensityTextFileIntoDensityInfoDatabase();
+            var myIngredientDensityInfo = dbDI.queryDensityTableRowDensityValueByName(softasilkCakeFlour);
+            Assert.AreEqual(4.5m, myIngredientDensityInfo); 
+        }
     }
 }

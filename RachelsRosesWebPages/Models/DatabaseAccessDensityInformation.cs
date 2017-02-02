@@ -145,7 +145,7 @@ namespace RachelsRosesWebPages.Models {
             var rest = new MakeRESTCalls();
             var db = new DatabaseAccess(); 
             var myIngredient = new Ingredient(); 
-            var commandTextQueryTableRowByName = string.Format(@"SELECT * FROM densityInfo WHERE ingredient='{0}';", i.name);
+            var commandTextQueryTableRowByName = string.Format(@"SELECT * FROM densityInfo WHERE ingredient='{0}';", i.typeOfIngredient);
             db.queryItems(commandTextQueryTableRowByName, reader => {
                 myIngredient.name = (string)reader["ingredient"];
                 myIngredient.density = (decimal)reader["density"];

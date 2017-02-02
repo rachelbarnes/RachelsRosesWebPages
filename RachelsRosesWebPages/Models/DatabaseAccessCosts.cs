@@ -42,10 +42,9 @@ namespace RachelsRosesWebPages.Models {
         }
         public void insertIngredientCostDataCostTable(Ingredient i) {
             var db = new DatabaseAccess();
+            var dbD = new DatabaseAccessDensities(); 
             var convert = new ConvertWeight();
-            var myCostTable = queryCostTable();
-            var temp = new Ingredient();
-            temp.sellingPrice = i.sellingPrice;
+            var myIngredientDensityInformation = dbD.queryIngredientFromDensityTableByName(i); 
             if (i.classification.ToLower().Contains("egg")) {
                 i.sellingWeightInOunces = convert.NumberOfEggsFromSellingQuantity(i.sellingWeight);
                 i.pricePerOunce = i.sellingPrice / i.sellingWeightInOunces;
@@ -55,7 +54,7 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
                 cmd.Parameters.AddWithValue("@name", i.name);
                 cmd.Parameters.AddWithValue("@selling_weight", i.sellingWeight);
-                cmd.Parameters.AddWithValue("@selling_price", temp.sellingPrice);
+                cmd.Parameters.AddWithValue("@selling_price", i.sellingPrice);
                 cmd.Parameters.AddWithValue("@price_per_ounce", i.pricePerOunce);
                 cmd.Parameters.AddWithValue("@item_id", i.itemId);
                 return cmd;
@@ -111,6 +110,7 @@ namespace RachelsRosesWebPages.Models {
                 //myIngredient.sellingWeightInOunces = (decimal)reader["selling_weight_ounces"];
                 myIngredient.pricePerOunce = (decimal)reader["price_per_ounce"];
                 myIngredient.itemId = (int)reader["item_id"];
+                myIngredient.sellingPrice = (decimal)reader["selling_price"]; 
                 return myIngredient;
             });
             return myIngredient; 

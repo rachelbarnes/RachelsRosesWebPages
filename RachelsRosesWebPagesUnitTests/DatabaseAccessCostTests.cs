@@ -147,14 +147,23 @@ namespace RachelsRosesWebPagesUnitTests {
             var softasilkCakeFlour = new Ingredient("Softasilk Cake Flour") { ingredientId = 1, recipeId = 1, sellingWeight = "32 oz", measurement = "1 1/2 cups", typeOfIngredient = "cake flour", classification = "flour" }; 
             db.initializeDatabase();
             dbDI.insertDensityTextFileIntoDensityInfoDatabase();
+            dbDI.queryDensityInfoTable(); 
             dbI.insertIngredient(softasilkCakeFlour, cake);
+            var myIngredientInformation = dbI.queryIngredientFromIngredientsTableByName(softasilkCakeFlour); 
+            dbD.insertIngredientDensityData(softasilkCakeFlour);
+            var myIngredientDensityInformation = dbD.queryIngredientFromDensityTableByName(softasilkCakeFlour); 
             dbC.insertIngredientConsumtionData(softasilkCakeFlour);
+            var myIngredientConsumptionInformation = dbC.queryConsumptionTableRowByName(softasilkCakeFlour); 
+            //i'm getting 0 for ounces remaining still... i need to figure that one out
             dbCosts.insertIngredientCostDataCostTable(softasilkCakeFlour);
             var myCostIngredientInformation = dbCosts.queryCostsTableByName(softasilkCakeFlour);
             Assert.AreEqual("Softasilk Cake Flour", myCostIngredientInformation.name);
             Assert.AreEqual(2.98m, myCostIngredientInformation.sellingPrice);
             Assert.AreEqual(.0931m, myCostIngredientInformation.pricePerOunce);
             Assert.AreEqual("32 oz", myCostIngredientInformation.sellingWeight);
+            //trying to get this test to pass...my ounces consumed isn't working...
+                //my suspicion is that my density table isn't pulling through for me...
+                    //i need to selling price to transfer, as well as ounces consumed and selling weight in ounces.
         }
     }
 }

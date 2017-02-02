@@ -550,65 +550,65 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(33.08m, myIngredients[9].ouncesConsumed);
             Assert.AreEqual(5, myConsumptionTable.Count());
         }
-        [Test]
-        public void TestIngredientRestockCondition() {
-            var t = new DatabaseAccess();
-            var dbC = new DatabaseAccessConsumption(); 
-            var chocolateChipCookies = new Recipe("Chocolate Chip Cookies") { id = 1, yield = 18 };
-            var chocolateChipCheesecake = new Recipe("Chocolate Chip Cheesecake") { id = 2, yield = 16 };
-            var cheeseCake = new Recipe("Cheesecake") { id = 3, yield = 16 };
-            var chocolateCake = new Recipe("Chocolate Cake") { id = 4, yield = 20 };
-            var yellowCake = new Recipe("Yellow Cake") { id = 5, yield = 16 };
-            var chocolateChips = new Ingredient("Chocolate Chips") { ingredientId = 1, recipeId = 1, measurement = "1 1/2 cups", sellingWeight = "12 oz", typeOfIngredient = "chocolate chips" };
-            var brownSugar = new Ingredient("Brown Sugar") { ingredientId = 2, recipeId = 1, measurement = "1/2 cup", sellingWeight = "2 lb", typeOfIngredient = "brown sugar" };
-            var granSugar = new Ingredient("Granulated Sugar") { ingredientId = 3, recipeId = 1, measurement = "1/2 cup", sellingWeight = "4 lb", typeOfIngredient = "granulated sugar" };
-            var granSugar2 = new Ingredient("Granulated Sugar") { ingredientId = 4, recipeId = 2, measurement = "1 1/2 cups", sellingWeight = "4 lb", typeOfIngredient = "granulated sugar" };
-            var granSugar3 = new Ingredient("Granulated Sugar") { ingredientId = 5, recipeId = 3, measurement = "2 cups", sellingWeight = "4 lb", typeOfIngredient = "granulated sugar" };
-            var granSugar4 = new Ingredient("Granulated Sugar") { ingredientId = 6, recipeId = 4, measurement = "2 3/4 cups", sellingWeight = "4 lb", typeOfIngredient = "granlated sugar" };
-            var chocolateChipCookesIngredients = new List<Ingredient> { chocolateChips, brownSugar, granSugar };
-            t.initializeDatabase();
-            t.insertListOfIngredientsIntoAllTables(chocolateChipCookesIngredients, chocolateChipCookies);
-            t.insertIngredientIntoAllTables(granSugar2, chocolateChipCheesecake);
-            t.insertIngredientIntoAllTables(granSugar3, cheeseCake);//.5 1.5 2 2.75 average: 12.07     17.85
-            t.insertIngredientIntoAllTables(granSugar4, chocolateCake);
-            var myIngredients =dbC.queryConsumptionTable();
-            var granSugarRestock =dbC.doesIngredientNeedRestocking(granSugar4);
-            var brownSugarRestock =dbC.doesIngredientNeedRestocking(brownSugar);
-            var chocolateChipsRestock =dbC.doesIngredientNeedRestocking(chocolateChips);
-            Assert.AreEqual(true, granSugarRestock);
-            Assert.AreEqual(false, brownSugarRestock);
-            Assert.AreEqual(true, chocolateChipsRestock);
-        }
-        [Test]
-        public void TestIngredientRestockConditionWithRestock() {
-            var t = new DatabaseAccess();
-            var dbC = new DatabaseAccessConsumption();  
-            var chocolateChipCheesecake = new Recipe("Chocolate Chip Cheesecake") { id = 1, yield = 16 };
-            var chocolateChips = new Ingredient("Chocolate Chips") { ingredientId = 1, recipeId = 1, measurement = "2 cups", typeOfIngredient = "chocolate chips", sellingWeight = "12 oz" };
-            t.initializeDatabase();
-            t.insertIngredientIntoAllTables(chocolateChips, chocolateChipCheesecake);
-            var sugarRestock =dbC.doesIngredientNeedRestocking(chocolateChips);
-            dbC.refillIngredientInConsumptionDatabase(chocolateChips, "12 oz");
-            var myUpdatedIngredient = t.queryAllRelevantTablesSQL(chocolateChips);
-            var updatedSugarRestock =dbC.doesIngredientNeedRestocking(myUpdatedIngredient);
-            Assert.AreEqual(true, sugarRestock);
-            Assert.AreEqual(true, updatedSugarRestock);
-        }
-        [Test]
-        public void TestIngredientRestockConditionWithRestock2() {
-            var t = new DatabaseAccess();
-            var dbC = new DatabaseAccessConsumption(); 
-            var chocolateChipCheesecake = new Recipe("Chocolate Chip Cheesecake") { id = 1, yield = 16 };
-            var chocolateChips = new Ingredient("Chocolate Chips") { ingredientId = 1, recipeId = 1, measurement = "2 cups", typeOfIngredient = "chocolate chips", sellingWeight = "12 oz" };
-            t.initializeDatabase();
-            t.insertIngredientIntoAllTables(chocolateChips, chocolateChipCheesecake);
-            var sugarRestock = dbC.doesIngredientNeedRestocking(chocolateChips);
-             dbC.refillIngredientInConsumptionDatabase(chocolateChips, "36 oz");
-            var myUpdatedIngredient = t.queryAllRelevantTablesSQL(chocolateChips);
-            var updatedSugarRestock = dbC.doesIngredientNeedRestocking(myUpdatedIngredient);
-            Assert.AreEqual(true, sugarRestock);
-            Assert.AreEqual(false, updatedSugarRestock);
-        }
+        //[Test]
+        //public void TestIngredientRestockCondition() {
+        //    var t = new DatabaseAccess();
+        //    var dbC = new DatabaseAccessConsumption(); 
+        //    var chocolateChipCookies = new Recipe("Chocolate Chip Cookies") { id = 1, yield = 18 };
+        //    var chocolateChipCheesecake = new Recipe("Chocolate Chip Cheesecake") { id = 2, yield = 16 };
+        //    var cheeseCake = new Recipe("Cheesecake") { id = 3, yield = 16 };
+        //    var chocolateCake = new Recipe("Chocolate Cake") { id = 4, yield = 20 };
+        //    var yellowCake = new Recipe("Yellow Cake") { id = 5, yield = 16 };
+        //    var chocolateChips = new Ingredient("Chocolate Chips") { ingredientId = 1, recipeId = 1, measurement = "1 1/2 cups", sellingWeight = "12 oz", typeOfIngredient = "chocolate chips" };
+        //    var brownSugar = new Ingredient("Brown Sugar") { ingredientId = 2, recipeId = 1, measurement = "1/2 cup", sellingWeight = "2 lb", typeOfIngredient = "brown sugar" };
+        //    var granSugar = new Ingredient("Granulated Sugar") { ingredientId = 3, recipeId = 1, measurement = "1/2 cup", sellingWeight = "4 lb", typeOfIngredient = "granulated sugar" };
+        //    var granSugar2 = new Ingredient("Granulated Sugar") { ingredientId = 4, recipeId = 2, measurement = "1 1/2 cups", sellingWeight = "4 lb", typeOfIngredient = "granulated sugar" };
+        //    var granSugar3 = new Ingredient("Granulated Sugar") { ingredientId = 5, recipeId = 3, measurement = "2 cups", sellingWeight = "4 lb", typeOfIngredient = "granulated sugar" };
+        //    var granSugar4 = new Ingredient("Granulated Sugar") { ingredientId = 6, recipeId = 4, measurement = "2 3/4 cups", sellingWeight = "4 lb", typeOfIngredient = "granlated sugar" };
+        //    var chocolateChipCookesIngredients = new List<Ingredient> { chocolateChips, brownSugar, granSugar };
+        //    t.initializeDatabase();
+        //    t.insertListOfIngredientsIntoAllTables(chocolateChipCookesIngredients, chocolateChipCookies);
+        //    t.insertIngredientIntoAllTables(granSugar2, chocolateChipCheesecake);
+        //    t.insertIngredientIntoAllTables(granSugar3, cheeseCake);//.5 1.5 2 2.75 average: 12.07     17.85
+        //    t.insertIngredientIntoAllTables(granSugar4, chocolateCake);
+        //    var myIngredients =dbC.queryConsumptionTable();
+        //    var granSugarRestock =dbC.doesIngredientNeedRestocking(granSugar4);
+        //    var brownSugarRestock =dbC.doesIngredientNeedRestocking(brownSugar);
+        //    var chocolateChipsRestock =dbC.doesIngredientNeedRestocking(chocolateChips);
+        //    Assert.AreEqual(true, granSugarRestock);
+        //    Assert.AreEqual(false, brownSugarRestock);
+        //    Assert.AreEqual(true, chocolateChipsRestock);
+        //}
+        //[Test]
+        //public void TestIngredientRestockConditionWithRestock() {
+        //    var t = new DatabaseAccess();
+        //    var dbC = new DatabaseAccessConsumption();  
+        //    var chocolateChipCheesecake = new Recipe("Chocolate Chip Cheesecake") { id = 1, yield = 16 };
+        //    var chocolateChips = new Ingredient("Chocolate Chips") { ingredientId = 1, recipeId = 1, measurement = "2 cups", typeOfIngredient = "chocolate chips", sellingWeight = "12 oz" };
+        //    t.initializeDatabase();
+        //    t.insertIngredientIntoAllTables(chocolateChips, chocolateChipCheesecake);
+        //    var sugarRestock =dbC.doesIngredientNeedRestocking(chocolateChips);
+        //    dbC.refillIngredientInConsumptionDatabase(chocolateChips, "12 oz");
+        //    var myUpdatedIngredient = t.queryAllRelevantTablesSQL(chocolateChips);
+        //    var updatedSugarRestock =dbC.doesIngredientNeedRestocking(myUpdatedIngredient);
+        //    Assert.AreEqual(true, sugarRestock);
+        //    Assert.AreEqual(true, updatedSugarRestock);
+        //}
+        //[Test]
+        //public void TestIngredientRestockConditionWithRestock2() {
+        //    var t = new DatabaseAccess();
+        //    var dbC = new DatabaseAccessConsumption(); 
+        //    var chocolateChipCheesecake = new Recipe("Chocolate Chip Cheesecake") { id = 1, yield = 16 };
+        //    var chocolateChips = new Ingredient("Chocolate Chips") { ingredientId = 1, recipeId = 1, measurement = "2 cups", typeOfIngredient = "chocolate chips", sellingWeight = "12 oz" };
+        //    t.initializeDatabase();
+        //    t.insertIngredientIntoAllTables(chocolateChips, chocolateChipCheesecake);
+        //    var sugarRestock = dbC.doesIngredientNeedRestocking(chocolateChips);
+        //     dbC.refillIngredientInConsumptionDatabase(chocolateChips, "36 oz");
+        //    var myUpdatedIngredient = t.queryAllRelevantTablesSQL(chocolateChips);
+        //    var updatedSugarRestock = dbC.doesIngredientNeedRestocking(myUpdatedIngredient);
+        //    Assert.AreEqual(true, sugarRestock);
+        //    Assert.AreEqual(false, updatedSugarRestock);
+        //}
         [Test]
         public void TestIngredientExpirationDateAndDeletionFromConsumptionTable() {
             var t = new DatabaseAccess();
@@ -636,13 +636,10 @@ namespace RachelsRosesWebPagesUnitTests {
             var myIngredient = t.queryAllRelevantTablesSQL(sourCream);
             var myIngredientConsumptionTable = dbC.queryConsumptionTable();
              dbC.subtractOuncesRemainingIfExpirationDateIsPast(sourCream);
-            //var myUpdatedIngredient = t.queryAllTablesForIngredient(sourCream);
-            //var myUpdatedIngredients = t.queryConsumptionTable();
             var exDate = new DateTime(2017, 1, 25);
             Assert.AreEqual(1, myIngredientConsumptionTable.Count());
             Assert.AreEqual(7.4m, myIngredient.ouncesRemaining);
             Assert.AreEqual(exDate, myIngredient.expirationDate);
-            //something with the date is not transfering... i'm getting a data type incorrect somewhere with the consumption table
         }
         [Test]
         public void TestIngredientExpirationDateFromConsumptionTable3() {
@@ -662,7 +659,6 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(0m, myUpdatedIngredient.ouncesRemaining);
             Assert.AreEqual(0m, myUpdatedIngredients[0].ouncesRemaining);
             Assert.AreEqual(exDate, myIngredients[0].expirationDate);
-            //something with the date is not transfering... i'm getting a data type incorrect somewhere with the consumption table
         }
         [Test]
         public void TestIngredientExpirationDateConsumptionTable4() {
@@ -754,7 +750,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var dbI = new DatabaseAccessIngredient(); 
             var dbDI = new DatabaseAccessDensityInformation();
             var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 12 };
-            var SoftasilkFlour = new Ingredient("Softasilk Cake Flour") { ingredientId = 1, recipeId = 1, sellingWeight = "32 oz", measurement = "1/2 cup", ouncesConsumed = 2.25m, ouncesRemaining = 29.75m, restock = 0, density = 4.5m, typeOfIngredient = "cake flour", classification = "flour" };
+            var SoftasilkFlour = new Ingredient("Softasilk Cake Flour") { ingredientId = 1, recipeId = 1, sellingWeight = "32 oz", measurement = "1/2 cup", ouncesConsumed = 2.25m, restock = 0, density = 4.5m, typeOfIngredient = "cake flour", classification = "flour" };
             var milk = new Ingredient("Whole Milk") { ingredientId = 1, recipeId = 1, measurement = "2 cups", sellingWeight = "1/2 gallon", sellingPrice = 1.79m, typeOfIngredient = "milk", classification = "dairy", expirationDate = new DateTime(2017, 2, 15) };
             var eggs = new Ingredient("Eggs") { ingredientId = 2, recipeId = 1, measurement = "2 eggs", sellingWeight = "1 dozen", sellingPrice = 2.50m, typeOfIngredient = "egg", classification = "eggs", expirationDate = new DateTime(2017, 4, 4) };
             var buttermilk = new Ingredient("Buttermilk") { ingredientId = 3, recipeId = 1, measurement = "2 1/2 cups", sellingWeight = "1 quart", sellingPrice = 1.69m, typeOfIngredient = "buttermilk", classification = "dairy", expirationDate = new DateTime(2017, 3, 1) };
@@ -771,15 +767,48 @@ namespace RachelsRosesWebPagesUnitTests {
             dbC.insertIngredientConsumtionData(eggs); 
             dbC.insertIngredientConsumtionData(buttermilk); 
             dbC.insertIngredientConsumtionData(heavyWhippingCream);
-            var myConsumptionTableRow = dbC.queryConsumptionTableRowByName(SoftasilkFlour);
-            Assert.AreEqual("Softasilk Cake Flour", myConsumptionTableRow.name);
-            Assert.AreEqual(1, myConsumptionTableRow.ingredientId);
-            Assert.AreEqual(4.5m, myConsumptionTableRow.density);
-            Assert.AreEqual(2.25m, myConsumptionTableRow.ouncesConsumed);
-            Assert.AreEqual(29.75m, myConsumptionTableRow.ouncesRemaining);
-            Assert.AreEqual(0, myConsumptionTableRow.restock);
-
-
+            var softasilkCakeFlourConsumptionTableRow = dbC.queryConsumptionTableRowByName(SoftasilkFlour);
+            var milkConsumptionTableRow = dbC.queryConsumptionTableRowByName(milk); 
+            var eggsConsumptionTableRow = dbC.queryConsumptionTableRowByName(eggs); 
+            var buttermilkConsumptionTableRow = dbC.queryConsumptionTableRowByName(buttermilk); 
+            var heavyWhippingCreamConsumptionTableRow= dbC.queryConsumptionTableRowByName(heavyWhippingCream); 
+            Assert.AreEqual("Softasilk Cake Flour", softasilkCakeFlourConsumptionTableRow.name);
+            Assert.AreEqual(1, softasilkCakeFlourConsumptionTableRow.ingredientId);
+            Assert.AreEqual(4.5m, softasilkCakeFlourConsumptionTableRow.density);
+            Assert.AreEqual(2.25m, softasilkCakeFlourConsumptionTableRow.ouncesConsumed);
+            Assert.AreEqual(29.75m, softasilkCakeFlourConsumptionTableRow.ouncesRemaining);
+            Assert.AreEqual(0, softasilkCakeFlourConsumptionTableRow.restock);
+            Assert.AreEqual("Whole Milk", milkConsumptionTableRow.name); 
+            Assert.AreEqual(2, milkConsumptionTableRow.ingredientId);
+            Assert.AreEqual(16.4m, milkConsumptionTableRow.ouncesConsumed);
+            Assert.AreEqual(47.6, milkConsumptionTableRow.ouncesRemaining);
+            Assert.AreEqual(0, milkConsumptionTableRow.restock);
+            Assert.AreEqual("Eggs", eggsConsumptionTableRow.name);
+            Assert.AreEqual(3, eggsConsumptionTableRow.ingredientId);
+            Assert.AreEqual(2, eggsConsumptionTableRow.ouncesConsumed);
+            Assert.AreEqual(10, eggsConsumptionTableRow.ouncesRemaining);
+            Assert.AreEqual(0, eggsConsumptionTableRow.restock);
+            Assert.AreEqual("Buttermilk", buttermilkConsumptionTableRow.name); 
+            Assert.AreEqual(4, buttermilkConsumptionTableRow.ingredientId);
+            Assert.AreEqual(20.5m, buttermilkConsumptionTableRow.ouncesConsumed);
+            Assert.AreEqual(11.5m, buttermilkConsumptionTableRow.ouncesRemaining);
+            Assert.AreEqual(1, buttermilkConsumptionTableRow.restock);
+            Assert.AreEqual("Heavy Whipping Cream", heavyWhippingCreamConsumptionTableRow.name);
+            Assert.AreEqual(5, heavyWhippingCreamConsumptionTableRow.ingredientId);
+            Assert.AreEqual(2.1m, heavyWhippingCreamConsumptionTableRow.ouncesConsumed);
+            Assert.AreEqual(13.9m, heavyWhippingCreamConsumptionTableRow.ouncesRemaining);
+            Assert.AreEqual(0, heavyWhippingCreamConsumptionTableRow.restock); 
         }
+        //[Test]
+        //public void TestRefillVoidQuery() {
+        //    var db = new DatabaseAccess();
+        //    var dbC = new DatabaseAccessConsumption();
+        //    var ingredient = new Ingredient("Cake Flour") { ouncesConsumed = 1m, ouncesRemaining = 5m };
+        //    db.initializeDatabase();
+        //    dbC.insertIngredientConsumtionData(ingredient);
+        //    dbC.doesIngredientNeedRestocking(ingredient);
+        //    var ingredientConsumptionTableRow = dbC.queryConsumptionTableRowByName(ingredient);
+        //    Assert.AreEqual(1, ingredientConsumptionTableRow.restock);
+        //}
     }
 }
