@@ -69,7 +69,7 @@ namespace RachelsRosesWebPages.Models {
             var temp = new Ingredient();
             bool alreadyContainsIngredient = new bool();
             if (myIngredientIngredientTable.classification.ToLower().Contains("egg")) {
-                temp.name = "eggs";
+                temp.name = "Eggs";
                 i.ouncesConsumed = convertWeight.EggsConsumedFromIngredientMeasurement(myIngredientIngredientTable.measurement);
             } else i.ouncesConsumed = dbConsumptionOuncesConsumed.CalculateOuncesConsumedFromMeasurement(i);
             //there's another way to do this w a sql query... do a query of searching for ingredient by name and if it returns null, then it's not in the table, if it returns w a name/measurement/ouncesconsumed,then we know it's in the table
@@ -96,24 +96,7 @@ namespace RachelsRosesWebPages.Models {
             var myUpdatedIngredient = queryConsumptionTable();
             var myConsumptionOuncesConsumedTable = dbConsumptionOuncesConsumed.queryConsumptionOuncesConsumed();
         }
-        //if (i.classification.ToLower().Contains("egg") && ingredient.name.ToLower().Contains("egg")) {
-        //    temp.name = ingredient.name;
-        //    var currentOuncesConsumed = convert.EggsConsumedFromIngredientMeasurement(i.measurement);
-        //    if (ingredient.ouncesConsumed != currentOuncesConsumed)
-        //        i.ouncesConsumed = convert.EggsConsumedFromIngredientMeasurement(i.measurement);
-        //    if (ingredient.ouncesRemaining == 0m)
-        //        i.ouncesRemaining = i.sellingWeightInOunces - i.ouncesConsumed;
-        //    else i.ouncesRemaining = ingredient.ouncesRemaining - i.ouncesConsumed;
-        //    break;
-
-
-        //if (ingredient.name.ToLower() == i.name.ToLower()) {
-        //    ingredient.ouncesConsumed = dbConsumptionOuncesConsumed.CalculateOuncesConsumedFromMeasurement(i);
-        //    i.ouncesConsumed = ingredient.ouncesConsumed;
-        //    break;
-        //}
-        //    }
-        //}
+   
         public void updateConsumptionTable(Ingredient i) {
             var db = new DatabaseAccess();
             var dbI = new DatabaseAccessIngredient();
@@ -160,6 +143,7 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@refill", i.restock);
                 return cmd;
             });
+            doesIngredientNeedRestocking(i); 
             var myUpdatedIngredient = queryConsumptionTableRowByName(i);
             var myUpdatedConsumptionOuncesConsumedTable = dbConsumptionOuncesConsumed.queryConsumptionOuncesConsumed();
         }
@@ -245,17 +229,21 @@ namespace RachelsRosesWebPages.Models {
             }
             return i.ouncesRemaining;
         }
+        //the reason why this is void and access the database apart from the method that calls this (UpdateConsumptionTable) is the ouncesRemaining aren't set in the consumption table yet, i would get incorrect data
         public void doesIngredientNeedRestocking(Ingredient i) {
             var db = new DatabaseAccess();
-            var ingredientOuncesRemaining = getOuncesRemainingFromConsumptionTableFromIngredient(i);
+            var consumptionTableIngredientRow = queryConsumptionTableRowByName(i); 
+            //var ingredientOuncesRemaining = getOuncesRemainingFromConsumptionTableFromIngredient(i);
             var doubleOunces = doubleAverageOuncesConsumed(i);
-            var intBool = ingredientOuncesRemaining <= doubleOunces ? 1 : 0;
-            var commandTextEnterRestockValue = @"UPDATE consumption set refill=@refill where name=@name";
-            db.executeVoidQuery(commandTextEnterRestockValue, cmd => {
-                cmd.Parameters.AddWithValue("@refill", intBool);
-                cmd.Parameters.AddWithValue("@name", i.name);
-                return cmd;
-            });
+            var intBool = consumptionTableIngredientRow.ouncesRemaining <= doubleOunces ? 1 : 0;
+            if (consumptionTableIngredientRow.restock != intBool) {
+                var commandTextEnterRestockValue = @"UPDATE consumption set refill=@refill where name=@name";
+                db.executeVoidQuery(commandTextEnterRestockValue, cmd => {
+                    cmd.Parameters.AddWithValue("@refill", intBool);
+                    cmd.Parameters.AddWithValue("@name", i.name);
+                    return cmd;
+                });
+            }
         }
         public void DeleteIngredientFromConsumptionTable(Ingredient i) {
             var db = new DatabaseAccess();

@@ -1172,7 +1172,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var fluffyWhiteCake = new Recipe("Fluffy White Cake") { id = 1, yield = 24, aggregatedPrice = 12m, pricePerServing = .5m };
             t.initializeDatabase();
             dbR.InsertRecipe(fluffyWhiteCake);
-            var myRecipe = dbR.queryRecipeFromRecipesTable(fluffyWhiteCake);
+            var myRecipe = dbR.queryRecipeFromRecipesTableByName(fluffyWhiteCake);
             Assert.AreEqual("Fluffy White Cake", myRecipe.name);
             Assert.AreEqual(1, myRecipe.id);
             Assert.AreEqual(24, myRecipe.yield);

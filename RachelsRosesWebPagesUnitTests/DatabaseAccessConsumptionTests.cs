@@ -749,6 +749,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var dbC = new DatabaseAccessConsumption();
             var dbI = new DatabaseAccessIngredient(); 
             var dbDI = new DatabaseAccessDensityInformation();
+            var dbD = new DatabaseAccessDensities(); 
             var chocolateCake = new Recipe("Chocolate Cake") { id = 1, yield = 12 };
             var SoftasilkFlour = new Ingredient("Softasilk Cake Flour") { ingredientId = 1, recipeId = 1, sellingWeight = "32 oz", measurement = "1/2 cup", ouncesConsumed = 2.25m, restock = 0, density = 4.5m, typeOfIngredient = "cake flour", classification = "flour" };
             var milk = new Ingredient("Whole Milk") { ingredientId = 1, recipeId = 1, measurement = "2 cups", sellingWeight = "1/2 gallon", sellingPrice = 1.79m, typeOfIngredient = "milk", classification = "dairy", expirationDate = new DateTime(2017, 2, 15) };
@@ -761,7 +762,12 @@ namespace RachelsRosesWebPagesUnitTests {
             dbI.insertIngredient(milk, chocolateCake);
             dbI.insertIngredient(eggs, chocolateCake);
             dbI.insertIngredient(buttermilk, chocolateCake);
-            dbI.insertIngredient(heavyWhippingCream, chocolateCake); 
+            dbI.insertIngredient(heavyWhippingCream, chocolateCake);
+            dbD.insertIngredientDensityData(SoftasilkFlour);
+            dbD.insertIngredientDensityData(milk);
+            dbD.insertIngredientDensityData(eggs);
+            dbD.insertIngredientDensityData(buttermilk);
+            dbD.insertIngredientDensityData(heavyWhippingCream);  
             dbC.insertIngredientConsumtionData(SoftasilkFlour);
             dbC.insertIngredientConsumtionData(milk);
             dbC.insertIngredientConsumtionData(eggs); 

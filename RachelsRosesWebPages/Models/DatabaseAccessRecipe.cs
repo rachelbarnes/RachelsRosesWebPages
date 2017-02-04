@@ -232,7 +232,7 @@ namespace RachelsRosesWebPages.Models {
             });
             return myRecipeIngredients; 
         }
-        public Recipe queryRecipeFromRecipesTable(Recipe r) {
+        public Recipe queryRecipeFromRecipesTableByName(Recipe r) {
             var db = new DatabaseAccess();
             var myRecipe = new Recipe(); 
             var commandTextQueryRecipeByName = string.Format(@"SELECT * FROM recipes where name='{0}';", r.name);
