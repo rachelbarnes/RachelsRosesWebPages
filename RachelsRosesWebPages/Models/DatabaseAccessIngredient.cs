@@ -110,7 +110,7 @@ namespace RachelsRosesWebPages.Models {
         }
         public void UpdateIngredient(Ingredient i) {
             var db = new DatabaseAccess();
-            var myIngredients = queryAllIngredientsFromIngredientTable();
+            //var myIngredients = queryAllIngredientsFromIngredientTable();
             if (i.sellingPrice == 0m && (!i.classification.ToLower().Contains("dairy")) || (!i.classification.ToLower().Contains("egg"))) {
                 if (i.itemId == 0) {
                     myItemResponse = returnItemResponse(i);
@@ -142,7 +142,7 @@ namespace RachelsRosesWebPages.Models {
                                 ingredient_classification=@ingredient_classification, 
                                 item_response_name=@item_response_name, 
                                 expiration_date=@expiration_date 
-                                where ing_id=@ing_id;";
+                                where ing_id=@ing_id AND name=@name;";
             db.executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@name", i.name);
                 cmd.Parameters.AddWithValue("@measurement", i.measurement);
@@ -160,57 +160,13 @@ namespace RachelsRosesWebPages.Models {
             });
         }
         public decimal MeasuredIngredientPrice(Ingredient i) {
-            var dbRecipes = new DatabaseAccessRecipe();
-            var dbIngredients = new DatabaseAccessIngredient();
-            var dbConsumptionOuncesConsumed = new DatabaseAccessConsumptionOuncesConsumed();
-            var dbConsumption = new DatabaseAccessConsumption();
-            var dbDensities = new DatabaseAccessDensities();
-            var dbDensitiesInformation = new DatabaseAccessDensityInformation();
-            var dbCosts = new DatabaseAccessCosts();
-            var convertWeight = new ConvertWeight();
-            var convert = new ConvertMeasurement();
-            var myCostData = dbCosts.queryCostTable();
-            var myIngredients = queryAllIngredientsFromIngredientTable();
-            var myDensityData = dbDensities.queryDensitiesTableAllRows();
-            var myConsumptionData = dbConsumption.queryConsumptionTable();
-            var myDensityDataInformation = dbDensitiesInformation.queryDensityInfoTable();
-            var temp = new Ingredient();
-            var measuredIngredientPrice = 0m;
-            foreach (var ingredient in myConsumptionData) {
-                if (ingredient.name.ToLower() == i.name.ToLower() || (ingredient.name.ToLower().Contains(i.classification.ToLower()) && i.classification != " ")) {
-                    temp.ouncesConsumed = ingredient.ouncesConsumed;
-                    break;
-                }
-            }
-            foreach (var ingredient in myDensityData) {
-                if (ingredient.name == i.name) {
-                    temp.density = ingredient.density;
-                    temp.sellingWeightInOunces = ingredient.sellingWeightInOunces;
-                    break;
-                }
-            }
-            foreach (var ingredient in myCostData) {
-                if (ingredient.name == i.name) {
-                    temp.sellingPrice = ingredient.sellingPrice;
-                    temp.pricePerOunce = ingredient.pricePerOunce;
-                    break;
-                }
-            }
-            foreach (var ingredient in myIngredients) {
-                if (ingredient.name == i.name) {
-                    ingredient.ouncesConsumed = temp.ouncesConsumed;
-                    ingredient.sellingPrice = temp.sellingPrice;
-                    var measuredOuncesDividedBySellingWeight = 0m;
-                    if (temp.sellingWeightInOunces != 0)
-                        measuredOuncesDividedBySellingWeight = Math.Round((ingredient.ouncesConsumed / temp.sellingWeightInOunces), 4);
-                    measuredIngredientPrice = Math.Round((measuredOuncesDividedBySellingWeight * temp.sellingPrice), 2);
-                    break;
-                }
-            }
+            var db = new DatabaseAccess();
+            var myIngredient = db.queryAllRelevantTablesSQLByIngredientName(i);
+            var measuredOuncesDividedBySellingWeight = Math.Round((myIngredient.ouncesConsumed / myIngredient.sellingWeightInOunces), 4);
+            var measuredIngredientPrice = Math.Round((measuredOuncesDividedBySellingWeight * myIngredient.sellingPrice), 2);
             return measuredIngredientPrice;
         }
-        //there's something off here, i may not have the right classification or something... 
-        //look at the pattern and see what's off here
+     
         public List<string> myDistinctIngredientNamesSorted() {
             var db = new DatabaseAccess();
             var uniqueIngredientNames = new List<string>();
@@ -227,12 +183,12 @@ namespace RachelsRosesWebPages.Models {
         }
         public decimal returnIngredientMeasuredPrice(Ingredient i) {
             var db = new DatabaseAccess();
-            db.queryAllRelevantTablesSQL(i);
-            return MeasuredIngredientPrice(i);
+            var myIngredient = db.queryAllRelevantTablesSQLByIngredientName(i);
+            return MeasuredIngredientPrice(myIngredient);
         }
         public void getIngredientMeasuredPrice(Ingredient i, Recipe r) {
             var db = new DatabaseAccess();
-            db.queryAllRelevantTablesSQL(i);
+            db.queryAllRelevantTablesSQLByIngredientName(i);
             i.priceOfMeasuredConsumption = MeasuredIngredientPrice(i);
             UpdateIngredient(i);
         }
@@ -290,7 +246,7 @@ namespace RachelsRosesWebPages.Models {
             var ingredientBox = new List<Ingredient>();
             var queriedIngredients = queryAllIngredientsFromIngredientTable();
             foreach (var ingredient in queriedIngredients)
-                ingredientBox.Add(db.queryAllRelevantTablesSQL(ingredient));
+                ingredientBox.Add(db.queryAllRelevantTablesSQLByIngredientName(ingredient));
             return ingredientBox;
         }
         public List<string> myDistinctIngredientClassificationsSorted() {
@@ -357,7 +313,7 @@ namespace RachelsRosesWebPages.Models {
         public Ingredient queryIngredientFromIngredientsTableByName(Ingredient i) {
             var db = new DatabaseAccess();
             var queriedIngredient = new Ingredient();
-            var commandTextQueryIngredient = string.Format(@"SELECT * FROM ingredients where name='{0}';", i.name);
+            var commandTextQueryIngredient = string.Format(@"SELECT * FROM ingredients where name='{0}' AND ing_id={1};", i.name, i.ingredientId);
             db.queryItems(commandTextQueryIngredient, reader => {
                 queriedIngredient.name = (string)(reader["name"]);
                 queriedIngredient.measurement = (string)(reader["measurement"]);
@@ -371,7 +327,7 @@ namespace RachelsRosesWebPages.Models {
                 queriedIngredient.expirationDate = convertStringMMDDYYYYToDateYYYYMMDD(expirationDate);
                 return queriedIngredient;
             });
-            return queriedIngredient; 
+            return queriedIngredient;
         }
     }
 }

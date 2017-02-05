@@ -135,7 +135,7 @@ namespace RachelsRosesWebPages.Controllers {
                     } else { updatedExpirationDate = dbI.convertDateToStringMMDDYYYY(ing.expirationDate); }
 
                     t.updateAllTables(currentIngredient, currentRecipe);
-                    currentIngredient = t.queryAllRelevantTablesSQL(currentIngredient);
+                    currentIngredient = t.queryAllRelevantTablesSQLByIngredientName(currentIngredient);
                 }
             }
             return Redirect("/home/ingredient?name=" + currentIngredient.name + "&measurement=" + currentIngredient.measurement);
@@ -174,7 +174,7 @@ namespace RachelsRosesWebPages.Controllers {
                 currentRecipe.ingredients.Add(newIngredient);
                 currentIngredient = newIngredient;
                 db.insertIngredientIntoAllTables(currentIngredient, currentRecipe);
-                var newIngredientData = db.queryAllRelevantTablesSQL(currentIngredient);
+                var newIngredientData = db.queryAllRelevantTablesSQLByIngredientName(currentIngredient);
             }
             return Redirect("/home/recipe?name=" + currentRecipe.name);
         }

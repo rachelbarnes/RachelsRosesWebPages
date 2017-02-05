@@ -1060,7 +1060,7 @@ namespace RachelsRosesWebPagesUnitTests {
             chocolateCake.yield = 36; //  1.5
             dbR.UpdateListOfRecipeYields(myCakeRecipes);
             var myUpdatedIngredientBox = t.queryAllTablesForAllIngredients(myCakeIngredients);
-            var mySoftasilkFlour = t.queryAllRelevantTablesSQL(softasilkFlour2);
+            var mySoftasilkFlour = t.queryAllRelevantTablesSQLByIngredientName(softasilkFlour2);
             var myUpdatedCakeRecipeBox = dbR.MyRecipeBox();
             Assert.AreEqual(3, myCakeRecipeBox.Count());
             Assert.AreEqual(1.55m, myIngredients[4].priceOfMeasuredConsumption);
@@ -1086,7 +1086,7 @@ namespace RachelsRosesWebPagesUnitTests {
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(honey, bread);
             var myRecipes = dbR.MyRecipeBox();
-            var myIngredient = t.queryAllRelevantTablesSQL(honey);
+            var myIngredient = t.queryAllRelevantTablesSQLByIngredientName(honey);
             dbR.DeleteRecipeAndRecipeIngredients(bread);
             var myUpdatedIngredients = dbI.queryAllIngredientsFromIngredientTable();
             var myUpdatedRecipeBox = dbR.MyRecipeBox();

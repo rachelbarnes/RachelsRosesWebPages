@@ -38,36 +38,103 @@ namespace RachelsRosesWebPages.Models {
             sqlConnection1.Close();
             return items;
         }
-        public Ingredient queryAllRelevantTablesSQL(Ingredient i) {
+   //var commandText = 
+            //var commandTextQueryAllRelevantColumns = @"SELECT ingredients.ing_id, 
+			         //                                   ingredients.recipe_id,
+				        //                                ingredients.name, 
+            //                                			ingredients.measurement, 
+			         //                                   consumption_ounces_consumed.ounces_consumed, 
+            //                                            consumption_ounces_consumed.ounces_remaining,
+			         //                                   ingredients.ingredient_classification, 
+			         //                                   ingredients.ingredient_type, 
+			         //                                   ingredients.price_measured_ingredient, 
+			         //                                   ingredients.expiration_date, 
+			         //                                   costs.selling_price, 
+			         //                                   costs.price_per_ounce, 
+			         //                                   densities.selling_weight, 
+			         //                                   densities.selling_weight_ounces
+	           //                                     FROM ingredients 
+	           //                                     INNER JOIN consumption_ounces_consumed
+		          //                                  ON ingredients.name=consumption_ounces_consumed.name
+	           //                                     INNER JOIN costs 
+		          //                                  ON ingredients.name=costs.name
+	           //                                     INNER JOIN densities
+		          //                                  ON ingredients.name=densities.name;";
+            ////i'm getting nothing from this... need to look at this when im more awake
+            //queryItems(commandTextQueryAllRelevantColumns, reader => {
+            //    queriedIngredient.name = (string)(reader["name"]);
+            //    queriedIngredient.ingredientId = (int)(reader["ing_id"]);
+            //    queriedIngredient.recipeId = (int)(reader["recipe_id"]);
+            //    queriedIngredient.measurement = (string)(reader["measurement"]);
+            //    queriedIngredient.ouncesConsumed = (decimal)(reader["ounces_consumed"]);
+            //    queriedIngredient.ouncesConsumed = (decimal)(reader["ounces_remaining"]);
+            //    queriedIngredient.classification = (string)(reader["ingredient_classification"]);
+            //    queriedIngredient.typeOfIngredient = (string)(reader["ingredient_type"]);
+            //    queriedIngredient.pricePerOunce = (decimal)(reader["price_per_ounce"]);
+            //    queriedIngredient.priceOfMeasuredConsumption = (decimal)(reader["price_measured_ingredient"]);
+            //    queriedIngredient.sellingPrice = (decimal)(reader["selling_price"]);
+            //    queriedIngredient.sellingWeight = (string)(reader["selling_weight"]);
+            //    queriedIngredient.sellingWeightInOunces = (decimal)(reader["selling_weight_ounces"]);
+            //    var expirationDate = (string)(reader["expiration_date"]);
+            //    queriedIngredient.expirationDate = dbI.convertStringMMDDYYYYToDateYYYYMMDD(expirationDate);
+            //    queriedIngredientList.Add(queriedIngredient);
+            //    return queriedIngredient;
+            //});
+            ////}
+        public List<Ingredient> queryAllRelevantTablesSQLForListOfIngredients(List<Ingredient> listOfIngredients) {
             var dbI = new DatabaseAccessIngredient();
-            var queriedIngredient = new Ingredient(); 
-            var commandTextQueryAllRelevantColumns = @"SELECT ingredients.ing_id, 
-			                                            ingredients.recipe_id,
-				                                        ingredients.name, 
-                                            			ingredients.measurement, 
-			                                            consumption_ounces_consumed.ounces_consumed, 
-			                                            ingredients.ingredient_classification, 
-			                                            ingredients.ingredient_type, 
-			                                            ingredients.price_measured_ingredient, 
-			                                            ingredients.expiration_date, 
-			                                            costs.selling_price, 
-			                                            costs.price_per_ounce, 
-			                                            densities.selling_weight, 
-			                                            densities.selling_weight_ounces
-	                                                FROM ingredients 
-	                                                INNER JOIN consumption_ounces_consumed
-		                                            ON ingredients.name=consumption_ounces_consumed.name
-	                                                INNER JOIN costs 
-		                                            ON ingredients.name=costs.name
-	                                                INNER JOIN densities
-		                                            ON ingredients.name=densities.name;";
-            queryItems(commandTextQueryAllRelevantColumns, reader => {
+            var queriedIngredientList = new List<Ingredient>();
+            foreach (var ingredient in listOfIngredients) {
+                var queriedIngredient = new Ingredient();
+                queriedIngredient = queryAllRelevantTablesSQLByIngredientName(ingredient);
+                queriedIngredientList.Add(queriedIngredient);
+            }         
+            return queriedIngredientList;
+        }
+        //var commandTextQueryAllRelevantTables = string.Format(@"SELECT ingredients.ing_id, 
+        //                                       ingredients.recipe_id,
+        //                                    ingredients.name, 
+        //                                    			ingredients.measurement, 
+        //                                       consumption_ounces_consumed.ounces_consumed, 
+        //                                                consumption_ounces_consumed.ounces_remaining,
+        //                                       ingredients.ingredient_classification, 
+        //                                       ingredients.ingredient_type, 
+        //                                       ingredients.price_measured_ingredient, 
+        //                                       ingredients.expiration_date, 
+        //                                       costs.selling_price, 
+        //                                       costs.price_per_ounce, 
+        //                                       densities.selling_weight, 
+        //                                       densities.selling_weight_ounces
+        //                                         FROM ingredients 
+        //                                         INNER JOIN consumption_ounces_consumed
+        //                                      ON ingredients.name=consumption_ounces_consumed.name
+        //                                         INNER JOIN costs 
+        //                                      ON ingredients.name=costs.name
+        //                                         INNER JOIN densities
+        //                                      ON ingredients.name=densities.name
+        //                                            WHERE ingredients.name='{0}';", i.name);
+        public Ingredient queryAllRelevantTablesSQLByIngredientName(Ingredient i) {
+            var dbI = new DatabaseAccessIngredient();
+            var queriedIngredient = new Ingredient();
+            var commandText = string.Format(@"SELECT * 
+                                               FROM ingredients
+                                               JOIN consumption_ounces_consumed
+                                               ON ingredients.name=consumption_ounces_consumed.name AND ingredients.ing_id=consumption_ounces_consumed.ing_id
+                                               JOIN costs
+                                               ON ingredients.name=costs.name AND ingredients.ing_id=costs.ing_id
+                                               JOIN densities
+                                               ON ingredients.name=densities.name AND ingredients.ing_id=densities.ing_id
+                                               WHERE ingredients.name='{0}' AND ingredients.ing_id={1};", i.name, i.ingredientId); 
+            //var commandText = string.Format(@"SELECT * FROM ingredients, consumption_ounces_consumed, costs, densities
+            //                               WHERE ingredients.name='{0}' AND ingredients.ing_id={1} AND ingredients.measurement='{2}';", i.name, i.ingredientId, i.measurement);
+
+            queryItems(commandText, reader => {
                 queriedIngredient.name = (string)(reader["name"]);
                 queriedIngredient.ingredientId = (int)(reader["ing_id"]);
                 queriedIngredient.recipeId = (int)(reader["recipe_id"]);
                 queriedIngredient.measurement = (string)(reader["measurement"]);
                 queriedIngredient.ouncesConsumed = (decimal)(reader["ounces_consumed"]);
-                //queriedIngredient.ouncesConsumed = (decimal)(reader["ounces_remaining"]); 
+                queriedIngredient.ouncesRemaining = (decimal)(reader["ounces_remaining"]);
                 queriedIngredient.classification = (string)(reader["ingredient_classification"]);
                 queriedIngredient.typeOfIngredient = (string)(reader["ingredient_type"]);
                 queriedIngredient.pricePerOunce = (decimal)(reader["price_per_ounce"]);
@@ -79,10 +146,7 @@ namespace RachelsRosesWebPages.Models {
                 queriedIngredient.expirationDate = dbI.convertStringMMDDYYYYToDateYYYYMMDD(expirationDate);
                 return queriedIngredient;
             });
-            return queriedIngredient; 
-            //the problem im facing is there ins't information in my query... i have to find a way to appropriately enter the information or update tables as needed in that method... 
-                //maybe do indivudal queryies to all the tables, and if hte tables are blank, then i need to update hte infromation?
-                    //unfortunately, this is pretty close to a revamp of my system. 
+            return queriedIngredient;
         }
         //public Ingredient queryAllRelevantTables(Ingredient i) {
         //    var dbRecipes = new DatabaseAccessRecipe();
@@ -165,7 +229,7 @@ namespace RachelsRosesWebPages.Models {
         public List<Ingredient> queryAllTablesForAllIngredients(List<Ingredient> ListOfIngredients) {
             var queriedListOfIngredients = new List<Ingredient>();
             foreach (var ingredient in ListOfIngredients)
-                queriedListOfIngredients.Add(queryAllRelevantTablesSQL(ingredient));
+                queriedListOfIngredients.Add(queryAllRelevantTablesSQLByIngredientName(ingredient));
             return queriedListOfIngredients;
         }
         public void insertIngredientIntoAllTables(Ingredient i, Recipe r) {
@@ -178,7 +242,7 @@ namespace RachelsRosesWebPages.Models {
             var dbCosts = new DatabaseAccessCosts();
             var myRecipes = dbRecipes.queryRecipes();
             var myIngredientBox = dbIngredients.queryAllIngredientsFromIngredientTable();
-            var myIngredients = queryAllRelevantTablesSQL(i);
+            var myIngredients = queryAllRelevantTablesSQLByIngredientName(i);
             var count = 0;
             var countIngredients = 0;
             foreach (var recipe in myRecipes) {
@@ -195,16 +259,17 @@ namespace RachelsRosesWebPages.Models {
             }
             if (countIngredients == 0) {
                 dbIngredients.insertIngredient(i, r);
-                var myIng = queryAllRelevantTablesSQL(i);
+                var myIng = queryAllRelevantTablesSQLByIngredientName(i);
                 dbDensitiesInformation.insertIngredientIntoDensityInfoDatabase(i);
                 dbDensities.insertIngredientDensityData(i);
                 dbConsumption.insertIngredientConsumtionData(i);
+                var myIngUpdated = queryAllRelevantTablesSQLByIngredientName(i);
                 dbCosts.insertIngredientCostDataCostTable(i);
                 dbIngredients.UpdateIngredient(i);
-                var myIngUpdated = queryAllRelevantTablesSQL(i);
+                var myIngUpdated2 = queryAllRelevantTablesSQLByIngredientName(i);
             } else {
                 dbIngredients.UpdateIngredient(i);
-                var updatedIngredient = queryAllRelevantTablesSQL(i);
+                var updatedIngredient = queryAllRelevantTablesSQLByIngredientName(i);
                 dbDensitiesInformation.updateDensityInfoTable(i);
                 dbDensities.updateDensityTable(i);
                 dbCosts.updateCostDataTable(i);
@@ -258,7 +323,7 @@ namespace RachelsRosesWebPages.Models {
             }
             dbRecipes.UpdateRecipe(r);
             dbIngredients.UpdateIngredient(i);
-            var updatedIngredient = queryAllRelevantTablesSQL(i);
+            var updatedIngredient = queryAllRelevantTablesSQLByIngredientName(i);
             dbDensityInformation.updateDensityInfoTable(i);
             dbDensities.updateDensityTable(i);
             dbCosts.updateCostDataTable(i);

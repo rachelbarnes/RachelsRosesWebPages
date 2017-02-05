@@ -91,7 +91,7 @@ namespace RachelsRosesWebPages.Models {
             }
             foreach (var ingredient in myIngredients) {
                 if (ingredient.recipeId == myRecipe.id) {
-                    var currentIngredient = db.queryAllRelevantTablesSQL(ingredient);
+                    var currentIngredient = db.queryAllRelevantTablesSQLByIngredientName(ingredient);
                     aggregatedPrice += currentIngredient.priceOfMeasuredConsumption;
                     myRecipe.ingredients.Add(ingredient);
                 }
@@ -120,7 +120,7 @@ namespace RachelsRosesWebPages.Models {
                     dbIngredients.getIngredientMeasuredPrice(ing, r);
                     r.ingredients.Add(ing);
                     db.updateAllTables(ing, r);
-                    var currentIngredient = db.queryAllRelevantTablesSQL(ing);
+                    var currentIngredient = db.queryAllRelevantTablesSQLByIngredientName(ing);
                 }
             }
             var aggregatedPrice = 0m;
@@ -146,7 +146,7 @@ namespace RachelsRosesWebPages.Models {
             var myIngredients = dbIngredients.queryAllIngredientsFromIngredientTable();
             foreach (var ing in myIngredients) {
                 if (ing.recipeId == r.id) {
-                    db.queryAllRelevantTablesSQL(ing);
+                    db.queryAllRelevantTablesSQLByIngredientName(ing);
                     r.ingredients.Add(ing);
                 }
             }
@@ -194,7 +194,7 @@ namespace RachelsRosesWebPages.Models {
                         tempIngredient.measurement = convert.AdjustIngredientMeasurement(ingredient.measurement, recipe.yield, r.yield);
                         tempIngredient.ouncesConsumed = ingredient.ouncesConsumed * (HomeController.currentRecipe.yield / r.yield);
                         db.updateAllTables(tempIngredient, r);
-                        var myUpdatedIngredient = db.queryAllRelevantTablesSQL(tempIngredient);
+                        var myUpdatedIngredient = db.queryAllRelevantTablesSQLByIngredientName(tempIngredient);
                     }
                     recipe.yield = r.yield;
                     GetFullRecipePrice(recipe);

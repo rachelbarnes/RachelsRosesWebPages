@@ -96,7 +96,7 @@ namespace RachelsRosesWebPages.Models {
             var myUpdatedIngredient = queryConsumptionTable();
             var myConsumptionOuncesConsumedTable = dbConsumptionOuncesConsumed.queryConsumptionOuncesConsumed();
         }
-   
+
         public void updateConsumptionTable(Ingredient i) {
             var db = new DatabaseAccess();
             var dbI = new DatabaseAccessIngredient();
@@ -120,8 +120,8 @@ namespace RachelsRosesWebPages.Models {
             }
             //this handles other ingredients; eggs have to be calculated by usage of egg, not by an actual measurement
              else {
-                if (i.ouncesConsumed == 0m)
-                    myConsumptionTableIngredient.ouncesConsumed = dbConsumptionOuncesConsumed.CalculateOuncesConsumedFromMeasurement(i);
+                //if (i.ouncesConsumed == 0m)
+                myConsumptionTableIngredient.ouncesConsumed = dbConsumptionOuncesConsumed.CalculateOuncesConsumedFromMeasurement(i);
                 i.ouncesConsumed = myConsumptionTableIngredient.ouncesConsumed;
                 if (myConsumptionTableIngredient.ouncesRemaining == 0m) {
                     myConsumptionTableIngredient.ouncesRemaining = myDensityTableIngredient.sellingWeightInOunces - myConsumptionTableIngredient.ouncesConsumed;
@@ -129,8 +129,7 @@ namespace RachelsRosesWebPages.Models {
                     myConsumptionTableIngredient.ouncesRemaining = myConsumptionTableIngredient.ouncesRemaining - myConsumptionTableIngredient.ouncesConsumed;
                 i.ouncesRemaining = myConsumptionTableIngredient.ouncesRemaining;
             }
-            dbConsumptionOuncesConsumed.insertIngredientIntoConsumptionOuncesConsumed(i);
-            var consumptionOuncesConsumed = dbConsumptionOuncesConsumed.queryConsumptionOuncesConsumed();
+
             if (string.IsNullOrEmpty(temp.name))
                 temp.name = i.name;
             //subtractOuncesRemainingIfExpirationDateIsPast(i);
@@ -143,7 +142,9 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@refill", i.restock);
                 return cmd;
             });
-            doesIngredientNeedRestocking(i); 
+            doesIngredientNeedRestocking(i);
+            dbConsumptionOuncesConsumed.insertIngredientIntoConsumptionOuncesConsumed(i);
+            var consumptionOuncesConsumed = dbConsumptionOuncesConsumed.queryConsumptionOuncesConsumed();
             var myUpdatedIngredient = queryConsumptionTableRowByName(i);
             var myUpdatedConsumptionOuncesConsumedTable = dbConsumptionOuncesConsumed.queryConsumptionOuncesConsumed();
         }
@@ -151,7 +152,7 @@ namespace RachelsRosesWebPages.Models {
             var db = new DatabaseAccess();
             var dbIngredients = new DatabaseAccessIngredient();
             var convert = new ConvertWeight();
-            var myIngredient = db.queryAllRelevantTablesSQL(i);
+            var myIngredient = db.queryAllRelevantTablesSQLByIngredientName(i);
             if (i.expirationDate < DateTime.Today && (dbIngredients.convertDateToStringMMDDYYYY(i.expirationDate) != "01/01/0001")) {
                 myIngredient.ouncesRemaining = myIngredient.ouncesRemaining - i.sellingWeightInOunces;
                 if (myIngredient.ouncesRemaining < 0m)
@@ -232,7 +233,7 @@ namespace RachelsRosesWebPages.Models {
         //the reason why this is void and access the database apart from the method that calls this (UpdateConsumptionTable) is the ouncesRemaining aren't set in the consumption table yet, i would get incorrect data
         public void doesIngredientNeedRestocking(Ingredient i) {
             var db = new DatabaseAccess();
-            var consumptionTableIngredientRow = queryConsumptionTableRowByName(i); 
+            var consumptionTableIngredientRow = queryConsumptionTableRowByName(i);
             //var ingredientOuncesRemaining = getOuncesRemainingFromConsumptionTableFromIngredient(i);
             var doubleOunces = doubleAverageOuncesConsumed(i);
             var intBool = consumptionTableIngredientRow.ouncesRemaining <= doubleOunces ? 1 : 0;

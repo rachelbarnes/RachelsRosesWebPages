@@ -225,7 +225,7 @@ namespace RachelsRosesWebPagesUnitTests {
             };
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(i, r);
-            var myIngredient = t.queryAllRelevantTablesSQL(i);
+            var myIngredient = t.queryAllRelevantTablesSQLByIngredientName(i);
             var myIngredientsCost = dbCosts.queryCostTable();
             Assert.AreEqual(2.98m, myIngredient.sellingPrice);
             Assert.AreEqual(1.16m, myIngredient.priceOfMeasuredConsumption);
@@ -243,7 +243,7 @@ namespace RachelsRosesWebPagesUnitTests {
             dbD.insertDensityTextFileIntoDensityInfoDatabase();
             t.insertIngredientIntoAllTables(i, r);
             var mydensityDataInformation = dbD.queryDensityInfoTable();
-            var semiSweetMorsels = t.queryAllRelevantTablesSQL(i);
+            var semiSweetMorsels = t.queryAllRelevantTablesSQLByIngredientName(i);
             var myRecipes = dbR.MyRecipeBox();
             Assert.AreEqual("all purpose flour", mydensityDataInformation[0].name);
             Assert.AreEqual(1, myRecipes.Count());
