@@ -69,10 +69,11 @@ namespace RachelsRosesWebPages.Models {
             var temp = new Ingredient();
             bool alreadyContainsIngredient = new bool();
             if (myIngredientIngredientTable.classification.ToLower().Contains("egg")) {
-                temp.name = "Eggs";
+                temp.name = "Egg";
+                //i would prefer this to be eggs, but i am matching the ingredient_classification if the ingredient.name doesn't match for querying the ingredients table and the consumption table, and the classifications are singular... 
+                    //i'm going to have to put a warning or something in the READ ME asking the user not to change the name of the consumption table ignredients... i'm not a big fan of that. I want there to be flexibility for what the user needs
                 i.ouncesConsumed = convertWeight.EggsConsumedFromIngredientMeasurement(myIngredientIngredientTable.measurement);
             } else i.ouncesConsumed = dbConsumptionOuncesConsumed.CalculateOuncesConsumedFromMeasurement(i);
-            //there's another way to do this w a sql query... do a query of searching for ingredient by name and if it returns null, then it's not in the table, if it returns w a name/measurement/ouncesconsumed,then we know it's in the table
             foreach (var ingredient in myConsumptionTable) {
                 if (ingredient.name.ToLower() == i.name.ToLower() || (ingredient.name.ToLower().Contains(i.classification.ToLower()) && i.classification != " ")) {
                     alreadyContainsIngredient = true;
@@ -144,7 +145,9 @@ namespace RachelsRosesWebPages.Models {
             });
             doesIngredientNeedRestocking(i);
             dbConsumptionOuncesConsumed.insertIngredientIntoConsumptionOuncesConsumed(i);
+            //still not getting the ouncesRemaining... need to change this
             var consumptionOuncesConsumed = dbConsumptionOuncesConsumed.queryConsumptionOuncesConsumed();
+            //why am i not inserting this into the database? 
             var myUpdatedIngredient = queryConsumptionTableRowByName(i);
             var myUpdatedConsumptionOuncesConsumedTable = dbConsumptionOuncesConsumed.queryConsumptionOuncesConsumed();
         }

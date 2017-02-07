@@ -7,16 +7,16 @@ using System.Linq;
 using System.Web;
 
 namespace RachelsRosesWebPages.Models {
-    public class DatabaseAccessDensities{
+    public class DatabaseAccessDensities {
         const string connString = "Data Source=(LocalDb)\\MSSQLLocalDB;User Id=RACHELSLAPTOP\\Rachel;Initial Catalog=RachelsRosesWebPagesDB;Integrated Security=True; MultipleActiveResultSets=True";
-          public void dropDensityInformationTableIfExists(string table) {
-            var db = new DatabaseAccess(); 
+        public void dropDensityInformationTableIfExists(string table) {
+            var db = new DatabaseAccess();
             var drop = @"IF OBJECT_ID('dbo." + table + " ', 'U') IS NOT NULL DROP TABLE dbo." + table + ";";
             db.executeVoidQuery(drop, a => a);
         }
         public void initializeDensitiesTable() {
             var db = new DatabaseAccess();
-            dropDensityInformationTableIfExists("densities"); 
+            dropDensityInformationTableIfExists("densities");
             db.executeVoidQuery(@"create table densities(
                         ingredient nvarchar(max),
                         density decimal(4,2)
@@ -52,9 +52,10 @@ namespace RachelsRosesWebPages.Models {
         }
         public void insertIngredientDensityData(Ingredient i) {
             var convert = new ConvertWeight();
-            var db = new DatabaseAccess(); 
-            var dbDensityInformation = new DatabaseAccessDensityInformation(); 
-            myItemResponse = returnItemResponse(i);
+            var db = new DatabaseAccess();
+            var dbDensityInformation = new DatabaseAccessDensityInformation();
+            if (i.sellingPrice == 0m)
+                myItemResponse = returnItemResponse(i);
             i.density = dbDensityInformation.queryDensityTableRowDensityValueByName(i);
             if (i.sellingPrice == 0m)
                 i.sellingPrice = myItemResponse.salePrice;
@@ -79,7 +80,7 @@ namespace RachelsRosesWebPages.Models {
             });
         }
         public void updateDensityTable(Ingredient i) {
-            var db = new DatabaseAccess(); 
+            var db = new DatabaseAccess();
             var commandText = "update densities set name=@name, density=@density, selling_weight=@selling_weight, selling_weight_ounces=@selling_weight_ounces, selling_price=@selling_price, price_per_ounce=@price_per_ounce where ing_id=@ing_id";
             db.executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
@@ -94,7 +95,7 @@ namespace RachelsRosesWebPages.Models {
         }
 
         public void DeleteIngredientFromDensitiesTable(Ingredient i) {
-            var db = new DatabaseAccess(); 
+            var db = new DatabaseAccess();
             var deleteCommand = "delete from densities where ing_id=@ing_id";
             db.executeVoidQuery(deleteCommand, cmd => {
                 cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
@@ -115,8 +116,8 @@ namespace RachelsRosesWebPages.Models {
                 ingredientDensityTableInformation.pricePerOunce = (decimal)reader["price_per_ounce"];
                 return ingredientDensityTableInformation;
             });
-            return ingredientDensityTableInformation; 
-          }
+            return ingredientDensityTableInformation;
+        }
     }
-   
+
 }

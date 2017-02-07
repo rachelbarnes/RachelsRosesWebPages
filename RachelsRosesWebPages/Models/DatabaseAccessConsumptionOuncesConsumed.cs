@@ -37,32 +37,38 @@ namespace RachelsRosesWebPages.Models {
         }
         public void insertIngredientIntoConsumptionOuncesConsumed(Ingredient i) {
             var db = new DatabaseAccess();
-            var ingredientRelevantInformation = new Ingredient();
             var dbi = new DatabaseAccessIngredient();
+            var myConsumptionOuncesConsumedIngredient = new Ingredient();
             var dbc = new DatabaseAccessConsumption();
-            var myIngredients = dbi.queryAllIngredientsFromIngredientTable(); 
-            var commandTextingredientRelevantInformation = string.Format(@"SELECT ingredients.name, ingredients.measurement, ounces_consumed, ounces_remaining
-                                                                FROM ingredients
-                                                                JOIN consumption
-                                                                ON ingredients.name=consumption.name AND ingredients.measurement=consumption.measurement
-                                                                WHERE ingredients.name='{0}';", i.name);
-            db.queryItems(commandTextingredientRelevantInformation, reader => {
-                ingredientRelevantInformation.name = (string)reader["name"];
-                ingredientRelevantInformation.measurement = (string)reader["measurement"];
-                ingredientRelevantInformation.ouncesConsumed = (decimal)reader["ounces_consumed"];
-                ingredientRelevantInformation.ouncesRemaining = (decimal)reader["ounces_remaining"];
-                return ingredientRelevantInformation;
-            });
             var ingredientTableRow = dbi.queryIngredientFromIngredientsTableByName(i);
-            var consumptiontablerow = dbc.queryConsumptionTableRowByName(i); 
-            var commandText = @"Insert into consumption_ounces_consumed (name, ounces_consumed, ounces_remaining, measurement) values (@name, @ounces_consumed, @ounces_remaining, @measurement);";
-            db.executeVoidQuery(commandText, cmd => {
-                cmd.Parameters.AddWithValue("@name", ingredientRelevantInformation.name);
-                cmd.Parameters.AddWithValue("@ounces_consumed", ingredientRelevantInformation.ouncesConsumed);
-                cmd.Parameters.AddWithValue("@measurement", ingredientRelevantInformation.measurement);
-                cmd.Parameters.AddWithValue("@ounces_remaining", ingredientRelevantInformation.ouncesRemaining);
-                return cmd;
+            var consumptiontablerow = dbc.queryConsumptionTableRowByName(i);
+            if (i.classification.ToLower().Contains("egg"))
+                i.classification = char.ToUpper(i.classification[0]) + i.classification.Substring(1, i.classification.Length - 1);
+            var commandTextQueryMultipleRows = string.Format(@"SELECT ingredients.name, ingredients.measurement, consumption.ounces_consumed, consumption.ounces_remaining
+                                                FROM ingredients
+                                                JOIN consumption
+                                                ON (ingredients.name=consumption.name AND ingredients.measurement=consumption.measurement) OR (ingredients.ingredient_classification=consumption.name AND ingredients.measurement=consumption.measurement)
+                                                WHERE ingredients.name='{0}' AND ingredients.measurement='{1}' AND ingredients.ingredient_classification='{2}';", i.name, i.measurement, i.classification);
+            var myListOfQueriedIngredients = db.queryItems(commandTextQueryMultipleRows, reader => {
+                myConsumptionOuncesConsumedIngredient.name = (string)reader["name"];
+                myConsumptionOuncesConsumedIngredient.measurement = (string)reader["measurement"];
+                myConsumptionOuncesConsumedIngredient.ouncesConsumed = (decimal)reader["ounces_consumed"];
+                myConsumptionOuncesConsumedIngredient.ouncesRemaining = (decimal)reader["ounces_remaining"];
+                return myConsumptionOuncesConsumedIngredient;
             });
+            //the code is just passing over 61...
+            var commandTextVarsFilled = string.Format(@"INSERT INTO consumption_ounces_consumed (name, ounces_consumed, ounces_remaining, measurement) VALUES ('{0}', {1}, {2}, '{3}');", myListOfQueriedIngredients[0].name, myListOfQueriedIngredients[0].ouncesConsumed, myListOfQueriedIngredients[0].ouncesRemaining, myListOfQueriedIngredients[0].measurement);
+            //var commandTextInsertIntoTable = @"Insert into consumption_ounces_consumed (name, ounces_consumed, ounces_remaining, measurement) values (@name, @ounces_consumed, @ounces_remaining, @measurement);";
+            //db.executeVoidQuery(commandTextInsertIntoTable, cmd => {
+            //    cmd.Parameters.AddWithValue("@name", myListOfQueriedIngredients[0].name);
+            //    cmd.Parameters.AddWithValue("@ounces_consumed", myListOfQueriedIngredients[0].ouncesConsumed);
+            //    cmd.Parameters.AddWithValue("@measurement", myListOfQueriedIngredients[0].measurement);
+            //    cmd.Parameters.AddWithValue("@ounces_remaining", myListOfQueriedIngredients[0].ouncesRemaining);
+            //    return cmd;
+            //});
+            db.executeVoidQuery(commandTextVarsFilled, cmd => { return cmd; });
+            //as a note to self, i was using the querySingleItem from DatabaseAccess, and that's the difference between my working query and my query that reutrned null...
+                    //something is off w that method. 
             //check: 
             //var myConsumptionOuncesConsumedTable = queryConsumptionOuncesConsumed();
         }
@@ -71,7 +77,6 @@ namespace RachelsRosesWebPages.Models {
                 insertIngredientIntoConsumptionOuncesConsumed(ingredient);
         }
         //will this be enough for records? Should I include the ingredientId? 
-            //the only consequence i see is if i need to access a specific ingredient's instance of ounces remaining, otherwise the ounces consuming will be the same for as another ingredient with the same measurement
         public void updateIngredientInConsumptionouncesConsumed(Ingredient i) {
             var db = new DatabaseAccess();
             var commandText = @"Update consumption_ounces_consumed set ounces_consumed=@ounces_consumed, ounces_remaining=@ounces_remaining where name=@name and measurement=@measurement;";
@@ -112,7 +117,7 @@ namespace RachelsRosesWebPages.Models {
                 consumptionOucnesConsumedIngredient.ouncesRemaining = (decimal)reader["ounces_remaining"];
                 return consumptionOucnesConsumedIngredient;
             });
-            return consumptionOucnesConsumedIngredient; 
+            return consumptionOucnesConsumedIngredient;
         }
     }
 }

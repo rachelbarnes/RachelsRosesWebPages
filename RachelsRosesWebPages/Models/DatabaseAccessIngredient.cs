@@ -80,7 +80,7 @@ namespace RachelsRosesWebPages.Models {
                     i.itemResponseName = myItemResponse.name;
                 if (i.sellingPrice == 0m)
                     i.sellingPrice = myItemResponse.salePrice;
-            } 
+            }
             if ((i.classification.ToLower().Contains("dairy")) || (i.classification.ToLower().Contains("egg")))
                 i.itemResponseName = " ";
             if (string.IsNullOrEmpty(i.classification))
@@ -110,7 +110,8 @@ namespace RachelsRosesWebPages.Models {
         public void UpdateIngredient(Ingredient i) {
             var db = new DatabaseAccess();
             var rest = new MakeRESTCalls();
-            myItemResponse = rest.GetItemResponse(i);
+            if (i.sellingPrice == 0m)
+                myItemResponse = rest.GetItemResponse(i);
             if (i.sellingPrice == 0m && (!i.classification.ToLower().Contains("dairy")) || (!i.classification.ToLower().Contains("egg"))) {
                 if (i.itemId == 0) {
                     myItemResponse = returnItemResponse(i);

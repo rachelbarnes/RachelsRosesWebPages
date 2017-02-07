@@ -2,7 +2,7 @@ all purpose flour: 5
 bread flour: 5.4
 cake flour: 4.5
 pastry flour: 4.25
-whole wheat flour: 5 
+whole wheat flour: 4.57
 coarse cornmeal: 4.85
 fine cornmeal: 6.3
 white sugar: 7.1 
