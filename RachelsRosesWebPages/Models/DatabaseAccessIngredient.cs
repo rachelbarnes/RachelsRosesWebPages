@@ -40,8 +40,6 @@ namespace RachelsRosesWebPages.Models {
             });
         }
 
-        //something ins't happening right for the priceOfMeasuredConsumption to be operating correctly...
-        //what isn't happening? 
         public void DeleteIngredientFromIngredientTableIngIds(Ingredient i) {
             var db = new DatabaseAccess();
             i.name = i.name.Trim();
@@ -73,7 +71,8 @@ namespace RachelsRosesWebPages.Models {
         }
         public void insertIngredient(Ingredient i, Recipe r) {
             var db = new DatabaseAccess();
-            if (i.sellingPrice == 0m && (!i.classification.ToLower().Contains("dairy")) || (!i.classification.ToLower().Contains("egg"))) {
+            if ((i.sellingPrice == 0m && !i.classification.ToLower().Contains("dairy")) || (i.sellingPrice == 0m && !i.classification.ToLower().Contains("eggs"))) {
+                //    if (i.sellingPrice == 0m && (!i.classification.ToLower().Contains("dairy")) || (!i.classification.ToLower().Contains("egg"))) {
                 myItemResponse = returnItemResponse(i);
                 if (i.itemId == 0)
                     i.itemId = myItemResponse.itemId;
@@ -81,7 +80,7 @@ namespace RachelsRosesWebPages.Models {
                     i.itemResponseName = myItemResponse.name;
                 if (i.sellingPrice == 0m)
                     i.sellingPrice = myItemResponse.salePrice;
-            }
+            } 
             if ((i.classification.ToLower().Contains("dairy")) || (i.classification.ToLower().Contains("egg")))
                 i.itemResponseName = " ";
             if (string.IsNullOrEmpty(i.classification))
@@ -110,7 +109,8 @@ namespace RachelsRosesWebPages.Models {
         }
         public void UpdateIngredient(Ingredient i) {
             var db = new DatabaseAccess();
-            //var myIngredients = queryAllIngredientsFromIngredientTable();
+            var rest = new MakeRESTCalls();
+            myItemResponse = rest.GetItemResponse(i);
             if (i.sellingPrice == 0m && (!i.classification.ToLower().Contains("dairy")) || (!i.classification.ToLower().Contains("egg"))) {
                 if (i.itemId == 0) {
                     myItemResponse = returnItemResponse(i);
@@ -129,7 +129,7 @@ namespace RachelsRosesWebPages.Models {
                     i.expirationDate = new DateTime();
             }
             if (i.priceOfMeasuredConsumption == 0)
-                i.priceOfMeasuredConsumption = returnIngredientMeasuredPrice(i);
+                i.priceOfMeasuredConsumption = MeasuredIngredientPrice(i);
             if (string.IsNullOrEmpty(i.classification))
                 i.classification = " ";
             var myIngredientId = i.ingredientId;
@@ -155,7 +155,6 @@ namespace RachelsRosesWebPages.Models {
                 cmd.Parameters.AddWithValue("@ingredient_classification", i.classification);
                 cmd.Parameters.AddWithValue("@item_response_name", i.itemResponseName);
                 cmd.Parameters.AddWithValue("@expiration_date", convertDateToStringMMDDYYYY(i.expirationDate));
-                //this convertDateToString formats the string in MM/DD/YYYY
                 return cmd;
             });
         }
@@ -166,7 +165,7 @@ namespace RachelsRosesWebPages.Models {
             var measuredIngredientPrice = Math.Round((measuredOuncesDividedBySellingWeight * myIngredient.sellingPrice), 2);
             return measuredIngredientPrice;
         }
-     
+
         public List<string> myDistinctIngredientNamesSorted() {
             var db = new DatabaseAccess();
             var uniqueIngredientNames = new List<string>();
@@ -328,6 +327,18 @@ namespace RachelsRosesWebPages.Models {
                 return queriedIngredient;
             });
             return queriedIngredient;
+        }
+        public List<Ingredient> queryIngredientIdsAndNamesFromIngredientTable() {
+            var db = new DatabaseAccess();
+            //var dict = new Dictionary<int, string>();
+            var listOfIngredients = new List<Ingredient>();
+            var commandText = @"SELECT ing_id, name FROM ingredients;";
+            listOfIngredients = db.queryItems(commandText, reader => {
+                var ingredient = new Ingredient((string)reader["name"]);
+                ingredient.ingredientId = (int)reader["ing_id"];
+                return ingredient;
+            });
+            return listOfIngredients;
         }
     }
 }

@@ -37,19 +37,19 @@ namespace RachelsRosesWebPages.Controllers {
             name = name.Trim();
             var distinctIngredientNamesSorted = dbI.myDistinctIngredientNamesSorted();
             var distinctIngredientClassifications = dbI.myDistinctIngredientClassificationsSorted();
-            var distinctIngredientTypes = dbI.myDistinctIngredientTypesSorted(); 
+            var distinctIngredientTypes = dbI.myDistinctIngredientTypesSorted();
             myDatabaseRecipe = getRecipes().First(x => x.name == name);
             currentRecipe = myDatabaseRecipe;
             ViewBag.currentingredient = currentIngredient;
-            if (distinctIngredientNamesSorted.Count() == 0 || distinctIngredientNamesSorted == null) //i presume these 2 things are the same... 
+            if (distinctIngredientNamesSorted.Count() == 0 || distinctIngredientNamesSorted == null) {
                 ViewBag.ingredientnames = new List<string>();
-            else ViewBag.ingredientnames = distinctIngredientNamesSorted;
-            if (distinctIngredientTypes.Count() == 0 || distinctIngredientTypes == null)
+            } else ViewBag.ingredientnames = distinctIngredientNamesSorted;
+            if (distinctIngredientTypes.Count() == 0 || distinctIngredientTypes == null) {
                 ViewBag.types = new List<string>();
-            else ViewBag.types = distinctIngredientTypes;
-            if (distinctIngredientClassifications.Count() == 0 || distinctIngredientClassifications == null)
+            } else ViewBag.types = distinctIngredientTypes;
+            if (distinctIngredientClassifications.Count() == 0 || distinctIngredientClassifications == null) {
                 ViewBag.classifications = new List<string>();
-            else ViewBag.classifications = distinctIngredientClassifications; 
+            } else ViewBag.classifications = distinctIngredientClassifications;
 
             ViewBag.distinctsellingweights = dbC.getListOfDistinctSellingWeights();
             ViewBag.currentrecipe = currentRecipe;
@@ -149,7 +149,7 @@ namespace RachelsRosesWebPages.Controllers {
         }
         //add selling weight to the recipes page
         public ActionResult CreateIngredient(string ingredient, string measurement, string classification, string type, string sellingweight, string sellingprice, string expirationdate) {
-            var dbI = new DatabaseAccessIngredient(); 
+            var dbI = new DatabaseAccessIngredient();
             var db = new DatabaseAccess();
             ingredient = ingredient.Trim();
             measurement = measurement.Trim();
@@ -170,7 +170,7 @@ namespace RachelsRosesWebPages.Controllers {
                 newIngredient.classification = classification;
                 newIngredient.typeOfIngredient = type;
                 newIngredient.sellingWeight = sellingweight;
-                newIngredient.expirationDate = dbI.convertStringMMDDYYYYToDateYYYYMMDD(expirationdate); 
+                newIngredient.expirationDate = dbI.convertStringMMDDYYYYToDateYYYYMMDD(expirationdate);
                 currentRecipe.ingredients.Add(newIngredient);
                 currentIngredient = newIngredient;
                 db.insertIngredientIntoAllTables(currentIngredient, currentRecipe);
@@ -231,7 +231,6 @@ namespace RachelsRosesWebPages.Controllers {
         public ActionResult AdjustYield(int updatedYield) {
             var t = new DatabaseAccessRecipe();
             var convert = new ConvertMeasurement();
-            //int n;
             if (currentRecipe.yield == 0) {
                 currentRecipe.yield = updatedYield;
             } else {

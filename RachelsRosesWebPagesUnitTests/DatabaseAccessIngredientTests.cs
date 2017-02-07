@@ -49,7 +49,7 @@ namespace RachelsRosesWebPagesUnitTests {
             dbI.insertIngredient(i, r);
             var myRecipeBox = dbR.queryRecipes();
             var myIngredientBox = dbI.queryAllIngredientsFromIngredientTable();
-            var myRecipe = dbR.GetFullRecipe(r);
+            var myRecipe = dbR.GetFullRecipeAndFullIngredientsForRecipe(r);
             Assert.AreEqual(r.name, myRecipeBox[0].name);
             Assert.AreEqual(i.name, myIngredientBox[0].name);
             Assert.AreEqual(i.measurement, myIngredientBox[0].measurement);
@@ -616,5 +616,21 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual("dairy", myIngredient.classification); 
         }
         //also do the order bys for selling weights, densities, types, and ingredients by both name and by object with LINQ and SQL
+        [Test]
+        public void TestQueryIngredientNamesAndIds() {
+            var db = new DatabaseAccess();
+            var dbI = new DatabaseAccessIngredient(); 
+            var buttercreamIcing = new Recipe("Buttercream Icing") { id = 2, yield = 8 }; 
+            var heavyWhippingCream = new Ingredient("Heavy Whipping Cream") { ingredientId = 1, recipeId = 1, measurement = "1/4 cup", sellingWeight = "1 pint", sellingPrice = 1.38m, typeOfIngredient = "heavy whipping cream", classification = "dairy", expirationDate = new DateTime(2017, 2, 17) };
+            var milk = new Ingredient("Whole Milk") { ingredientId = 2, recipeId = 1, measurement = "2 cups", sellingWeight = "1/2 gallon", sellingPrice = 1.79m, typeOfIngredient = "milk", classification = "dairy", expirationDate = new DateTime(2017, 2, 15) };
+            db.initializeDatabase();  
+            dbI.insertIngredient(heavyWhippingCream, buttercreamIcing);
+            dbI.insertIngredient(milk, buttercreamIcing); 
+            var myList = dbI.queryIngredientIdsAndNamesFromIngredientTable();
+            Assert.AreEqual(1, myList[0].ingredientId);
+            Assert.AreEqual(2, myList[1].ingredientId);
+            Assert.AreEqual("Heavy Whipping Cream", myList[0].name);
+            Assert.AreEqual("Whole Milk", myList[1].name); 
+        }
     }
 }

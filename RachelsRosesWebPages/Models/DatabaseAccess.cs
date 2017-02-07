@@ -276,32 +276,37 @@ namespace RachelsRosesWebPages.Models {
                 dbIngredients.UpdateIngredient(i);
             }
         }
+            //var dbRecipes= new DatabaseAccessRecipe();
+            //var dbIngredients = new DatabaseAccessIngredient();
+            //var myListOfIngredientIds = new List<int>();
+            //var myListOfRecipeIds = new List<int>();
+            //var myIngredientTable = dbI.queryAllIngredientsFromIngredientTable(); 
+            //if ()
+            //foreach (var ingredient in ListOfIngredients) {
+            //    if (!myListOfIngredientIds.Contains(ingredient.ingredientId)) {
+            //        insertIngredientIntoAllTables(ingredient, r);
+            //        myListOfIngredientIds.Add(ingredient.ingredientId);
+            //    }
+            //}
+            //var myRecipes = dbRecipes.queryRecipes();
+            //var myIngredients = dbIngredients.queryAllIngredientsFromIngredientTable();
+            //foreach (var recipe in myRecipes)
+            //    myListOfRecipeIds.Add(recipe.id);
+            //if (!myListOfRecipeIds.Contains(r.id))
+            //    dbRecipes.InsertRecipe(r);
+            //foreach (var ingredient in myIngredients) {
+            //    if (!myListOfIngredientIds.Contains(ingredient.ingredientId))
+            //        myListOfIngredientIds.Add(ingredient.ingredientId);
+            //}
+            ////var myRecipe = dbRecipes.GetFullRecipeAndFullIngredientsForRecipe(r);
+            //var myRecipe = dbRecipes.GetRecipeIngredients(r); 
+            //foreach (var ingredient in myRecipe.ingredients) {
+            //    if (!myListOfIngredientIds.Contains(ingredient.ingredientId))
+            //        insertIngredientIntoAllTables(ingredient, r);
+            //}
         public void insertListOfIngredientsIntoAllTables(List<Ingredient> ListOfIngredients, Recipe r) {
-            var dbRecipes = new DatabaseAccessRecipe();
-            var dbIngredients = new DatabaseAccessIngredient();
-            var myListOfIngredientIds = new List<int>();
-            var myListOfRecipeIds = new List<int>();
-            foreach (var ingredient in ListOfIngredients) {
-                if (!myListOfIngredientIds.Contains(ingredient.ingredientId)) {
-                    insertIngredientIntoAllTables(ingredient, r);
-                    myListOfIngredientIds.Add(ingredient.ingredientId);
-                }
-            }
-            var myRecipes = dbRecipes.queryRecipes();
-            var myIngredients = dbIngredients.queryAllIngredientsFromIngredientTable();
-            foreach (var recipe in myRecipes)
-                myListOfRecipeIds.Add(recipe.id);
-            if (!myListOfRecipeIds.Contains(r.id))
-                dbRecipes.InsertRecipe(r);
-            foreach (var ingredient in myIngredients) {
-                if (!myListOfIngredientIds.Contains(ingredient.ingredientId))
-                    myListOfIngredientIds.Add(ingredient.ingredientId);
-            }
-            var myRecipe = dbRecipes.GetFullRecipe(r);
-            foreach (var ingredient in myRecipe.ingredients) {
-                if (!myListOfIngredientIds.Contains(ingredient.ingredientId))
-                    insertIngredientIntoAllTables(ingredient, r);
-            }
+            foreach (var ingredient in ListOfIngredients)
+                insertIngredientIntoAllTables(ingredient, r); 
             var myIngredientsSecond = queryAllTablesForAllIngredients(ListOfIngredients);
         }
         public void updateAllTables(Ingredient i, Recipe r) {
@@ -348,7 +353,7 @@ namespace RachelsRosesWebPages.Models {
             dropAllTablesIfTheyExist("recipes");
             executeVoidQuery(@"create table recipes (
                         recipe_id INT NOT NULL IDENTITY(1,1) PRIMARY KEY, 
-                        name nvarchar(max), 
+                        recipe_name nvarchar(max), 
                         yield int,
                         aggregated_price decimal(5, 2), 
                         price_per_serving decimal (5,2)

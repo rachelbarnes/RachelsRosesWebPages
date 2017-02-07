@@ -45,29 +45,22 @@ namespace RachelsRosesWebPagesUnitTests {
             var t = new DatabaseAccess();
             var dbR = new DatabaseAccessRecipe();
             var dbI = new DatabaseAccessIngredient();
-            var r = new Recipe("Pecan Pie") {
-                yield = 8
-            };
-            var r2 = new Recipe("White Cake") {
-                yield = 16
-            };
-            var i = new Ingredient("flour", "2 1/2 cups") {
-                recipeId = 1
-            };
-            var i2 = new Ingredient("sugar", "1/3 cup") {
-                recipeId = 2
-            };
+            var pecanPie = new Recipe("Pecan Pie") { id= 1, yield = 8 };
+            var whiteCake = new Recipe("White Cake") { id = 2, yield = 16 };
+            var flour = new Ingredient("All Purpose Flour") { ingredientId = 1, recipeId = 1, sellingWeight = "5 lb", measurement = "2 1/2 cups", typeOfIngredient = "all purpose flour", classification = "flour" };
+            var sugar = new Ingredient("Granulated Sugar") { ingredientId = 2, recipeId = 2, sellingWeight = "4 lb", measurement = "1/3 cup", typeOfIngredient = "white sugar", classification = "sugar" }; 
             t.initializeDatabase();
-            dbR.InsertRecipe(r);
-            dbR.InsertRecipe(r2);
+            t.insertIngredientIntoAllTables(flour, pecanPie);
+            t.insertIngredientIntoAllTables(sugar, whiteCake); 
             var myRecipes = dbR.queryRecipes();
-            r = myRecipes.First(x => x.yield == 8);
-            r2 = myRecipes.First(y => y.yield == 16);
-            dbI.insertIngredient(i, r);
-            dbI.insertIngredient(i2, r2);
-            Recipe returnedRecipe = dbR.GetFullRecipe(r);
-            Assert.AreEqual("flour", returnedRecipe.ingredients.First().name);
+            var returnedRecipe = dbR.GetFullRecipeAndFullIngredientsForRecipe(pecanPie);
+            var returnedRecipe2 = dbR.GetFullRecipeAndFullIngredientsForRecipe(whiteCake); 
+            //var r = myRecipes.First(x => x.yield == 8);
+            //var r2 = myRecipes.First(y => y.yield == 16);
+            Assert.AreEqual("All Purpose Flour", returnedRecipe.ingredients.First().name);
             Assert.AreEqual(1, returnedRecipe.ingredients.Count());
+            Assert.AreEqual("Granulated Sugar", returnedRecipe2.ingredients.First().name);
+            Assert.AreEqual(1, returnedRecipe2.ingredients.Count()); 
         }
         [Test]
         public void TestProperRecipeIds() {
@@ -213,7 +206,7 @@ namespace RachelsRosesWebPagesUnitTests {
             dbI.insertIngredient(i2, r);
             var myRecipeBox = dbR.queryRecipes();
             var myIngredientBox = dbI.queryAllIngredientsFromIngredientTable();
-            var myRecipe = dbR.GetFullRecipe(r);
+            var myRecipe = dbR.GetFullRecipeAndFullIngredientsForRecipe(r);
             Assert.AreEqual(2, myIngredientBox.Count());
             Assert.AreEqual(2, myRecipe.ingredients.Count());
             Assert.AreEqual(i.name, myRecipe.ingredients[0].name);
@@ -438,7 +431,7 @@ namespace RachelsRosesWebPagesUnitTests {
             var winterCookieIngredients = new List<Ingredient> { flour, bakingSoda, salt, rolledOats, brownSugar, granulatedSugar, driedCranberries, whiteChocolate, choppedPecans };
             t.insertListOfIngredientsIntoAllTables(winterCookieIngredients, winterCookies);
             var myIngredients = t.queryAllTablesForAllIngredients(winterCookieIngredients);
-            var myRecipes = dbR.GetFullRecipe(winterCookies);
+            var myRecipes = dbR.GetFullRecipeAndFullIngredientsForRecipe(winterCookies);
             Assert.AreEqual(9, myIngredients.Count());
             Assert.AreEqual(.26m, myIngredients[0].priceOfMeasuredConsumption);
             Assert.AreEqual(.00m, myIngredients[1].priceOfMeasuredConsumption);
@@ -783,33 +776,17 @@ namespace RachelsRosesWebPagesUnitTests {
         public void TestGetRecipeIngredients() {
             var t = new DatabaseAccess();
             var dbR = new DatabaseAccessRecipe();
-            var brownies = new Recipe("Brownies") {
-                id = 1
-            };
-            var cocoa = new Ingredient("Hershey's Dark Cocoa") {
-                recipeId = 1,
-                ingredientId = 1,
-                measurement = "1 cup",
-                density = 4.16m,
-                sellingWeight = "8 oz"
-            };
-            var cake = new Recipe("Cake") {
-                id = 2
-            };
-            var breadFlour = new Ingredient("Softasilk Cake Flour") {
-                recipeId = 2,
-                ingredientId = 2,
-                measurement = "1 1/2 cup",
-                density = 4.5m,
-                sellingWeight = "32 oz"
-            };
+            var brownies = new Recipe("Brownies") { id = 1 };
+            var cake = new Recipe("Cake") { id = 2 };
+            var cocoa = new Ingredient("Hershey's Dark Cocoa") { recipeId = 1, ingredientId = 1, measurement = "1 cup", density = 4.16m, sellingWeight = "8 oz", typeOfIngredient = "cocoa powder", classification = "baking chocolate" };
+            var breadFlour = new Ingredient("Softasilk Cake Flour") { recipeId = 2, ingredientId = 2, measurement = "1 1/2 cup", density = 4.5m, sellingWeight = "32 oz", typeOfIngredient = "cake flour", classification = "flour" };
             var browniesIngredients = new List<Ingredient> { cocoa };
             var cakeIngredients = new List<Ingredient> { breadFlour };
             t.initializeDatabase();
             t.insertListOfIngredientsIntoAllTables(browniesIngredients, brownies);
             t.insertListOfIngredientsIntoAllTables(cakeIngredients, cake);
-            var myBrownieIngredients = dbR.ReturnRecipeIngredients(brownies);
-            var myCakeIngredients = dbR.ReturnRecipeIngredients(cake);
+            var myBrownieIngredients = dbR.GetRecipeIngredients(brownies);
+            var myCakeIngredients = dbR.GetRecipeIngredients(cake);
             var myRecipeBox = dbR.MyRecipeBox();
             Assert.AreEqual(2, myRecipeBox.Count());
             Assert.AreEqual(cocoa.name, myRecipeBox[0].ingredients[0].name);
@@ -943,10 +920,10 @@ namespace RachelsRosesWebPagesUnitTests {
             var dbI = new DatabaseAccessIngredient();
             var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 1, yield = 24 };
             var cinnamonSwirlBread = new Recipe("Cinnamon Swirl Buttermilk Bread") { id = 2, yield = 18 };
-            var honey = new Ingredient("Honey") { recipeId = 1, ingredientId = 1, measurement = "1/3 cup", sellingWeight = "32 oz", typeOfIngredient = "honey" };
-            var activeDryYeast = new Ingredient("Active Dry Yeast") { recipeId = 1, ingredientId = 2, measurement = "2 1/4 teaspoons", sellingWeight = "4 oz", typeOfIngredient = "active dry yeast" };
-            var cinnamon = new Ingredient("Cinnamon") { recipeId = 2, ingredientId = 3, measurement = "3 tablespoons", sellingWeight = "8.75 oz", typeOfIngredient = "ground cinnamon" };
-            var breadFlour = new Ingredient("Bread Flour") { recipeId = 2, ingredientId = 4, measurement = "6 cups", sellingWeight = "5 lb", typeOfIngredient = "bread flour" };
+            var honey = new Ingredient("Honey") { recipeId = 1, ingredientId = 1, measurement = "1/3 cup", sellingWeight = "32 oz", typeOfIngredient = "honey", classification = "honey" };
+            var activeDryYeast = new Ingredient("Active Dry Yeast") { recipeId = 1, ingredientId = 2, measurement = "2 1/4 teaspoons", sellingWeight = "4 oz", typeOfIngredient = "active dry yeast", classification = "yeast"};
+            var cinnamon = new Ingredient("Cinnamon") { recipeId = 2, ingredientId = 3, measurement = "3 tablespoons", sellingWeight = "8.75 oz", typeOfIngredient = "ground cinnamon" ,classification  = "spice"};
+            var breadFlour = new Ingredient("Bread Flour") { recipeId = 2, ingredientId = 4, measurement = "6 cups", sellingWeight = "5 lb", typeOfIngredient = "bread flour", classification="flour" };
             var honeyButtemrilkBreadIngredients = new List<Ingredient> { honey, activeDryYeast };
             var cinnamonSwirlBreadIngredients = new List<Ingredient> { cinnamon, breadFlour };
             t.initializeDatabase();
@@ -1147,12 +1124,9 @@ namespace RachelsRosesWebPagesUnitTests {
             var eggs = new Ingredient("Eggs, Meringued") { ingredientId = 1, recipeId = 1, measurement = "4 eggs", typeOfIngredient = "egg white", sellingWeight = "1 dozen", sellingPrice = 1.99m, classification = "eggs", expirationDate = new DateTime(2017, 4, 4)};
             var softasilk = new Ingredient("Softasilk Cake Flour") { ingredientId = 2, recipeId = 1, measurement = "2 cups 2 tablespoons", typeOfIngredient = "cake flour", sellingWeight = "32 oz", classification = "flour" };
             var bakingPowder = new Ingredient("Baking Powder") { ingredientId = 3, recipeId = 1, measurement = "2 teaspoons", typeOfIngredient = "baking powder", sellingWeight = "10 oz", classification = "baking powder" };
+            var fluffyWhiteCakeIngredients = new List<Ingredient> { eggs, softasilk, bakingPowder }; 
             t.initializeDatabase();
-            //var fluffyWhiteCakeIngredients = new List<Ingredient> { eggs, softasilk, bakingPowder };
-            //t.insertListOfIngredientsIntoAllTables(fluffyWhiteCakeIngredients, fluffyWhiteCake);
-            t.insertIngredientIntoAllTables(eggs, fluffyWhiteCake);
-            t.insertIngredientIntoAllTables(softasilk, fluffyWhiteCake);
-            t.insertIngredientIntoAllTables(bakingPowder, fluffyWhiteCake); 
+            t.insertListOfIngredientsIntoAllTables(fluffyWhiteCakeIngredients, fluffyWhiteCake); 
             var myRecipeIngredients = dbR.GetRecipeIngredients(fluffyWhiteCake); 
             Assert.AreEqual(3, myRecipeIngredients.Count());
             Assert.AreEqual("Eggs, Meringued", myRecipeIngredients[0].name);
@@ -1178,7 +1152,30 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(24, myRecipe.yield);
             Assert.AreEqual(12m, myRecipe.aggregatedPrice);
             Assert.AreEqual(.5m, myRecipe.pricePerServing); 
-
+        }
+        [Test]
+        public void TestGetFullRecipe2() {
+            var t = new DatabaseAccess();
+            var dbI = new DatabaseAccessIngredient(); 
+            var dbR = new DatabaseAccessRecipe();
+            var cake = new Recipe("Fluffy White Cake") { id = 1, yield = 14 };
+            var bakingPowder = new Ingredient("Baking Powder") { ingredientId = 1, recipeId = 1, measurement = "1 tablespoon", typeOfIngredient = "baking powder", classification = "rising agent", sellingWeight = "10 oz" };
+            var softasilkCakeFlour = new Ingredient("Softasilk Cake Flour") { ingredientId = 2, recipeId = 1, measurement = "1 1/2 cups", typeOfIngredient = "cake flour", classification = "flour", sellingWeight = "32 oz" };
+            var cakeIngredients = new List<Ingredient>() { bakingPowder, softasilkCakeFlour }; 
+            t.initializeDatabase();
+            t.insertListOfIngredientsIntoAllTables(cakeIngredients, cake);
+            //t.insertIngredientIntoAllTables(bakingPowder, cake);
+            //t.insertIngredientIntoAllTables(softasilkCakeFlour, cake); 
+            var myRecipe = dbR.GetFullRecipeAndFullIngredientsForRecipe(cake);
+            Assert.AreEqual(1, myRecipe.id);
+            Assert.AreEqual(2, myRecipe.ingredients.Count());
+            Assert.AreEqual(.73m, myRecipe.aggregatedPrice);
+            Assert.AreEqual(.05m, myRecipe.pricePerServing);
+            Assert.AreEqual(14, myRecipe.yield);
+            Assert.AreEqual("Baking Powder", myRecipe.ingredients[0].name);
+            Assert.AreEqual(.10m, myRecipe.ingredients[0].priceOfMeasuredConsumption);
+            Assert.AreEqual("Softasilk Cake Flour", myRecipe.ingredients[1].name);
+            Assert.AreEqual(.63m, myRecipe.ingredients[1].priceOfMeasuredConsumption); 
         }
     }
 }

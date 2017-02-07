@@ -39,7 +39,8 @@ namespace RachelsRosesWebPages.Models {
             var db = new DatabaseAccess();
             var ingredientRelevantInformation = new Ingredient();
             var dbi = new DatabaseAccessIngredient();
-            var dbc = new DatabaseAccessConsumption(); 
+            var dbc = new DatabaseAccessConsumption();
+            var myIngredients = dbi.queryAllIngredientsFromIngredientTable(); 
             var commandTextingredientRelevantInformation = string.Format(@"SELECT ingredients.name, ingredients.measurement, ounces_consumed, ounces_remaining
                                                                 FROM ingredients
                                                                 JOIN consumption

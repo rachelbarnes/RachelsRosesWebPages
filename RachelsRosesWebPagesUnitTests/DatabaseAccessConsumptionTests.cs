@@ -220,10 +220,10 @@ namespace RachelsRosesWebPagesUnitTests {
             var t = new DatabaseAccess();
             var dbC = new DatabaseAccessConsumption();
             var dbR = new DatabaseAccessRecipe();
-            var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 1 };
-            var cinnamonSwirlBread = new Recipe("Cinnamon Swirl Bread") { id = 2 };
-            var honey = new Ingredient("honey") { ingredientId = 1, recipeId = 1, measurement = "1/3 cup", sellingWeight = "32 oz", typeOfIngredient = "honey" };
-            var honey2 = new Ingredient("honey") { ingredientId = 2, recipeId = 2, measurement = "1 cup", sellingWeight = "32 oz", typeOfIngredient = "honey" };
+            var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 1,yield = 24 };
+            var cinnamonSwirlBread = new Recipe("Cinnamon Swirl Bread") { id = 2 , yield = 24};
+            var honey = new Ingredient("honey") { ingredientId = 1, recipeId = 1, measurement = "1/3 cup", sellingWeight = "32 oz", typeOfIngredient = "honey", classification = "honey", };
+            var honey2 = new Ingredient("honey") { ingredientId = 2, recipeId = 2, measurement = "1 cup", sellingWeight = "32 oz", typeOfIngredient = "honey", classification = "honey" };
             var honeyListOfIngredients = new List<Ingredient> { honey, honey2 };
             t.initializeDatabase();
             t.insertIngredientIntoAllTables(honey, honeyButtermilkBread);
