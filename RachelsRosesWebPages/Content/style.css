@@ -1,0 +1,27 @@
+.title {
+	color: #008080; 
+	/* teal */
+	font-weight: bold; 
+	}
+tr:nth-child(even){
+	background-color: #fde3dc; 
+}
+.error{
+	color: red; 
+	font-weight: bold; 
+}
+table{
+	width: 100%; 
+	padding: 40px; 
+}
+.right-align{
+	text-align: right; 
+}
+select {
+	width: 300px; 
+}
+th{
+	color: #008080; 
+	font-weight: bold; 
+	background-color: #fde3dc
+}

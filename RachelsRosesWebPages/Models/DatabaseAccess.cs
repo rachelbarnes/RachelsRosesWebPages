@@ -135,6 +135,8 @@ namespace RachelsRosesWebPages.Models {
                 dbConsumption.insertIngredientConsumtionData(i);
                 var myIngUpdated = queryAllRelevantTablesSQLByIngredientName(i);
                 dbCosts.insertIngredientCostDataCostTable(i);
+                var myConsumptionIngredient = dbConsumption.queryConsumptionTableRowByName(i); 
+                //these sql queries are not working
                 dbIngredients.UpdateIngredient(i);
                 var myIngUpdated2 = queryAllRelevantTablesSQLByIngredientName(i);
             } else {

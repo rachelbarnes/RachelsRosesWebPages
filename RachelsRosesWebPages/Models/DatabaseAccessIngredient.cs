@@ -161,9 +161,9 @@ namespace RachelsRosesWebPages.Models {
         }
         public decimal MeasuredIngredientPrice(Ingredient i) {
             var db = new DatabaseAccess();
-            var myIngredient = db.queryAllRelevantTablesSQLByIngredientName(i);
-            var measuredOuncesDividedBySellingWeight = Math.Round((myIngredient.ouncesConsumed / myIngredient.sellingWeightInOunces), 4);
-            var measuredIngredientPrice = Math.Round((measuredOuncesDividedBySellingWeight * myIngredient.sellingPrice), 2);
+            //var myIngredient = db.queryAllRelevantTablesSQLByIngredientName(i);
+            var measuredOuncesDividedBySellingWeight = Math.Round((i.ouncesConsumed / i.sellingWeightInOunces), 4);
+            var measuredIngredientPrice = Math.Round((measuredOuncesDividedBySellingWeight * i.sellingPrice), 2);
             return measuredIngredientPrice;
         }
 

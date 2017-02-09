@@ -327,6 +327,7 @@
     <Content Include="Views\Home\ConsumptionTable.cshtml" />
     <Content Include="Views\Home\CostTable.cshtml" />
     <Content Include="Views\Home\ReadMeInformation.cshtml" />
+    <Content Include="Views\Home\IngredientUsage.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

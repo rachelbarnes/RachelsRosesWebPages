@@ -45,7 +45,10 @@ namespace RachelsRosesWebPages.Models {
         }
         public List<Ingredient> queryConsumptionTable() {
             var db = new DatabaseAccess();
-            var ingredientInformation = db.queryItems("select * from consumption", reader => {
+            //var ingredientInformation = db.queryItems("select * from consumption order by name asc", reader => {
+            var commandText = @"SELECT * FROM consumption;";
+            //ORDER BY consumption.name ASC;";
+            var ingredientInformation = db.queryItems(commandText, reader => {
                 var ingredient = new Ingredient(reader["name"].ToString());
                 ingredient.ingredientId = (int)reader["id"];
                 ingredient.density = (decimal)reader["density"];
@@ -71,7 +74,7 @@ namespace RachelsRosesWebPages.Models {
             if (myIngredientIngredientTable.classification.ToLower().Contains("egg")) {
                 temp.name = "Egg";
                 //i would prefer this to be eggs, but i am matching the ingredient_classification if the ingredient.name doesn't match for querying the ingredients table and the consumption table, and the classifications are singular... 
-                    //i'm going to have to put a warning or something in the READ ME asking the user not to change the name of the consumption table ignredients... i'm not a big fan of that. I want there to be flexibility for what the user needs
+                //i'm going to have to put a warning or something in the READ ME asking the user not to change the name of the consumption table ignredients... i'm not a big fan of that. I want there to be flexibility for what the user needs
                 i.ouncesConsumed = convertWeight.EggsConsumedFromIngredientMeasurement(myIngredientIngredientTable.measurement);
             } else i.ouncesConsumed = dbConsumptionOuncesConsumed.CalculateOuncesConsumedFromMeasurement(i);
             foreach (var ingredient in myConsumptionTable) {
@@ -111,13 +114,12 @@ namespace RachelsRosesWebPages.Models {
             var temp = new Ingredient();
             //this handles egg classifications, calculates ounces consumed and ounces remaining
             if (myIngredient.classification.ToLower().Contains("egg")) {
-                temp.name = myIngredient.name;
                 var currentOuncesConsumed = convert.EggsConsumedFromIngredientMeasurement(i.measurement);
                 if (myConsumptionTableIngredient.ouncesConsumed != currentOuncesConsumed)
                     i.ouncesConsumed = convert.EggsConsumedFromIngredientMeasurement(i.measurement);
                 if (myConsumptionTableIngredient.ouncesRemaining == 0m)
                     i.ouncesRemaining = i.sellingWeightInOunces - i.ouncesConsumed;
-                else i.ouncesRemaining = myConsumptionTableIngredient.ouncesRemaining - myConsumptionTableIngredient.ouncesConsumed;
+                else i.ouncesRemaining = myConsumptionTableIngredient.ouncesRemaining - i.ouncesConsumed;
             }
             //this handles other ingredients; eggs have to be calculated by usage of egg, not by an actual measurement
              else {
@@ -131,20 +133,23 @@ namespace RachelsRosesWebPages.Models {
                 i.ouncesRemaining = myConsumptionTableIngredient.ouncesRemaining;
             }
 
-            if (string.IsNullOrEmpty(temp.name))
-                temp.name = i.name;
+            //if (string.IsNullOrEmpty(temp.name) && !(i.classification.ToLower().Contains("egg")))
+            if (i.classification.ToLower().Contains("egg"))
+                i.name = "Egg";
+            //temp.name = i.name;
             //subtractOuncesRemainingIfExpirationDateIsPast(i);
             // this needs to be fixed, maybe for hte moment having a condition for ig it is eggs or dairy... flour and sugar, etc. should be totally fine
             var commandText = "update consumption set ounces_consumed=@ounces_consumed, ounces_remaining=@ounces_remaining, refill=@refill where name=@name;";
             db.executeVoidQuery(commandText, cmd => {
-                cmd.Parameters.AddWithValue("@name", temp.name);
+                cmd.Parameters.AddWithValue("@name", i.name);
                 cmd.Parameters.AddWithValue("@ounces_consumed", i.ouncesConsumed);
                 cmd.Parameters.AddWithValue("@ounces_remaining", i.ouncesRemaining);
                 cmd.Parameters.AddWithValue("@refill", i.restock);
                 return cmd;
             });
             doesIngredientNeedRestocking(i);
-            dbConsumptionOuncesConsumed.insertIngredientIntoConsumptionOuncesConsumed(i);
+            //make sure that hte name for Eggs and something like "egg whites, stiffy beaten" match through the classification for the ounces_consumed...
+            //dbConsumptionOuncesConsumed.insertIngredientIntoConsumptionOuncesConsumed(i);
             //still not getting the ouncesRemaining... need to change this
             var consumptionOuncesConsumed = dbConsumptionOuncesConsumed.queryConsumptionOuncesConsumed();
             //why am i not inserting this into the database? 
@@ -282,6 +287,19 @@ namespace RachelsRosesWebPages.Models {
                 return consumptionTableRow;
             });
             return consumptionTableRow;
+        }
+        public List<Ingredient> queryConsumptionTableSorted() {
+            var db = new DatabaseAccess();
+            var commandText = @"SELECT * FROM consumption
+                                ORDER BY name ASC";
+            var myConsumptionTable = db.queryItems(commandText, reader => {
+                var myConsumptionIngredient = new Ingredient((string)reader["name"]);
+                myConsumptionIngredient.ouncesConsumed = (decimal)reader["ounces_consumed"];
+                myConsumptionIngredient.ouncesRemaining = (decimal)reader["ounces_remaining"];
+                myConsumptionIngredient.restock = (int)reader["refill"];
+                return myConsumptionIngredient;
+            });
+            return myConsumptionTable;
         }
     }
 }

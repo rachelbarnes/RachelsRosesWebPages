@@ -355,28 +355,28 @@ namespace RachelsRosesWebPagesUnitTests {
             //something is off with getting the ounces consumed... i may have to match more than the name and measurement? 
             //the name and measurement should be the only thigns i need... debug and see where it's picking up only the first one again
         }
-        [Test]
-        public void TestgetDoubleAverageOuncesConsumedForIngredient3() {
-            var t = new DatabaseAccess();
-            var dbC = new DatabaseAccessConsumption();
-            var dbCOC = new DatabaseAccessConsumptionOuncesConsumed();
-            var cakeFlour = new Ingredient("Cake Flour") { ingredientId = 1, ouncesConsumed = 10m };
-            var cakeFlour2 = new Ingredient("Cake Flour") { ingredientId = 2, ouncesConsumed = 20m };
-            var cakeFlour3 = new Ingredient("Cake Flour") { ingredientId = 3, ouncesConsumed = 30m };
-            var cakeFlour4 = new Ingredient("Cake Flour") { ingredientId = 4, ouncesConsumed = 40m };
-            var cakeFlour5 = new Ingredient("Cake Flour") { ingredientId = 5, ouncesConsumed = 50m };
-            var myIngredientBox = new List<Ingredient> { cakeFlour, cakeFlour2, cakeFlour3, cakeFlour4, cakeFlour5 };
-            t.initializeDatabase();
-            dbCOC.insertListOfIngredientsIntoConsumptionOuncesConsumed(myIngredientBox);
-            var myIngredients = dbCOC.queryConsumptionOuncesConsumed();
-            var doubleAverage = dbC.doubleAverageOuncesConsumed(cakeFlour);
-            Assert.AreEqual(10m, myIngredientBox[0].ouncesConsumed);
-            Assert.AreEqual(20m, myIngredientBox[1].ouncesConsumed);
-            Assert.AreEqual(30m, myIngredientBox[2].ouncesConsumed);
-            Assert.AreEqual(40m, myIngredientBox[3].ouncesConsumed);
-            Assert.AreEqual(50m, myIngredientBox[4].ouncesConsumed);
-            Assert.AreEqual(60m, doubleAverage);
-        }
+        //[Test]
+        //public void TestgetDoubleAverageOuncesConsumedForIngredient3() {
+        //    var t = new DatabaseAccess();
+        //    var dbC = new DatabaseAccessConsumption();
+        //    var dbCOC = new DatabaseAccessConsumptionOuncesConsumed();
+        //    var cakeFlour = new Ingredient("Cake Flour") { ingredientId = 1, ouncesConsumed = 10m };
+        //    var cakeFlour2 = new Ingredient("Cake Flour") { ingredientId = 2, ouncesConsumed = 20m };
+        //    var cakeFlour3 = new Ingredient("Cake Flour") { ingredientId = 3, ouncesConsumed = 30m };
+        //    var cakeFlour4 = new Ingredient("Cake Flour") { ingredientId = 4, ouncesConsumed = 40m };
+        //    var cakeFlour5 = new Ingredient("Cake Flour") { ingredientId = 5, ouncesConsumed = 50m };
+        //    var myIngredientBox = new List<Ingredient> { cakeFlour, cakeFlour2, cakeFlour3, cakeFlour4, cakeFlour5 };
+        //    t.initializeDatabase();
+        //    dbCOC.insertListOfIngredientsIntoConsumptionOuncesConsumed(myIngredientBox);
+        //    var myIngredients = dbCOC.queryConsumptionOuncesConsumed();
+        //    var doubleAverage = dbC.doubleAverageOuncesConsumed(cakeFlour);
+        //    Assert.AreEqual(10m, myIngredientBox[0].ouncesConsumed);
+        //    Assert.AreEqual(20m, myIngredientBox[1].ouncesConsumed);
+        //    Assert.AreEqual(30m, myIngredientBox[2].ouncesConsumed);
+        //    Assert.AreEqual(40m, myIngredientBox[3].ouncesConsumed);
+        //    Assert.AreEqual(50m, myIngredientBox[4].ouncesConsumed);
+        //    Assert.AreEqual(60m, doubleAverage);
+        //}
         [Test]
         public void TestgetDoubleAverageOuncesConsumedForIngredient4() {
             var t = new DatabaseAccess();
@@ -674,6 +674,39 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(13.9m, heavyWhippingCreamConsumptionTableRow.ouncesRemaining);
             Assert.AreEqual(0, heavyWhippingCreamConsumptionTableRow.restock);
         }
+        public void TestQueryConsumptionTableOrderBy() {
+            var t = new DatabaseAccess();
+            var dbC = new DatabaseAccessConsumption();
+            var cake = new Recipe("Cake") { id = 1, yield = 12 };
+            var cakeFlour = new Ingredient("Softasilk Cake Flour") { ingredientId = 1, recipeId = 1, measurement = "1 1/2 cups", sellingWeight = "32 oz", typeOfIngredient = "cake flour", classification = "flour" };
+            t.initializeDatabase();
+            t.insertIngredientIntoAllTables(cakeFlour, cake);
+            var myConsumptionTable = dbC.queryConsumptionTable();
+            Assert.AreEqual("Softasilk Cake Flour", myConsumptionTable[0].name);
+            Assert.AreEqual("1 1/2 cups", myConsumptionTable[0].measurement);
+            Assert.AreEqual(6.75m, myConsumptionTable[0].ouncesConsumed);
+            Assert.AreEqual(25.25m, myConsumptionTable[0].ouncesRemaining); 
+        }
+        [Test]
+        public void TestSortedQueryConsumptionTable() {
+            var t = new DatabaseAccess();
+            var dbC = new DatabaseAccessConsumption();
+            var cake = new Recipe("Cake") { id = 1, yield = 12 };
+            var bread = new Recipe("Bread") { id = 2, yield = 24 };
+            var cake2 = new Recipe("Another Cake") { id = 3, yield = 14 }; 
+            var cakeFLour = new Ingredient("Softasilk Cake Flour") { ingredientId = 1, recipeId = 1, measurement = "2 1/2 cups", sellingWeight = "32 oz", typeOfIngredient = "cake flour", classification = "flour" };
+            var breadFlour = new Ingredient("Bread Flour") { ingredientId = 2, recipeId = 2, measurement = "6 cups", sellingWeight = "5 lb", typeOfIngredient = "bread flour", classification = "flour" };
+            var bakingPowder = new Ingredient("Baking Powder") { ingredientId = 3, recipeId = 3, measurement = "1 1/2 teaspoons", sellingWeight = "10 oz", typeOfIngredient = "baking powder", classification = "rising agent" };
+            t.initializeDatabase();
+            t.insertIngredientIntoAllTables(cakeFLour,cake);
+            t.insertIngredientIntoAllTables(breadFlour, bread);
+            //this isn't working for hte moment... when I query the consumption table, i'm only getting 2 ingredients
+            t.insertIngredientIntoAllTables(bakingPowder, cake2);
+            var myConsumptionTable = dbC.queryConsumptionTableSorted();
+            Assert.AreEqual("Baking Powder", myConsumptionTable[0].name);
+            Assert.AreEqual("Bread Flour", myConsumptionTable[1].name);
+            Assert.AreEqual("Softasilk Cake Flour", myConsumptionTable[2].name); 
 
+        }
     }
 }

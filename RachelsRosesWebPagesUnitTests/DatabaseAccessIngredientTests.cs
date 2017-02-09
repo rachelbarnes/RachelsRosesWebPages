@@ -427,6 +427,9 @@ namespace RachelsRosesWebPagesUnitTests {
             expected.Sort();
             Assert.AreEqual(expected, actual);
         }
+        //**************************
+        //**************************
+        //**************************
         [Test]
         public void TestSortingListOfIngredients3() {
             var t = new DatabaseAccess();
@@ -450,7 +453,12 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual("Semi Sweet Chocolate Morsels", uniqueIngredientNames[3]);
             Assert.AreEqual("Unsweetened Cocoa", uniqueIngredientNames[4]);
             Assert.AreEqual("Whole Milk", uniqueIngredientNames[5]);
+            //what is happening w my sql query? 
         }
+        //**************************
+        //**************************
+        //**************************
+        //**************************
         [Test]
         public void TestSimilarNamesInDatabase() {
             var t = new DatabaseAccess();

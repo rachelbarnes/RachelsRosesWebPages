@@ -34,11 +34,15 @@ namespace RachelsRosesWebPages.Models {
                 if (!myUniqueSellingWeights.Contains(ingredient.sellingWeight))
                     myUniqueSellingWeights.Add(ingredient.sellingWeight);
             }
-            myUniqueSellingWeights.Sort(); return myUniqueSellingWeights;
+            myUniqueSellingWeights.Sort();
+            return myUniqueSellingWeights;
         }
         public List<Ingredient> queryDensitiesTableAllRows() {
             var db = new DatabaseAccess();
-            var ingredientInformation = db.queryItems("select * from densities", reader => {
+            //var ingredientInformation = db.queryItems("select * from densities ", reader => {
+            var commandText = @"SELECT * FROM densities
+                                ORDER BY ingredient ASC;"; 
+            var ingredientInformation = db.queryItems(commandText, reader => { 
                 var ingredient = new Ingredient(reader["name"].ToString());
                 ingredient.ingredientId = (int)reader["ing_id"];
                 ingredient.density = (decimal)reader["density"];

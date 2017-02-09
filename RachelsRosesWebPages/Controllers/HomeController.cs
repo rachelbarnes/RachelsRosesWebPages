@@ -273,19 +273,32 @@ namespace RachelsRosesWebPages.Controllers {
             return View();
         }
         public ActionResult ConsumptionTable() {
+            var dbC = new DatabaseAccessConsumption();
+            ViewBag.consumptiontable = dbC.queryConsumptionTable(); 
             return View();
+        }
+        public ActionResult IngredientUsage() {
+            return View(); 
         }
         public ActionResult CostTable() {
             return View();
         }
         public ActionResult DensityInformationTable() {
+            var dbD = new DatabaseAccessDensityInformation();
+            ViewBag.densitytable = dbD.queryDensityInfoTable(); 
             return View();
+        }
+        public ActionResult DeleteIngredientFromDensityTable(Ingredient ingredient) {
+            var dbD = new DatabaseAccessDensities();
+            dbD.DeleteIngredientFromDensitiesTable(ingredient);
+            return Redirect("/home/densityInformationTable"); 
         }
         public ActionResult ReadMeInformation() {
             //there's some quirks, like needing to put in the type of ingredient and the classification that will be really helpful to someone new coming in, 
             //this needs to happen 
             return View();
         }
+
     }
 }
 

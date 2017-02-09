@@ -73,18 +73,6 @@ namespace RachelsRosesWebPages.Models {
             //all this is doing is determining if the density table already has an ingredient with said name, if so, then it won't add it, if the table doesn't have that name, it will insert it with the density
             var myDensityInfoDatabase = queryDensityInfoTable();
         }
-        //public List<Ingredient> assignIngredientDensityDictionaryValuesToListIngredients(Dictionary<string, decimal> myDensityIngredientDictionary) {
-        //    var myIngredients = new List<Ingredient>();
-        //    foreach (var pair in myDensityIngredientDictionary) {
-        //        var currentIngredient = new Ingredient(pair.Key) {
-        //            density = pair.Value
-        //        };
-        //        myIngredients.Add(currentIngredient);
-        //    }
-        //    return myIngredients;
-        //}
-        //this is going to need to allow for user error and grace in the name... need to have a similaries check, or make sure the name.tolower contains the ingredient's name, as opposed to == it
-        //i may have fixed this with the type of ingredient.... but i'll have to do more tests around that to see if it's intuitive
         public void insertDensityTextFileIntoDensityInfoDatabase() {
             var read = new Reader(); //the filename below for the moment is hardcoded... 
             var db = new DatabaseAccess();
