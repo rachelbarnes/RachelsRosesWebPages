@@ -49,21 +49,18 @@ namespace RachelsRosesWebPages.Models {
         }
         public void UpdateRecipe(Recipe r) {
             var db = new DatabaseAccess();
-            var myRecipes = queryRecipes();
-            foreach (var recipe in myRecipes) {
-                if (recipe.id == r.id) {
-                    if (recipe.yield != r.yield) {
-                        recipe.yield = r.yield;
-                    }
-                }
+            var myRecipe = queryRecipeFromRecipesTableByName(r);
+            if (myRecipe.yield != r.yield) {
+                myRecipe.yield = r.yield;
             }
+            var updatedRecipe = GetFullRecipeAndFullIngredientsForRecipe(r);
             var commandText = "update recipes set recipe_name=@recipe_name, yield=@yield, aggregated_price=@aggregated_price where recipe_id=@rid;";
             db.executeVoidQuery(commandText, cmd => {
                 cmd.Parameters.AddWithValue("@recipe_name", r.name);
                 cmd.Parameters.AddWithValue("@rid", r.id);
                 cmd.Parameters.AddWithValue("@yield", r.yield);
-                cmd.Parameters.AddWithValue("@aggregated_price", r.aggregatedPrice);
-                cmd.Parameters.AddWithValue("@price_per_serving", r.pricePerServing);
+                cmd.Parameters.AddWithValue("@aggregated_price", updatedRecipe.aggregatedPrice);
+                cmd.Parameters.AddWithValue("@price_per_serving", updatedRecipe.pricePerServing);
                 return cmd;
             });
         }
@@ -96,7 +93,7 @@ namespace RachelsRosesWebPages.Models {
                                                 ON ingredients.recipe_id=recipes.recipe_id
                                                 WHERE recipes.recipe_id={0};", r.id);
             myListOfIngredients = db.queryItems(commandText, reader => {
-                var myIngredient = new Ingredient((string)(reader["name"])); 
+                var myIngredient = new Ingredient((string)(reader["name"]));
                 myIngredient.ingredientId = (int)reader["ing_id"];
                 myIngredient.measurement = (string)reader["measurement"];
                 myIngredient.classification = (string)reader["ingredient_classification"];
@@ -109,7 +106,7 @@ namespace RachelsRosesWebPages.Models {
                 myIngredient.itemResponseName = (string)reader["item_response_name"];
                 var expirationDate = dbI.convertStringMMDDYYYYToDateYYYYMMDD((string)reader["expiration_date"]);
                 myIngredient.expirationDate = expirationDate;
-                return myIngredient; 
+                return myIngredient;
             });
             db.queryItems(commandText, reader => {
                 myRecipe.id = (int)reader["recipe_id"];
@@ -125,15 +122,15 @@ namespace RachelsRosesWebPages.Models {
                     myRecipe.aggregatedPrice += ingredient.priceOfMeasuredConsumption;
             }
             myRecipe.pricePerServing = ReturnRecipePricePerServing(myRecipe);
-            UpdateRecipe(myRecipe);
-            var myUpdatedRecipe = queryRecipeFromRecipesTableByName(myRecipe); 
+            //UpdateRecipe(myRecipe);
+            var myUpdatedRecipe = queryRecipeFromRecipesTableByName(myRecipe);
             return myRecipe;
         }
         public List<Recipe> MyRecipeBox() {
             var myRecipes = queryRecipes();
             var myRecipeBox = new List<Recipe>();
             foreach (var recipe in myRecipes) {
-                recipe.ingredients =GetRecipeIngredients(recipe);
+                recipe.ingredients = GetRecipeIngredients(recipe);
                 recipe.aggregatedPrice = ReturnFullRecipePrice(recipe);
                 recipe.pricePerServing = ReturnRecipePricePerServing(recipe);
                 myRecipeBox.Add(recipe);
@@ -159,7 +156,12 @@ namespace RachelsRosesWebPages.Models {
             r.aggregatedPrice = aggregatedPrice;
             UpdateRecipe(r);
         }
-        public Func<Recipe, decimal> ReturnRecipePricePerServing = r => Math.Round((r.aggregatedPrice /r.yield), 2);
+        //public Func<Recipe, decimal> ReturnRecipePricePerServing = r => Math.Round((r.aggregatedPrice /r.yield), 2);
+        public decimal ReturnRecipePricePerServing(Recipe r) {
+            if (r.yield == 0)
+                return 0m;
+            else return (Math.Round((r.aggregatedPrice / r.yield), 2));
+        }
         public decimal ReturnFullRecipePrice(Recipe r) {
             var myIngredients = GetFullRecipeAndFullIngredientsForRecipe(r).ingredients;
             var aggregatedPrice = 0m;
@@ -187,7 +189,7 @@ namespace RachelsRosesWebPages.Models {
             });
         }
         //i need to rewrite the query to call a different () to get all the information for all the ingredients... i'm not getting an ing.id, densities...
-            //only the name and the measurement
+        //only the name and the measurement
 
         public void UpdateRecipeYield(Recipe r) {
             var db = new DatabaseAccess();

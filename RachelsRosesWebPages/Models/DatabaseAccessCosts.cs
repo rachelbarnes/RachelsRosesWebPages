@@ -42,9 +42,9 @@ namespace RachelsRosesWebPages.Models {
         }
         public void insertIngredientCostDataCostTable(Ingredient i) {
             var db = new DatabaseAccess();
-            var dbD = new DatabaseAccessDensities(); 
+            var dbD = new DatabaseAccessDensities();
             var convert = new ConvertWeight();
-            var myIngredientDensityInformation = dbD.queryIngredientFromDensityTableByName(i); 
+            var myIngredientDensityInformation = dbD.queryIngredientFromDensityTableByName(i);
             if (i.classification.ToLower().Contains("egg")) {
                 i.sellingWeightInOunces = convert.NumberOfEggsFromSellingQuantity(i.sellingWeight);
                 i.pricePerOunce = i.sellingPrice / i.sellingWeightInOunces;
@@ -92,7 +92,7 @@ namespace RachelsRosesWebPages.Models {
             return pricePerOunce;
         }
         public void DeleteIngredientFromCostTable(Ingredient i) {
-            var db = new DatabaseAccess(); 
+            var db = new DatabaseAccess();
             var deleteCommand = "delete from costs where ing_id=@ing_id"; //if needed, : AND name=@name;
             db.executeVoidQuery(deleteCommand, cmd => {
                 cmd.Parameters.AddWithValue("@ing_id", i.ingredientId);
@@ -101,7 +101,7 @@ namespace RachelsRosesWebPages.Models {
         }
         public Ingredient queryCostsTableByName(Ingredient i) {
             var db = new DatabaseAccess();
-            var myIngredient = new Ingredient(); 
+            var myIngredient = new Ingredient();
             var commandTextQueryCostTableIngredient = string.Format(@"SELECT * FROM costs WHERE name='{0}';", i.name);
             db.queryItems(commandTextQueryCostTableIngredient, reader => {
                 myIngredient.name = (string)reader["name"];
@@ -110,10 +110,72 @@ namespace RachelsRosesWebPages.Models {
                 //myIngredient.sellingWeightInOunces = (decimal)reader["selling_weight_ounces"];
                 myIngredient.pricePerOunce = (decimal)reader["price_per_ounce"];
                 myIngredient.itemId = (int)reader["item_id"];
-                myIngredient.sellingPrice = (decimal)reader["selling_price"]; 
+                myIngredient.sellingPrice = (decimal)reader["selling_price"];
                 return myIngredient;
             });
-            return myIngredient; 
-        } 
+            return myIngredient;
+        }
+        public List<Ingredient> queryCostTableSortedBySellilngPriceASC() {
+            var db = new DatabaseAccess();
+            var commandText = @"SELECT * FROM costs
+                                ORDER BY selling_price ASC;";
+            var mySortedListOfIngredients = db.queryItems(commandText, reader => {
+                var ingredient = new Ingredient((string)reader["name"]);
+                ingredient.ingredientId = (int)reader["ing_id"];
+                ingredient.sellingWeight = (string)reader["selling_weight"];
+                ingredient.pricePerOunce = (decimal)reader["price_per_ounce"];
+                ingredient.itemId = (int)reader["item_id"];
+                ingredient.sellingPrice = (decimal)reader["selling_price"];
+                return ingredient;
+            });
+            return mySortedListOfIngredients;
+        }
+        public List<Ingredient> queryCostTableSortedByPricePerOunceASC() {
+
+            var db = new DatabaseAccess();
+            var commandText = @"SELECT * FROM costs
+                                ORDER BY price_per_ounce ASC;";
+            var mySortedListOfIngredients = db.queryItems(commandText, reader => {
+                var ingredient = new Ingredient((string)reader["name"]);
+                ingredient.ingredientId = (int)reader["ing_id"];
+                ingredient.sellingWeight = (string)reader["selling_weight"];
+                ingredient.pricePerOunce = (decimal)reader["price_per_ounce"];
+                ingredient.itemId = (int)reader["item_id"];
+                ingredient.sellingPrice = (decimal)reader["selling_price"];
+                return ingredient;
+            });
+            return mySortedListOfIngredients;
+        }
+        public List<Ingredient> queryCostTableSortedBySellilngPriceDECS() {
+            var db = new DatabaseAccess();
+            var commandText = @"SELECT * FROM costs
+                                ORDER BY selling_price DESC;";
+            var mySortedListOfIngredients = db.queryItems(commandText, reader => {
+                var ingredient = new Ingredient((string)reader["name"]);
+                ingredient.ingredientId = (int)reader["ing_id"];
+                ingredient.sellingWeight = (string)reader["selling_weight"];
+                ingredient.pricePerOunce = (decimal)reader["price_per_ounce"];
+                ingredient.itemId = (int)reader["item_id"];
+                ingredient.sellingPrice = (decimal)reader["selling_price"];
+                return ingredient;
+            });
+            return mySortedListOfIngredients;
+        }
+        public List<Ingredient> queryCostTableSortedByPricePerOunceDESC() {
+
+            var db = new DatabaseAccess();
+            var commandText = @"SELECT * FROM costs
+                                ORDER BY price_per_ounce DESC;";
+            var mySortedListOfIngredients = db.queryItems(commandText, reader => {
+                var ingredient = new Ingredient((string)reader["name"]);
+                ingredient.ingredientId = (int)reader["ing_id"];
+                ingredient.sellingWeight = (string)reader["selling_weight"];
+                ingredient.pricePerOunce = (decimal)reader["price_per_ounce"];
+                ingredient.itemId = (int)reader["item_id"];
+                ingredient.sellingPrice = (decimal)reader["selling_price"];
+                return ingredient;
+            });
+            return mySortedListOfIngredients;
+        }
     }
 }

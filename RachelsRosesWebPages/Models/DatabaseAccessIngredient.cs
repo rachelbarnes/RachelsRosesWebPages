@@ -281,7 +281,7 @@ namespace RachelsRosesWebPages.Models {
         public List<Ingredient> orderIngredientsByPricePerOunce() {
             var db = new DatabaseAccess();
             var orderedIngredients = new List<Ingredient>();
-            var commandTextOrderIngredientsPricePerOunce = @"SELECT DISTINCT ingredients.name, price_per_ounce
+            var commandTextOrderIngredientsPricePerOunce = @"SELECT DISTINCT ingredients.name, price_per_ounce, ingredients.recipe_id
                                                 FROM ingredients
                                                 JOIN costs
                                                 ON ingredients.name=costs.name

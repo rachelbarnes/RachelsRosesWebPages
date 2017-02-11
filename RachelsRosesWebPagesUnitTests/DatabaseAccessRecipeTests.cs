@@ -595,113 +595,23 @@ namespace RachelsRosesWebPagesUnitTests {
             var t = new DatabaseAccess();
             var dbR = new DatabaseAccessRecipe();
             var dbI = new DatabaseAccessIngredient();
-            var cinnamonSwirlBread = new Recipe("Cinnamon Swirl Bread") {
-                id = 1
-            };
-            var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") {
-                id = 2
-            };
-            var wholeWheatBread = new Recipe("Whole Wheat Bread") {
-                id = 3
-            };
-            var breadFlour = new Ingredient("King Arthur Bread Flour") {
-                recipeId = 1,
-                measurement = "6 cups",
-                ingredientId = 1,
-                density = 5.4m,
-                sellingWeight = "5 lb"
-            };
-            var granSugar = new Ingredient("Domino Granulated Sugar") {
-                recipeId = 1,
-                measurement = "1/3 cup",
-                ingredientId = 2,
-                density = 7.1m,
-                sellingWeight = "4 lb"
-            };
-            var cinnamon = new Ingredient("Ground Cinnamon") {
-                recipeId = 1,
-                measurement = "3 tablespoons",
-                ingredientId = 3,
-                density = 4.4m,
-                sellingWeight = "8.75 oz"
-            };
-            var breadFlour2 = new Ingredient("King Arthur Bread Flour") {
-                recipeId = 2,
-                measurement = "6 cups",
-                ingredientId = 4,
-                density = 5.4m,
-                sellingWeight = "5 lb"
-            };
-            var ginger = new Ingredient("Ground Ginger") {
-                recipeId = 2,
-                measurement = "1 pinch",
-                ingredientId = 5,
-                density = 4.4m,
-                sellingWeight = "8 oz"
-            };
-            var granSugar2 = new Ingredient("Granulated Sugar") {
-                recipeId = 2,
-                measurement = "1 teaspoon",
-                ingredientId = 6,
-                density = 7.1m,
-                sellingWeight = "4 lb"
-            };
-            var bakingSoda = new Ingredient("Baking Soda") {
-                recipeId = 2,
-                measurement = "3/4 teaspoon",
-                ingredientId = 7,
-                density = 8.57m,
-                sellingWeight = "4 lb"
-            };
-            var activeDryYeast = new Ingredient("Active Dry Yeast") {
-                recipeId = 2,
-                measurement = "2 1/4 teaspoons",
-                ingredientId = 8,
-                density = 5.49m,
-                sellingWeight = "4 oz"
-            };
-            var honey = new Ingredient("Honey") {
-                recipeId = 2,
-                measurement = "1/3 cup",
-                ingredientId = 9,
-                density = 12m,
-                sellingWeight = "32 oz"
-            };
-            var wholeWheatFlour = new Ingredient("Whole Wheat Flour") {
-                recipeId = 3,
-                measurement = "4 1/2 cups",
-                ingredientId = 10,
-                density = 5m,
-                sellingWeight = "5 lb"
-            };
-            var honey2 = new Ingredient("Honey") {
-                recipeId = 3,
-                measurement = "1/3 cup",
-                ingredientId = 11,
-                density = 12m,
-                sellingWeight = "32 oz"
-            };
-            var granSugar3 = new Ingredient("Granulated Sugar") {
-                recipeId = 3,
-                measurement = "1 tablespoon",
-                ingredientId = 12,
-                density = 7.1m,
-                sellingWeight = "4 lb"
-            };
-            var salt = new Ingredient("Morton Salt") {
-                recipeId = 3,
-                measurement = "1 tablespoon",
-                ingredientId = 13,
-                density = 10.72m,
-                sellingWeight = "48 oz"
-            };
-            var allPurposeFlour = new Ingredient("All Purpose Flour") {
-                recipeId = 3,
-                measurement = "2 3/4 cups",
-                ingredientId = 14,
-                density = 5m,
-                sellingWeight = "5 lb"
-            };
+            var cinnamonSwirlBread = new Recipe("Cinnamon Swirl Bread") { id = 1 , yield = 24};
+            var honeyButtermilkBread = new Recipe("Honey Buttermilk Bread") { id = 2, yield= 24 };
+            var wholeWheatBread = new Recipe("Whole Wheat Bread") { id = 3,yield = 24 };
+            var breadFlour = new Ingredient("King Arthur Bread Flour") { recipeId = 1, measurement = "6 cups", ingredientId = 1, density = 5.4m, sellingWeight = "5 lb", typeOfIngredient = "bread flour", classification=  "flour" };
+            var granSugar = new Ingredient("Domino Granulated Sugar") { recipeId = 1, measurement = "1/3 cup", ingredientId = 2, density = 7.1m, sellingWeight = "4 lb", typeOfIngredient = "white sugar", classification = "sugar" };
+            var cinnamon = new Ingredient("Ground Cinnamon") { recipeId = 1, measurement = "3 tablespoons", ingredientId = 3, density = 4.4m, sellingWeight = "8.75 oz", typeOfIngredient = "cinnamon", classification = "spice" };
+            var breadFlour2 = new Ingredient("King Arthur Bread Flour") { recipeId = 2, measurement = "6 cups", ingredientId = 4, density = 5.4m, sellingWeight = "5 lb", typeOfIngredient = "bread flour", classification=  "flour" };
+            var ginger = new Ingredient("Ground Ginger") { recipeId = 2, measurement = "1 pinch", ingredientId = 5, density = 4.4m, sellingWeight = "8 oz", typeOfIngredient = "ground ginger", classification=  "spice" };
+            var granSugar2 = new Ingredient("Granulated Sugar") { recipeId = 2, measurement = "1 teaspoon", ingredientId = 6, density = 7.1m, sellingWeight = "4 lb", typeOfIngredient = "white sugar", classification = "sugar" };
+            var bakingSoda = new Ingredient("Baking Soda") { recipeId = 2, measurement = "3/4 teaspoon", ingredientId = 7, density = 8.57m, sellingWeight = "4 lb", typeOfIngredient = "baking soda", classification = "rising agent" };
+            var activeDryYeast = new Ingredient("Active Dry Yeast") { recipeId = 2, measurement = "2 1/4 teaspoons", ingredientId = 8, density = 5.49m, sellingWeight = "4 oz", typeOfIngredient = "active dry yeast", classification = "rising agent" };
+            var honey = new Ingredient("Honey") { recipeId = 2, measurement = "1/3 cup", ingredientId = 9, density = 12m, sellingWeight = "32 oz", typeOfIngredient = "honey", classification = "honey" };
+            var wholeWheatFlour = new Ingredient("Whole Wheat Flour") { recipeId = 3, measurement = "4 1/2 cups", ingredientId = 10, density = 5m, sellingWeight = "5 lb", typeOfIngredient = "whole wheat flour", classification = "flour" };
+            var honey2 = new Ingredient("Honey") { recipeId = 3, measurement = "1/3 cup", ingredientId = 11, density = 12m, sellingWeight = "32 oz", typeOfIngredient = "honey", classification = "honey" };
+            var granSugar3 = new Ingredient("Granulated Sugar") { recipeId = 3, measurement = "1 tablespoon", ingredientId = 12, density = 7.1m, sellingWeight = "4 lb", typeOfIngredient = "white sugar", classification = "sugar" };
+            var salt = new Ingredient("Morton Salt") { recipeId = 3, measurement = "1 tablespoon", ingredientId = 13, density = 10.72m, sellingWeight = "48 oz", typeOfIngredient = "salt", classification = "salt" };
+            var allPurposeFlour = new Ingredient("All Purpose Flour") { recipeId = 3, measurement = "2 3/4 cups", ingredientId = 14, density = 5m, sellingWeight = "5 lb", typeOfIngredient = "all purpose flour", classification=  "flour" };
             var cinnamonBreadIngredients = new List<Ingredient> { breadFlour, granSugar, cinnamon };
             var buttermilkBreadIngredients = new List<Ingredient> { breadFlour2, ginger, granSugar2, bakingSoda, activeDryYeast, honey };
             var wholeWheatBreadIngredients = new List<Ingredient> { wholeWheatFlour, honey2, granSugar3, salt, allPurposeFlour };
@@ -714,6 +624,9 @@ namespace RachelsRosesWebPagesUnitTests {
             var myIngredients = dbI.queryAllIngredientsFromIngredientTable();
             Assert.AreEqual(3, myRecipeBox.Count());
             Assert.AreEqual(14, myIngredients.Count());
+            Assert.AreEqual(24, myRecipeBox[0].yield); 
+            Assert.AreEqual(24, myRecipeBox[1].yield); 
+            Assert.AreEqual(24, myRecipeBox[2].yield); 
             Assert.AreEqual(1.70m, myIngredients[0].priceOfMeasuredConsumption);
             Assert.AreEqual(.13m, myIngredients[1].priceOfMeasuredConsumption);
             Assert.AreEqual(.52m, myIngredients[2].priceOfMeasuredConsumption);

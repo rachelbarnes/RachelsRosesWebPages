@@ -35,40 +35,41 @@ namespace RachelsRosesWebPages.Models {
             });
             return ingredientConsumptionInformation;
         }
-        //public void insertIngredientIntoConsumptionOuncesConsumed(Ingredient i) {
-        //    var db = new DatabaseAccess();
-        //    var dbi = new DatabaseAccessIngredient();
-        //    var myConsumptionOuncesConsumedIngredient = new Ingredient();
-        //    var dbc = new DatabaseAccessConsumption();
-        //    var ingredientTableRow = dbi.queryIngredientFromIngredientsTableByName(i);
-        //    var consumptiontablerow = dbc.queryConsumptionTableRowByName(i);
-        //    if (i.classification.ToLower().Contains("egg"))
-        //        i.classification = char.ToUpper(i.classification[0]) + i.classification.Substring(1, i.classification.Length - 1);
-        //    var commandTextQueryMultipleRows = string.Format(@"SELECT ingredients.name, ingredients.measurement, consumption.ounces_consumed, consumption.ounces_remaining
-        //                                        FROM ingredients
-        //                                        JOIN consumption
-        //                                        ON (ingredients.name=consumption.name AND ingredients.measurement=consumption.measurement) OR (ingredients.ingredient_classification=consumption.name AND ingredients.measurement=consumption.measurement)
-        //                                        WHERE ingredients.name='{0}' AND ingredients.measurement='{1}' AND ingredients.ingredient_classification='{2}';", i.name, i.measurement, i.classification);
-        //    var myListOfQueriedIngredients = db.queryItems(commandTextQueryMultipleRows, reader => {
-        //        myConsumptionOuncesConsumedIngredient.name = (string)reader["name"];
-        //        myConsumptionOuncesConsumedIngredient.measurement = (string)reader["measurement"];
-        //        myConsumptionOuncesConsumedIngredient.ouncesConsumed = (decimal)reader["ounces_consumed"];
-        //        myConsumptionOuncesConsumedIngredient.ouncesRemaining = (decimal)reader["ounces_remaining"];
-        //        return myConsumptionOuncesConsumedIngredient;
-        //    });
-        //    var commandTextVarsFilled = string.Format(@"INSERT INTO consumption_ounces_consumed 
-        //                                                (name, ounces_consumed, ounces_remaining, measurement) 
-        //                                                VALUES ('{0}', {1}, {2}, '{3}');", myListOfQueriedIngredients[0].name, myListOfQueriedIngredients[0].ouncesConsumed, myListOfQueriedIngredients[0].ouncesRemaining, myListOfQueriedIngredients[0].measurement);
-        //    db.executeVoidQuery(commandTextVarsFilled, cmd => { return cmd; });
-        //    //as a note to self, i was using the querySingleItem from DatabaseAccess, and that's the difference between my working query and my query that reutrned null...
-        //            //something is off w that method. 
-        //    //check: 
-        //    //var myConsumptionOuncesConsumedTable = queryConsumptionOuncesConsumed();
-        //}
-        //public void insertListOfIngredientsIntoConsumptionOuncesConsumed(List<Ingredient> myIngredients) {
-        //    foreach (var ingredient in myIngredients)
-        //        insertIngredientIntoConsumptionOuncesConsumed(ingredient);
-        //}
+        public void insertIngredientIntoConsumptionOuncesConsumed(Ingredient i) {
+            var db = new DatabaseAccess();
+            var dbi = new DatabaseAccessIngredient();
+            var myConsumptionOuncesConsumedIngredient = new Ingredient();
+            var dbc = new DatabaseAccessConsumption();
+            var ingredientTableRow = dbi.queryIngredientFromIngredientsTableByName(i);
+            var consumptiontablerow = dbc.queryConsumptionTableRowByName(i);
+            if (i.classification.ToLower().Contains("egg"))
+                i.classification = char.ToUpper(i.classification[0]) + i.classification.Substring(1, i.classification.Length - 1);
+            var commandTextQueryMultipleRows = string.Format(@"SELECT ingredients.name, ingredients.measurement, consumption.ounces_consumed, consumption.ounces_remaining
+                                                FROM ingredients
+                                                JOIN consumption
+                                                ON (ingredients.name=consumption.name AND ingredients.measurement=consumption.measurement) 
+                                                    OR (ingredients.ingredient_classification=consumption.name AND ingredients.measurement=consumption.measurement) 
+                                                WHERE ingredients.name='{0}' AND ingredients.measurement='{1}' AND ingredients.ingredient_classification='{2}';", i.name, i.measurement, i.classification);
+            var myListOfQueriedIngredients = db.queryItems(commandTextQueryMultipleRows, reader => {
+                myConsumptionOuncesConsumedIngredient.name = (string)reader["name"];
+                myConsumptionOuncesConsumedIngredient.measurement = (string)reader["measurement"];
+                myConsumptionOuncesConsumedIngredient.ouncesConsumed = (decimal)reader["ounces_consumed"];
+                myConsumptionOuncesConsumedIngredient.ouncesRemaining = (decimal)reader["ounces_remaining"];
+                return myConsumptionOuncesConsumedIngredient;
+            });
+            var commandTextVarsFilled = string.Format(@"INSERT INTO consumption_ounces_consumed 
+                                                        (name, ounces_consumed, ounces_remaining, measurement) 
+                                                        VALUES ('{0}', {1}, {2}, '{3}');", myListOfQueriedIngredients[0].name, myListOfQueriedIngredients[0].ouncesConsumed, myListOfQueriedIngredients[0].ouncesRemaining, myListOfQueriedIngredients[0].measurement);
+            db.executeVoidQuery(commandTextVarsFilled, cmd => { return cmd; });
+            //as a note to self, i was using the querySingleItem from DatabaseAccess, and that's the difference between my working query and my query that reutrned null...
+            //something is off w that method. 
+            //check: 
+            var myConsumptionOuncesConsumedTable = queryConsumptionOuncesConsumed();
+        }
+        public void insertListOfIngredientsIntoConsumptionOuncesConsumed(List<Ingredient> myIngredients) {
+            foreach (var ingredient in myIngredients)
+                insertIngredientIntoConsumptionOuncesConsumed(ingredient);
+        }
         //will this be enough for records? Should I include the ingredientId? 
         public void updateIngredientInConsumptionouncesConsumed(Ingredient i) {
             var db = new DatabaseAccess();

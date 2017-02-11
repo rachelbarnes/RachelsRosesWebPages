@@ -281,6 +281,12 @@ namespace RachelsRosesWebPages.Controllers {
             return View(); 
         }
         public ActionResult CostTable() {
+            var dbC = new DatabaseAccessCosts();
+            ViewBag.costtablesellingpriceasc = dbC.queryCostTableSortedBySellilngPriceASC();
+            ViewBag.costtablesellingpricedesc = dbC.queryCostTableSortedBySellilngPriceDECS();
+            ViewBag.costtablepriceperounceasc = dbC.queryCostTableSortedByPricePerOunceASC();
+            ViewBag.costtablepriceperouncedesc = dbC.queryCostTableSortedByPricePerOunceDESC(); 
+            ViewBag.costtable = dbC.queryCostTable(); 
             return View();
         }
         public ActionResult DensityInformationTable() {

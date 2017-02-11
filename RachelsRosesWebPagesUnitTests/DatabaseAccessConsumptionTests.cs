@@ -706,7 +706,21 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual("Baking Powder", myConsumptionTable[0].name);
             Assert.AreEqual("Bread Flour", myConsumptionTable[1].name);
             Assert.AreEqual("Softasilk Cake Flour", myConsumptionTable[2].name); 
-
+        }
+        [Test]
+        public void TestSortedQueryConsumptionTable2() {
+            var db = new DatabaseAccess();
+            var dbC = new DatabaseAccessConsumption();
+            var cake = new Recipe("Cake");
+            var bread = new Recipe("Bread"); 
+            var cakeFlour = new Ingredient("Softasilk Cake Flour") { ingredientId = 1, recipeId = 2, measurement = "3 cups", sellingWeight = "32 oz", typeOfIngredient = "cake flour", classification = "flour" };
+            var breadFlour = new Ingredient("King Arthur Bread Flour") { ingredientId = 2, recipeId = 1, measurement = "6 cups 2 tablespoons", sellingWeight = "5 lb", typeOfIngredient = "bread flour", classification = "flour" }; 
+            db.initializeDatabase();
+            db.insertIngredientIntoAllTables(cakeFlour, cake);
+            db.insertIngredientIntoAllTables(breadFlour, bread); 
+            var myConsumptionTable = dbC.queryConsumptionTableSorted();
+            Assert.AreEqual("Bread Flour", myConsumptionTable[0].name); 
+            Assert.AreEqual("Softasilk Cake Flour", myConsumptionTable[1].name); 
         }
     }
 }

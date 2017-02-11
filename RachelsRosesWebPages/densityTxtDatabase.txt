@@ -1,4 +1,5 @@
 all purpose flour: 5
+king arthur all purpose flour: 4.25
 bread flour: 5.4
 cake flour: 4.5
 pastry flour: 4.25
@@ -9,8 +10,10 @@ white sugar: 7.1
 granulated sugar: 7.1
 brown sugar: 7.75
 powdered sugar sifted: 3.6 
-powdered sugar: 4.4
-milk powder: 4.4
+powdered sugar: 4
+confectioners sugar, sifted: 3.6
+confectioners sugar: 4
+milk powder: 3
 baking cocoa: 4.16
 cocoa powder: 4.16
 baking soda: 8.57
@@ -18,7 +21,6 @@ baking powder:8.4
 salt: 10.72
 ground cinnamon: 4.4 
 active dry yeast: 5.49 
-vegetable oil: 7.7
 milk: 8.2
 egg: 1.67
 butter: 8
@@ -39,10 +41,60 @@ walnuts, chopped: 4.3
 walnuts, halved: 3.5
 pecans, chopped: 3.84
 pecans, halved: 3.5
-bananas, mashed: 12
-zucchini, shredded: 8
+bananas, mashed: 6.5
+zucchini, shredded: 6
 cranberries, dried: 4.2
 egg white: 1
 egg yolk: .67
 heavy whipping cream: 8.40
 heavy whipping cream, whipped: 4.20
+self rising flour: 4
+self-rising flour: 4
+almond flour: 3.375
+almonds, sliced: 1.5
+almonds,slivered: 2
+almonds, whole: 5
+apples, dried, diced: 3
+apples, peeled, diced: 4
+berries, frozen: 5
+blueberries, dried: 5.5
+blueberries, fresh: 6
+bread crumbs, dried: 4
+cashews, chopped: 4
+cashews, whole: 4
+carrots, grated: 3.5
+cheese, grated: 4
+ricotta, whole milk: 8
+hazelnuts: 5
+graham crackers, crushed: 5
+graham crackers, crumbs: 3.5
+jam: 12
+preserves: 4
+maple syrup: 11
+marshmallow fluff: 4.5
+marshmallows, mini: 1.5
+mayonnaise: 8
+milk, evaporated: 4.5
+molasses: 12
+oat bran: 3.75
+vegetable oil: 7
+peaches, peeled and diced: 6
+peanut butter: 9.5
+pears, peeled and diced: 5.75
+pecans: 4
+pineapple, dried: 5
+pineapple, fresh: 6
+pineapple, canned: 6
+popppy seeds: 4.125
+pumpkin, canned: 9.5
+praline paste: 11
+raisins, loose: 5.25
+raisins, packed: 6
+raspberries, fresh: 4.25
+rhubarb, fresh, medium diced: 4.25
+rice krispies: 1
+sourdough starter: 8 
+toffee: 5.5
+vegetable shortening: 6.5
+walnuts, whole: 4.5
+chocolate, grated: 4.5

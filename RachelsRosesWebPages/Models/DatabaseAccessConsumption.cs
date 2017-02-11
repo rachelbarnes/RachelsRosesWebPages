@@ -78,7 +78,9 @@ namespace RachelsRosesWebPages.Models {
                 i.ouncesConsumed = convertWeight.EggsConsumedFromIngredientMeasurement(myIngredientIngredientTable.measurement);
             } else i.ouncesConsumed = dbConsumptionOuncesConsumed.CalculateOuncesConsumedFromMeasurement(i);
             foreach (var ingredient in myConsumptionTable) {
-                if (ingredient.name.ToLower() == i.name.ToLower() || (ingredient.name.ToLower().Contains(i.classification.ToLower()) && i.classification != " ")) {
+                if (ingredient.name.ToLower() == i.name.ToLower() && (ingredient.name.ToLower().Contains(i.classification.ToLower()) && i.classification != " ")
+                    || ingredient.name == temp.name) {
+                    //if the name is the same && the classification is the same || the ingredient.name is the temp.name, noting the eggs already being present
                     alreadyContainsIngredient = true;
                     break;
                 }
@@ -132,28 +134,30 @@ namespace RachelsRosesWebPages.Models {
                     myConsumptionTableIngredient.ouncesRemaining = myConsumptionTableIngredient.ouncesRemaining - myConsumptionTableIngredient.ouncesConsumed;
                 i.ouncesRemaining = myConsumptionTableIngredient.ouncesRemaining;
             }
-
             //if (string.IsNullOrEmpty(temp.name) && !(i.classification.ToLower().Contains("egg")))
             if (i.classification.ToLower().Contains("egg"))
-                i.name = "Egg";
+                temp.name = "Egg";
+            if (string.IsNullOrEmpty(temp.name))
+                temp.name = i.name; 
             //temp.name = i.name;
             //subtractOuncesRemainingIfExpirationDateIsPast(i);
             // this needs to be fixed, maybe for hte moment having a condition for ig it is eggs or dairy... flour and sugar, etc. should be totally fine
             var commandText = "update consumption set ounces_consumed=@ounces_consumed, ounces_remaining=@ounces_remaining, refill=@refill where name=@name;";
             db.executeVoidQuery(commandText, cmd => {
-                cmd.Parameters.AddWithValue("@name", i.name);
+                cmd.Parameters.AddWithValue("@name", temp.name);
                 cmd.Parameters.AddWithValue("@ounces_consumed", i.ouncesConsumed);
                 cmd.Parameters.AddWithValue("@ounces_remaining", i.ouncesRemaining);
                 cmd.Parameters.AddWithValue("@refill", i.restock);
                 return cmd;
             });
             doesIngredientNeedRestocking(i);
-            //make sure that hte name for Eggs and something like "egg whites, stiffy beaten" match through the classification for the ounces_consumed...
-            //dbConsumptionOuncesConsumed.insertIngredientIntoConsumptionOuncesConsumed(i);
+            //this is after the consumption insertion and update... so it should work fine... 
+            var myUpdatedIngredient = queryConsumptionTableRowByName(i);
+            dbConsumptionOuncesConsumed.insertIngredientIntoConsumptionOuncesConsumed(i);
             //still not getting the ouncesRemaining... need to change this
             var consumptionOuncesConsumed = dbConsumptionOuncesConsumed.queryConsumptionOuncesConsumed();
+            var myUpdatedIngredient2 = queryConsumptionTableRowByName(i);
             //why am i not inserting this into the database? 
-            var myUpdatedIngredient = queryConsumptionTableRowByName(i);
             var myUpdatedConsumptionOuncesConsumedTable = dbConsumptionOuncesConsumed.queryConsumptionOuncesConsumed();
         }
         public void subtractOuncesRemainingIfExpirationDateIsPast(Ingredient i) {
@@ -284,6 +288,7 @@ namespace RachelsRosesWebPages.Models {
                 consumptionTableRow.ouncesConsumed = (decimal)reader["ounces_consumed"];
                 consumptionTableRow.ouncesRemaining = (decimal)reader["ounces_remaining"];
                 consumptionTableRow.restock = (int)reader["refill"];
+                consumptionTableRow.measurement = (string)reader["measurement"]; 
                 return consumptionTableRow;
             });
             return consumptionTableRow;

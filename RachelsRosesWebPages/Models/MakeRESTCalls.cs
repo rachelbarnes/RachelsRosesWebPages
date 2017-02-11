@@ -51,24 +51,28 @@ namespace RachelsRosesWebPages {
             var convert = new ConvertWeight();
             var newItemResponse = new ItemResponse();
             var tempItemResponse = new ItemResponse();
-            if (string.IsNullOrEmpty(i.classification) || (i.classification == " ") || !(i.classification.ToLower().Contains("dairy")) || !(i.classification.ToLower().Contains("egg"))) {
-                if ((MakeRequest<SearchResponse>(buildSearchRequest(i)).Items.Count() == 0))
-                    return newItemResponse;//ok, selling weight is not being transfered
-                var items = MakeRequest<SearchResponse>(buildSearchRequest(i)).Items;
-                var sellingWeightOunces = convert.ConvertWeightToOunces(i.sellingWeight);
-                foreach (var item in items) {
-                    if (!item.name.Contains('(')) {
-                        if ((!item.name.ToLower().Contains("pack of")) || (!item.name.ToLower().Contains(("pk")))) {
-                            if ((parseItemResponseName(item).Count() != 0) && (CompareWeightInOuncesFromItemResponseToIngredientSellingWeight(item, i) && (CompareItemResponseNameAndIngredientName(item, i)))) {
-                                tempItemResponse = item;
-                                break;
+            try {
+                if (string.IsNullOrEmpty(i.classification) || (i.classification == " ") || !(i.classification.ToLower().Contains("dairy")) || !(i.classification.ToLower().Contains("egg"))) {
+                    if ((MakeRequest<SearchResponse>(buildSearchRequest(i)).Items.Count() == 0))
+                        return newItemResponse;//ok, selling weight is not being transfered
+                    var items = MakeRequest<SearchResponse>(buildSearchRequest(i)).Items;
+                    var sellingWeightOunces = convert.ConvertWeightToOunces(i.sellingWeight);
+                    foreach (var item in items) {
+                        if (!item.name.Contains('(')) {
+                            if ((!item.name.ToLower().Contains("pack of")) || (!item.name.ToLower().Contains(("pk")))) {
+                                if ((parseItemResponseName(item).Count() != 0) && (CompareWeightInOuncesFromItemResponseToIngredientSellingWeight(item, i) && (CompareItemResponseNameAndIngredientName(item, i)))) {
+                                    tempItemResponse = item;
+                                    break;
+                                }
                             }
                         }
                     }
+                } else {
+                    if ((i.classification.ToLower().Contains("dairy")) || i.classification.ToLower().Contains("eggs"))
+                        return newItemResponse;
                 }
-            } else {
-                if ((i.classification.ToLower().Contains("dairy")) || i.classification.ToLower().Contains("eggs"))
-                    return newItemResponse;
+            } catch {
+                return newItemResponse;
             }
             return tempItemResponse;
             //i would like to be able to return all brands that fit a certain selling weight, and give all of them as an option, and give the best price? 
@@ -249,7 +253,7 @@ namespace RachelsRosesWebPages {
             //separate the measurement from the name
             //then check for packs and do what needs to be done there
             int n;
-            var autoPopulatedIngredient = new Ingredient(); 
+            var autoPopulatedIngredient = new Ingredient();
             for (int i = 0; i < itemresponse.name.Length; i++) {
                 if (i > 0 && i < itemresponse.name.Length - 1) {
                     var prevChar = itemresponse.name[i - 1];
@@ -260,12 +264,12 @@ namespace RachelsRosesWebPages {
                         var weight = itemresponse.name.Substring(i + 1, (itemresponse.name.Length - (i + 1)));
                         autoPopulatedIngredient.name = name;
                         autoPopulatedIngredient.sellingWeight = weight;
-                        autoPopulatedIngredient.sellingPrice = itemresponse.salePrice; 
-                        break; 
+                        autoPopulatedIngredient.sellingPrice = itemresponse.salePrice;
+                        break;
                     }
                 }
             }
-            return autoPopulatedIngredient; 
+            return autoPopulatedIngredient;
         }
         //public decimal CalculateSellingWeightInOuncesFromItemResponseName(ItemResponse itemresponse) {
         //    var parsedItemResponseName = SplitItemResponseName(itemresponse);

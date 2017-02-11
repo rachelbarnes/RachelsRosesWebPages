@@ -28,7 +28,7 @@ namespace RachelsRosesWebPages.Models {
         }
         public List<Ingredient> queryDensityInfoTable() {
             var db = new DatabaseAccess();
-            var DensityInfo = db.queryItems("select * from densityInfo", reader => {
+            var DensityInfo = db.queryItems("select * from densityInfo order by ingredient desc", reader => {
                 var densityIngredientInformation = new Ingredient(reader["ingredient"].ToString());
                 densityIngredientInformation.density = (decimal)reader["density"];
                 return densityIngredientInformation;

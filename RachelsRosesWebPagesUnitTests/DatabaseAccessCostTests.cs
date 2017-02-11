@@ -144,16 +144,16 @@ namespace RachelsRosesWebPagesUnitTests {
             var dbD = new DatabaseAccessDensities();
             var dbCosts = new DatabaseAccessCosts();
             var cake = new Recipe("Cake") { id = 1, yield = 12 };
-            var softasilkCakeFlour = new Ingredient("Softasilk Cake Flour") { ingredientId = 1, recipeId = 1, sellingWeight = "32 oz", measurement = "1 1/2 cups", typeOfIngredient = "cake flour", classification = "flour" }; 
+            var softasilkCakeFlour = new Ingredient("Softasilk Cake Flour") { ingredientId = 1, recipeId = 1, sellingWeight = "32 oz", measurement = "1 1/2 cups", typeOfIngredient = "cake flour", classification = "flour" };
             db.initializeDatabase();
             dbDI.insertDensityTextFileIntoDensityInfoDatabase();
-            dbDI.queryDensityInfoTable(); 
+            dbDI.queryDensityInfoTable();
             dbI.insertIngredient(softasilkCakeFlour, cake);
-            var myIngredientInformation = dbI.queryIngredientFromIngredientsTableByName(softasilkCakeFlour); 
+            var myIngredientInformation = dbI.queryIngredientFromIngredientsTableByName(softasilkCakeFlour);
             dbD.insertIngredientDensityData(softasilkCakeFlour);
-            var myIngredientDensityInformation = dbD.queryIngredientFromDensityTableByName(softasilkCakeFlour); 
+            var myIngredientDensityInformation = dbD.queryIngredientFromDensityTableByName(softasilkCakeFlour);
             dbC.insertIngredientConsumtionData(softasilkCakeFlour);
-            var myIngredientConsumptionInformation = dbC.queryConsumptionTableRowByName(softasilkCakeFlour); 
+            var myIngredientConsumptionInformation = dbC.queryConsumptionTableRowByName(softasilkCakeFlour);
             //i'm getting 0 for ounces remaining still... i need to figure that one out
             dbCosts.insertIngredientCostDataCostTable(softasilkCakeFlour);
             var myCostIngredientInformation = dbCosts.queryCostsTableByName(softasilkCakeFlour);
@@ -161,6 +161,50 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual(2.98m, myCostIngredientInformation.sellingPrice);
             Assert.AreEqual(.0931m, myCostIngredientInformation.pricePerOunce);
             Assert.AreEqual("32 oz", myCostIngredientInformation.sellingWeight);
+        }
+        [Test]
+        public void TestSortedQueryCostTable() {
+            var db = new DatabaseAccess();
+            var dbC = new DatabaseAccessCosts();
+            var cake = new Recipe("Cake") { id = 1, yield = 24 };
+            var bakingPowder = new Ingredient("Baking Powder") { ingredientId = 1, recipeId = 1, measurement = "1 teaspoon", sellingWeight = "10 oz", typeOfIngredient = "baking powder", classification = "rising agent" };
+            var bakingSoda = new Ingredient("Baking Soda") { ingredientId = 2, recipeId = 1, measurement = "2 1/2 teaspoons", sellingWeight = "4 lb", typeOfIngredient = "baking soda", classification = "rising agent" };
+            var vanillaExtract = new Ingredient("Vanilla Extract") { ingredientId = 3, recipeId = 1, measurement = "2 teaspoons", sellingWeight = "2 oz", typeOfIngredient = "vanilla extract", classification = "flavoring" };
+            var softasilkCakeFlour = new Ingredient("Softasilk Cake Flour") { ingredientId = 4, recipeId = 1, measurement = "2 cups 2 tablespoons", sellingWeight = "32 oz", typeOfIngredient = "cake flour", classification = "flour" };
+            var eggs = new Ingredient("Egg whites, meringued") { ingredientId = 5, recipeId = 1, measurement = "3 eggs", sellingWeight = "3 dozen", sellingPrice = 3.69m, typeOfIngredient = "egg white", classification = "egg" };
+            var milk = new Ingredient("Whole Milk") { ingredientId = 6, recipeId = 1, measurement = "1 1/2 cups", sellingWeight = "1 gallon", sellingPrice = 4.09m, typeOfIngredient = "milk", classification = "dairy" };
+            var cakeIngredients = new List<Ingredient> { bakingPowder, bakingSoda, vanillaExtract, softasilkCakeFlour, eggs, milk };
+            db.initializeDatabase();
+            db.insertListOfIngredientsIntoAllTables(cakeIngredients, cake);
+            var myCostTableSorted = dbC.queryCostTableSortedBySellilngPriceASC();
+            Assert.AreEqual("Baking Powder", myCostTableSorted[0].name);
+            Assert.AreEqual("Baking Soda", myCostTableSorted[1].name);
+            Assert.AreEqual("Softasilk Cake Flour", myCostTableSorted[2].name);
+            Assert.AreEqual("Egg whites, meringued", myCostTableSorted[3].name);
+            Assert.AreEqual("Whole Milk", myCostTableSorted[4].name);
+            Assert.AreEqual("Vanilla Extract", myCostTableSorted[5].name);
+        }
+        [Test]
+        public void TestSortedQueryCostTablepricePerOunce() {
+            var db = new DatabaseAccess();
+            var dbC = new DatabaseAccessCosts();
+            var cake = new Recipe("Cake") { id = 1, yield = 24 };
+            var bakingPowder = new Ingredient("Baking Powder") { ingredientId = 1, recipeId = 1, measurement = "1 teaspoon", sellingWeight = "10 oz", typeOfIngredient = "baking powder", classification = "rising agent" };
+            var bakingSoda = new Ingredient("Baking Soda") { ingredientId = 2, recipeId = 1, measurement = "2 1/2 teaspoons", sellingWeight = "4 lb", typeOfIngredient = "baking soda", classification = "rising agent" };
+            var vanillaExtract = new Ingredient("Vanilla Extract") { ingredientId = 3, recipeId = 1, measurement = "2 teaspoons", sellingWeight = "2 oz", typeOfIngredient = "vanilla extract", classification = "flavoring" };
+            var softasilkCakeFlour = new Ingredient("Softasilk Cake Flour") { ingredientId = 4, recipeId = 1, measurement = "2 cups 2 tablespoons", sellingWeight = "32 oz", typeOfIngredient = "cake flour", classification = "flour" };
+            var eggs = new Ingredient("Egg whites, meringued") { ingredientId = 5, recipeId = 1, measurement = "3 eggs", sellingWeight = "3 dozen", sellingPrice = 3.69m, typeOfIngredient = "egg white", classification = "egg" };
+            var milk = new Ingredient("Whole Milk") { ingredientId = 6, recipeId = 1, measurement = "1 1/2 cups", sellingWeight = "1 gallon", sellingPrice = 4.09m, typeOfIngredient = "milk", classification = "dairy" };
+            var cakeIngredients = new List<Ingredient> { bakingPowder, bakingSoda, vanillaExtract, softasilkCakeFlour, eggs, milk };
+            db.initializeDatabase();
+            db.insertListOfIngredientsIntoAllTables(cakeIngredients, cake);
+            var myCostTableSorted = dbC.queryCostTableSortedByPricePerOunceASC();
+            Assert.AreEqual("Whole Milk", myCostTableSorted[0].name);
+            Assert.AreEqual("Baking Soda", myCostTableSorted[1].name);
+            Assert.AreEqual("Softasilk Cake Flour", myCostTableSorted[2].name);
+            Assert.AreEqual("Egg whites, meringued", myCostTableSorted[3].name);
+            Assert.AreEqual("Baking Powder", myCostTableSorted[4].name);
+            Assert.AreEqual("Vanilla Extract", myCostTableSorted[5].name);
         }
     }
 }

@@ -427,9 +427,6 @@ namespace RachelsRosesWebPagesUnitTests {
             expected.Sort();
             Assert.AreEqual(expected, actual);
         }
-        //**************************
-        //**************************
-        //**************************
         [Test]
         public void TestSortingListOfIngredients3() {
             var t = new DatabaseAccess();
@@ -441,7 +438,6 @@ namespace RachelsRosesWebPagesUnitTests {
             var eggs = new Ingredient("Eggs") { ingredientId = 4, recipeId = 1, measurement = "2 eggs", sellingWeight = "1 dozen", sellingPrice = 2.50m, typeOfIngredient = "egg", classification = "eggs", expirationDate = new DateTime(2017, 4, 4) };
             var salt = new Ingredient("Salt") { ingredientId = 5, recipeId = 1, measurement = "1 teapsoon", sellingWeight = "48 oz", typeOfIngredient = "salt", classification = "salt" };
             var bakingPowder = new Ingredient("Baking Powder") { ingredientId = 6, recipeId = 1, measurement = "2 teaspoons", sellingWeight = "10 oz", typeOfIngredient = "baking powder", classification = "rising agent" };
-            //var chocolateCakeIngredients = new List<Ingredient>() { eggs, salt, bakingPowder, chocolateChips, bakingCocoa, milk };
             var chocolateCakeIngredients = new List<Ingredient>() { chocolateChips, bakingCocoa, milk, eggs, salt, bakingPowder };
             t.initializeDatabase();
             t.insertListOfIngredientsIntoAllTables(chocolateCakeIngredients, chocolateCake);
@@ -453,12 +449,7 @@ namespace RachelsRosesWebPagesUnitTests {
             Assert.AreEqual("Semi Sweet Chocolate Morsels", uniqueIngredientNames[3]);
             Assert.AreEqual("Unsweetened Cocoa", uniqueIngredientNames[4]);
             Assert.AreEqual("Whole Milk", uniqueIngredientNames[5]);
-            //what is happening w my sql query? 
         }
-        //**************************
-        //**************************
-        //**************************
-        //**************************
         [Test]
         public void TestSimilarNamesInDatabase() {
             var t = new DatabaseAccess();

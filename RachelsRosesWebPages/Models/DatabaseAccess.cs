@@ -111,46 +111,29 @@ namespace RachelsRosesWebPages.Models {
             var dbDensitiesInformation = new DatabaseAccessDensityInformation();
             var dbCosts = new DatabaseAccessCosts();
             var myRecipes = dbRecipes.queryRecipes();
-            var myIngredientBox = dbIngredients.queryAllIngredientsFromIngredientTable();
+            //var myIngredientBox = dbIngredients.queryAllIngredientsFromIngredientTable();
             var myIngredients = queryAllRelevantTablesSQLByIngredientName(i);
-            var count = 0;
-            var countIngredients = 0;
-            foreach (var recipe in myRecipes) {
-                if (recipe.id == r.id)
-                    count++;
-            }
-            if (count == 0)
+            var myRecipe = dbRecipes.queryRecipeFromRecipesTableByName(r);
+
+            if (string.IsNullOrEmpty(myRecipe.name)) {
                 dbRecipes.InsertRecipe(r);
-            foreach (var ingredient in myIngredientBox) {
-                if (ingredient.ingredientId == i.ingredientId) {
-                    countIngredients++;
-                    break;
-                }
             }
-            if (countIngredients == 0) {
-                dbIngredients.insertIngredient(i, r);
-                var myIng = queryAllRelevantTablesSQLByIngredientName(i);
-                dbDensitiesInformation.insertIngredientIntoDensityInfoDatabase(i);
-                dbDensities.insertIngredientDensityData(i);
-                dbConsumption.insertIngredientConsumtionData(i);
-                var myIngUpdated = queryAllRelevantTablesSQLByIngredientName(i);
-                dbCosts.insertIngredientCostDataCostTable(i);
-                var myConsumptionIngredient = dbConsumption.queryConsumptionTableRowByName(i); 
-                //these sql queries are not working
-                dbIngredients.UpdateIngredient(i);
-                var myIngUpdated2 = queryAllRelevantTablesSQLByIngredientName(i);
-            } else {
-                dbIngredients.UpdateIngredient(i);
-                var updatedIngredient = queryAllRelevantTablesSQLByIngredientName(i);
-                dbDensitiesInformation.updateDensityInfoTable(i);
-                dbDensities.updateDensityTable(i);
-                dbCosts.updateCostDataTable(i);
-                dbIngredients.UpdateIngredient(i);
-            }
+            dbIngredients.insertIngredient(i, r);
+            var myIng = queryAllRelevantTablesSQLByIngredientName(i);
+            dbDensitiesInformation.insertIngredientIntoDensityInfoDatabase(i);
+            dbDensities.insertIngredientDensityData(i);
+            dbConsumption.insertIngredientConsumtionData(i);
+            var myIngUpdated = queryAllRelevantTablesSQLByIngredientName(i);
+            dbCosts.insertIngredientCostDataCostTable(i);
+            var myConsumptionIngredient = dbConsumption.queryConsumptionTableRowByName(i);
+            dbIngredients.UpdateIngredient(i);
+            var myUpdatedIngredient = queryAllRelevantTablesSQLByIngredientName(i); 
         }
         public void insertListOfIngredientsIntoAllTables(List<Ingredient> ListOfIngredients, Recipe r) {
+            var dbR = new DatabaseAccessRecipe(); 
             foreach (var ingredient in ListOfIngredients)
                 insertIngredientIntoAllTables(ingredient, r);
+            dbR.UpdateRecipe(r);
             var myIngredientsSecond = queryAllTablesForAllIngredients(ListOfIngredients);
         }
         public void updateAllTables(Ingredient i, Recipe r) {
